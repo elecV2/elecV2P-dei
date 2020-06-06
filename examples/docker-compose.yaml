@@ -14,3 +14,4 @@ services:
       - "/elecv2p/JSFile:/usr/local/app/runjs/JSFile"
       - "/elecv2p/Lists:/usr/local/app/runjs/Lists"
       - "/elecv2p/Store:/usr/local/app/runjs/Store"
+      - "/elecv2p/rootCA:/usr/local/app/rootCA"
