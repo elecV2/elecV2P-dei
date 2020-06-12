@@ -40,12 +40,12 @@ async function handlePostRequest(request) {
       };
       if (body.message.text) {
         let jsname = body.message.text
-        if (jsname !== 'all' && !/\.log$/.test(jsname)) {
+        if (!/^all|\.log$/.test(jsname)) {
           jsname = jsname + '.js.log'
         }
         payload.text = await getLogs(jsname);
 
-        if(jsname === 'all'){
+        if(/^all/.test(jsname)){
           let map = [ ...payload.text.matchAll(/>([A-z0-9\.]+)<\/a>/g) ]
           let keyb = { 
                 keyboard:[
