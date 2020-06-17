@@ -29,3 +29,10 @@
 
 - 运行 JS
 - 开始/停止 其他定时任务
+- exec 命令
+
+### exec 命令 - async 异步函数
+
+使用 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 函数
+
+timeout 默认设置为 5000（5秒）
