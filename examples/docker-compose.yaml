@@ -2,6 +2,7 @@ version: '3.7'
 services:
   elecv2p:
     image: elecv2/elecv2p
+    container_name: elecv2p
     restart: always
     environment:
       - TZ=Asia/Shanghai
@@ -9,7 +10,6 @@ services:
       - "8100:80"
       - "8101:8001"
       - "8102:8002"
-      - "8005:8005"
     volumes:
       - "/elecv2p/JSFile:/usr/local/app/runjs/JSFile"
       - "/elecv2p/Lists:/usr/local/app/runjs/Lists"
