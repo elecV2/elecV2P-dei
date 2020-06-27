@@ -2,7 +2,7 @@
 http_port   80
 }
 
-http://e2p.xxxxxxx.cf {
+http://e2p.xxxxxxx.com {
   log stdout
   encode gzip
   reverse_proxy 127.0.0.1:8100 {
@@ -10,14 +10,14 @@ http://e2p.xxxxxxx.cf {
   }
 }
 
-http://dtest.xxxxxxx.cf {
+http://dtest.xxxxxxx.com {
   log stdout
   reverse_proxy 127.0.0.1:8101 {
 #    header_up Host {http.reverse_proxy.upstream.hostport}
   }
 }
 
-http://test.xxxxxxx.cf {
+http://test.xxxxxxx.com {
   log stdout
   encode gzip
   reverse_proxy * 127.0.0.1:8102 {

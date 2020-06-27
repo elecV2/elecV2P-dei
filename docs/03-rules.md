@@ -1,28 +1,27 @@
 ```
-最近更新： 2020-6-5
-适用版本： latest
+最近更新： 2020-6-27
+适用版本： 1.9.0
 ```
 
 ## modify 规则集 -- elecV2P 原生格式说明
 
-   匹配方式   |  内容（正则表达式）   |   modify  |       最终数据      |  
- :-----------: | --------------------- | :-------: | ------------------- | ----
- ip            | 192.168.1.1           | 301/302   | https://google.com  |  前(req)
- url           | ^https://api.b.com/v2 | js        | file.js             |  后(res)
- host          | api.bilibili.com      | useragent | iPhone 6s           |  
- useragent     | neteaseMusic | aliApp | block     | reject|tinyimg
- reqmethod     | GET|POST|PUT|DELETE   |           | 
- reqbody       | queryPara|word string |           |
- resstatus     | 200 | 404 | 301 | ... |           |
- restype       | text/html | text/json | -----     |
- resbody       | Keyword(string)       | all - JS  |
+|   匹配方式   |  内容（正则表达式）   |   modify  |       最终数据      |  
+ :-----------: | --------------------- | :-------: | ------------------- | --------
+| ip           | 192.168.1.1           | 301/302   | https://google.com  |  前(req)
+| url          | ^https://api.b.com/v2 | js        | file.js             |  后(res)
+| host         | api.bilibili.com      | useragent | iPhone 6s           |  
+| useragent    | neteaseMusic | aliApp | block     | reject|tinyimg
+| reqmethod    | GET|POST|PUT|DELETE   |           | 
+| reqbody      | queryPara|word string |           |
+| resstatus    | 200 | 404 | 301 | ... |           |
+| restype      | text/html | text/json | -----     |
+| resbody      | Keyword(string)       | all - JS  |
 
 
-保存后，根据表格内容生成 **default.list**
+保存后，根据表格内容自动生成 **default.list**
 
 ```
-# elecV2P rules
-
+[elecV2P rules]
 ip,192.168.1.1,301,https://google.com,req
 url,^https://api.b.com/v2,js,file.js,res
 host,api.bilibili.com,useragent,iPhone 6s,res
@@ -53,9 +52,9 @@ resbody         // 匹配 返回的数据
 
 ### 网络请求前可修改内容
 
-- user-agent
+- User-Agent 等 header
 - block/reject
-- body/garameter
+- body
 - response 任意值（提前返回）
 - 30x 重定向
 
