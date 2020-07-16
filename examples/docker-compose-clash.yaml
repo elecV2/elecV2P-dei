@@ -1,0 +1,27 @@
+version: '3.7'
+services:
+  elecv2p:
+    image: elecv2/elecv2p
+    container_name: elecv2p
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - "8100:80"
+      - "8101:8001"
+      - "8102:8002"
+    volumes:
+      - "/elecv2p/JSFile:/usr/local/app/runjs/JSFile"
+      - "/elecv2p/Lists:/usr/local/app/runjs/Lists"
+      - "/elecv2p/Store:/usr/local/app/runjs/Store"
+      - "/elecv2p/rootCA:/usr/local/app/rootCA"
+
+  clash:
+    image: elecv2/clash
+    container_name: clash
+    restart: always
+    ports:
+      - "8008:7890"
+      - "8090:9090"
+    volumes:
+      - "/clash/config.yaml:/clash/config.yaml"
