@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-6-20
-适用版本： <=1.6.6
+最近更新： 2020-7-17
+适用版本： 2.1.1
 ```
 
 ## 定时任务
@@ -41,3 +41,17 @@
 使用 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 函数
 
 timeout 默认设置为 5000（5秒）
+
+## 模拟网络请求 - mock
+
+### 本地 fetch / 服务器 axios
+
+模拟网络请求发起的位置
+
+### HEADERS
+
+第一项选择内容为 **Content-Type** 的值，后面附加内容为 headers 的其他值（JSON 格式）。
+
+### BODY
+
+textarea 区域为 request body 值。
