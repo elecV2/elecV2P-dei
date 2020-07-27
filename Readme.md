@@ -1,6 +1,6 @@
 ## elecV2P 文档/例程/交流/反馈 - documents/examples/issues
 
-*文档其实还没开始写，先占个坑*
+主项目地址: https://github.com/elecV2/elecV2P
 
 **软件使用可能需要一定的网络基础。如果遇到无法解决的问题，建议直接放弃使用 ^ _ ^ 。**
 

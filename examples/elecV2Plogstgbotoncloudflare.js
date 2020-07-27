@@ -1,18 +1,29 @@
 /**
- * 需要修改的部分
- * url: 日志地址
+ * 先设置好 CONFIG 内容
  * tgbot token: 先申请 telegram bot api token, 然后填写到相应位置
+ * 使用 https://api.telegram.org/bot(mytoken)/setWebhook?url=https://mywebpagetorespondtobot 给 tg bot 添加 webhook 才可生效
  */
 
-const CONFIG_EV2PLOGS = {
-  url: "https://xlxxxxg.xxxxxx.com/logs/",      // 日志地址
+const CONFIG_EV2P = {
+  url: "https://xlxxxxg.xxxxxx.com/",      // web 地址
+  wbrtoken: 'a8c259b2-xxxxxxxxxxxx-xxxx',  // webhook token
   token: "81xxxxxx:xxxxxxxzcxPxxxxxxxxxx",      // teleram bot token
   slice: -1200           // 截取日志最后 1200 个字符，以防太长无法传输
 }
 
 function getLogs(s){
   return new Promise((resolve,reject)=>{
-    fetch(CONFIG_EV2PLOGS.url + s).then(res=>res.text()).then(r=>{
+    fetch(CONFIG_EV2P.url + 'logs/' + s).then(res=>res.text()).then(r=>{
+      resolve(r)
+    }).catch(e=>{
+      reject(e)
+    })
+  })
+}
+
+function getStatus() {
+  return new Promise((resolve,reject)=>{
+    fetch(CONFIG_EV2P.url + 'webhook?type=status&token=' + CONFIG_EV2P.wbrtoken).then(res=>res.text()).then(r=>{
       resolve(r)
     }).catch(e=>{
       reject(e)
@@ -26,28 +37,22 @@ async function handlePostRequest(request) {
   try {
     let body = JSON.parse(bodyString);
 
-    const init = {
-      headers: { 'content-type': 'application/json' },
-    }
-
     if (body.message) {
       let payload = {
         "method": "sendMessage",
         "chat_id": body.message.chat.id,
-        "text": "Only echo back text",
         "parse_mode": "markdown",
         "disable_web_page_preview": true,
       };
       if (body.message.text) {
-        let jsname = body.message.text
-        if (/^all/.test(jsname)) {
-          jsname = 'all'
-        } else if (!/\.log$/.test(jsname)) {
-          jsname = jsname + '.js.log'
-        }
-        payload.text = await getLogs(jsname);
-
-        if(/^all/.test(jsname)) {
+        let bodytext = body.message.text
+        if (bodytext === 'myid') {
+          payload.text = body.message.chat.id
+        } else if (bodytext === 'status') {
+          payload.text = await getStatus()
+        } else if (/^all/.test(bodytext)) {
+          bodytext = 'all'
+          payload.text = await getLogs(bodytext)
           let map = [ ...payload.text.matchAll(/>([A-z0-9\.]+)<\/a>/g) ]
           let keyb = { 
                 keyboard:[
@@ -68,12 +73,16 @@ async function handlePostRequest(request) {
               text: s[1].replace(/\.js\.log$/g, '')
             }]
           })
-          payload.text = "请选择要查看的 JS 日志"
+          payload.text = "点击查看日志"
           payload.reply_markup = keyb
-        } else if ('errors.log' === jsname) {
-          payload.text = `[errors.log](${CONFIG_EV2PLOGS.url}errors.log)`
+        } else if (!/\.log$/.test(bodytext)) {
+          bodytext = bodytext + '.js.log'
+          payload.text = await getLogs(bodytext)
+          payload.text = payload.text.slice(CONFIG_EV2P.slice)
+        } else if ('errors.log' === bodytext) {
+          payload.text = `[errors.log](${CONFIG_EV2P.url}logs/errors.log)`
         } else {
-          payload.text = payload.text.slice(CONFIG_EV2PLOGS.slice)
+          payload.text = '暂不支持的指令'
         }
 
         const myInit = {
@@ -84,7 +93,7 @@ async function handlePostRequest(request) {
           body: JSON.stringify(payload)
         };
 
-        let myRequest = new Request(`https://api.telegram.org/bot${CONFIG_EV2PLOGS.token}/`, myInit)
+        let myRequest = new Request(`https://api.telegram.org/bot${CONFIG_EV2P.token}/`, myInit)
 
         fetch(myRequest).then(function(x) {
           console.log(x);
@@ -94,7 +103,9 @@ async function handlePostRequest(request) {
         return new Response("OK")
       }
     } else {
-        return new Response(JSON.stringify(body), init)
+      return new Response(JSON.stringify(body), {
+        headers: { 'content-type': 'application/json' },
+      })
     }
   } catch(e) {
     return new Response(e)
@@ -108,7 +119,6 @@ async function handleRequest(request) {
 
 addEventListener('fetch', event => {
   const { request } = event
-  const { url } = request
   if (request.method === 'POST') {
     return event.respondWith(handlePostRequest(request))
   } else if (request.method === 'GET') {

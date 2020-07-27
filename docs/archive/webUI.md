@@ -26,5 +26,5 @@
 
 ## 未来计划
 
-- [ ] 去 ant design vue
-- [ ] 移动端优化
+- [x] 去 ant design vue
+- [x] 移动端优化

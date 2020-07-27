@@ -1,16 +1,16 @@
 ```
 最近更新： 2020-6-22
-适用版本： <= 1.8.0
+适用版本： 1.8.0
 ```
+
 ## 简介
 
 一款不止于 MITM 的网络工具。 - customize personal network
 
 ### 基础功能
 
-- 查看/修改 网络请求
-- MITM（需安装证书）
-- JS 脚本运行
+- 查看/修改 网络请求 (MITM)
+- 运行 JS 脚本
 - 定时任务（倒计时/cron 定时）
 - FEED/IFTTT 通知
 
@@ -101,7 +101,7 @@ docker-compose up -d
 
 ![rules](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/rules.png)
 
-详见 [docs/rules.md](https://github.com/elecV2/elecV2P-dei/tree/master/docs/03-rules.md) （龟速完成中）
+详见 [docs/rules.md](https://github.com/elecV2/elecV2P-dei/tree/master/docs/03-rules.md)
 
 ## 定时任务
 
@@ -155,7 +155,7 @@ ifttt 通知需先在设置（setting）面板添加 key。目前 ifttt 通知�
 
 ## docs
 
-更多： [说明文档](https://github.com/elecV2/elecV2P-dei) - 龟速完成中
+更多： [说明文档](https://github.com/elecV2/elecV2P-dei)
 
 ### 简单声明
 
@@ -166,6 +166,7 @@ ifttt 通知需先在设置（setting）面板添加 key。目前 ifttt 通知�
 - [anyproxy](https://github.com/alibaba/anyproxy)
 - [axios](https://github.com/axios/axios)
 - [expressjs](https://expressjs.com)
+- [node-cron](https://github.com/merencia/node-cron)
 - [node-rss](https://github.com/dylang/node-rss)
 - [vue](http://vuejs.org/)
 - [Ant Design Vue](https://www.antdv.com)
