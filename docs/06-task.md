@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-7-17
-适用版本： 2.1.1
+最近更新： 2020-7-28
+适用版本： 2.2.8
 ```
 
 ## 定时任务
@@ -30,28 +30,31 @@
 |  秒（可选）  |    分      |    小时    |      月    |     日     |    星期
 
 
-### 可执行任务类型
+## 可执行任务类型
 
 - 运行 JS
 - 开始/停止 其他定时任务
 - exec 命令
 
+### 运行 JS
+
+JS 文件位于 script/JSFile 目录
+
 ### exec 命令 - async 异步函数
 
 使用 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 函数
 
-timeout 默认设置为 5000（5秒）
+timeout 默认为 5000（5秒）
+cwd 默认目录为 script/Shell
 
-## 模拟网络请求 - mock
+``` sh 示例可填写内容
+# 单条命令
+node -v
+start https://github.com/elecV2/elecV2P
+reboot
 
-### 本地 fetch / 服务器 axios
-
-模拟网络请求发起的位置
-
-### HEADERS
-
-第一项选择内容为 **Content-Type** 的值，后面附加内容为 headers 的其他值（JSON 格式）。
-
-### BODY
-
-textarea 区域为 request body 值。
+# 文件执行(先将相关文件放置到 script/Shell 目录下)
+hello.sh
+test.py
+binaryfile
+```
