@@ -40,7 +40,7 @@
 
 JS 文件位于 script/JSFile 目录
 
-### exec 命令 - async 异步函数
+### exec 命令
 
 使用 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 函数
 
@@ -49,6 +49,7 @@ cwd 默认目录为 script/Shell
 
 ``` sh 示例可填写内容
 # 单条命令
+ls
 node -v
 start https://github.com/elecV2/elecV2P
 reboot
@@ -57,4 +58,5 @@ reboot
 hello.sh
 test.py
 binaryfile
+# 以上文件会通过系统默认程序打开，请先安装好对应执行环境
 ```
