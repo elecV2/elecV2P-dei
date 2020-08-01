@@ -45,9 +45,9 @@ JS 文件位于 script/JSFile 目录
 使用 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 函数
 
 timeout 默认为 5000（5秒）
-cwd 默认目录为 script/Shell
+cwd 默认工作目录为 script/Shell
 
-``` sh 示例可填写内容
+``` sh 示例命令
 # 单条命令
 ls
 node -v
@@ -58,5 +58,5 @@ reboot
 hello.sh
 test.py
 binaryfile
-# 以上文件会通过系统默认程序打开，请先安装好对应执行环境
+# 以上文件会通过系统默认程序打开，请先安装好对应执行环境，以及注意文件的执行权限
 ```

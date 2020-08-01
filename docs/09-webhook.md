@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-7-28
-适用版本： 2.2.8
+最近更新： 2020-8-1
+适用版本： 2.3.2
 ```
 
 ## 功能
@@ -36,10 +36,13 @@ fetch('http://192.168.1.102:12521/webhook', {
   body: JSON.stringify({
     token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
     type: 'runjs',
-    fn: 'webhook.js'        // 支持远程 JS, 比如：https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/webhook.js
+    fn: 'webhook.js'        // 支持远程 JS, 比如：https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/webhook.js。
   })
 }).then(res=>res.text()).then(s=>console.log(s))
 ```
+
+- 如果是远程 JS 会强制下载
+- 支持使用 rename 参数，修改远程 JS 下载后的文件名
 
 ## body/query 参数
 

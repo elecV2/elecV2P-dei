@@ -31,6 +31,12 @@ minishell 基于 nodejs 的 child_process exec。另外做了一些修改。
 
 *如果在 windows 平台出现乱码，尝试执行命令： CHCP 65001*
 
+## 一些指令
+
+cls/clear - 清空屏幕
+cwd       - 获取当前工作目录
+cd xxx    - 更改当前工作目录到xxx
+
 # $exec 执行任一程序
 
 在 JS 中使用 $exec 执行任一程序，比如：
