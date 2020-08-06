@@ -71,6 +71,8 @@ $exec('start https://github.com/elecV2/elecV2P')
 
 ## 相关说明
 
+为了方便直接调用 **Shell** 文件夹下的程序，建议将该目录添加到系统环境变量的 **PATH** 中。
+
 $exec 会调用系统默认程序执行相关文件，所以需提前安装好相关执行环境。
 比如，执行 **test.py**，需安装好 Python，并将 test.py 文件放置到 **cwd** 对应目录。
 
