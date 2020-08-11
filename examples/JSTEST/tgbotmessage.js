@@ -1,12 +1,11 @@
 /**
  * 先使用 https://t.me/BotFather 创建一个机器人 bot
- * 然后把 bot token 填写到下面对应位置。 然后打开一下 bot，接收信息
+ * 然后把 bot token 填写到下面对应位置。 然后打开一下 bot，才能接收信息
  * 自己的 chatid 可使用 https://t.me/elecV2Fun_bot ，发送关键字 id 获取
  * 如果要给别人发信息，需要知道对方 chatid，并且对方已开启了你的 bot
  *
  * cron  8 8 8 * * * tgbotmessage.js
  * 
- * 作者：@elecV2
  */
 
 
@@ -33,7 +32,7 @@ const myRequest = {
   url: `https://api.telegram.org/bot${CONFIG.token}/`,
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json;charset=UTF-8'
   },
   body: JSON.stringify(payload)
 }
