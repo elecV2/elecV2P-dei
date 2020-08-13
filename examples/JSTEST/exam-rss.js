@@ -3,9 +3,7 @@
 
 const feedurl = 'https://rss.elecv2.usw1.kubesail.org/telegram/channel/BaccanoSoul/%23%E9%99%90%E5%85%8D%E6%9B%B4%E6%96%B0%E6%9D%BFiOS'
 
-$axios({
-  url: feedurl
-}).then(res=>{
+$axios(feedurl).then(res=>{
   const $ = $cheerio.load(res.data, {
     xml: {
       normalizeWhitespace: true,
@@ -15,11 +13,12 @@ $axios({
   const pubDate = $('item pubDate').eq(0).text()
   console.log('last item publish date:', pubDate)
   const lastdate = new Date(pubDate).getTime()
-  const laststore = Number($store.get('lastrss'))
+  const laststore = $store.get('lastrss')
   if (laststore && laststore >= lastdate) {
     console.log('no new item')
     return
   }
+  $store.put(lastdate, 'lastrss')
   const items = $('item')
   for (var i = 0; i < items.length; i++) {
     const itemdate = new Date($('pubDate', items[i]).text()).getTime()
@@ -35,5 +34,4 @@ $axios({
     console.log(content.text())
   }
   console.log('all new item pushed')
-  $store.put(String(lastdate), 'lastrss')
 }).catch(e=>console.error(e.stack))
