@@ -1,0 +1,13 @@
+// sublimet text build system 文件
+// 功能：在 sublime 编辑器中使用 ctrl + B 快速运行测试脚本
+// 使用：
+//   - 复制本文件到 sublime xxxx\Data\Packages\User\ 文件夹下
+//   - 然后根据 elecV2P 的具体运行，修改 cmd 命令中的 http 地址和 token 值，保存
+//   - 然后在 sublime 的菜单栏选择 工具(tools)->Build System->JS-elecV2P
+//   - 或者使用 ctrl+shift+b 快捷键切换默认 build system
+//   
+// *确保待运行 JS 文件位于 script/JSFile 目录，并且非子目录
+
+{
+  "cmd": "curl -s http://127.0.0.1:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f5&type=runjs&fn=$file_name"
+}
