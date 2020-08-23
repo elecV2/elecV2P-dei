@@ -83,5 +83,5 @@ docker restart elecv2p_elecv2p_1
 docker exec -it elecv2p_elecv2p_1 /bin/sh
 docker logs elecv2p_elecv2p_1 -f
 
-echo "" > $(docker inspect --format='{{.LogPath}}' elecv2p_elecv2p_1)
+echo "" > $(docker inspect --format='{{.LogPath}}' elecv2p)
 ```

@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-8-1
-适用版本： 2.3.2
+最近更新： 2020-8-22
+适用版本： 2.4.6
 ```
 
 ## 功能
@@ -10,6 +10,7 @@
 - 获取运行状态 status
 - 获取定时任务信息
 - 开始/暂停 定时任务
+- 添加定时任务
 
 ## 使用
 
@@ -54,6 +55,34 @@ fetch('http://192.168.1.102:12521/webhook', {
 | taskstart | tid=xxtid      | 开始定时任务    |  &type=taskstart&tid=xxxowoxx
 | taskstop  | tid=xxtid      | 暂停定时任务    |  &type=taskstop&tid=xxxowoxx
 | deletelog | fn=file.js.log | 删除日志文件    |  &type=deletelog&fn=file.js.log
+| taskadd   | task: {}       | 添加定时任务    |  { type: 'taskadd', task: {} }
 
 **每次请求注意带上 token**
 **如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
+
+### 添加定时任务 2.4.6 更新
+
+``` js
+fetch('http://192.168.1.102:12521/webhook', {
+  method: 'put',     // or post
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
+    type: 'taskadd',
+    task: {
+      name: '新的任务-exam',
+      type: 'cron',
+      job: {
+        type: 'runjs',
+        target: 'https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/webhook.js',
+      },
+      time: '10 8 8 * * *',
+      running: false        // 是否自动执行添加的任务
+    }
+  })
+}).then(res=>res.text()).then(s=>console.log(s))
+```
+
+task 格式参考：https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md
