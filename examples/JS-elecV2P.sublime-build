@@ -9,5 +9,6 @@
 // *确保待运行 JS 文件位于 script/JSFile 目录，并且非子目录
 
 {
-  "cmd": "curl -s http://127.0.0.1:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f5&type=runjs&fn=$file_name"
+  "cmd": "curl -s http://127.0.0.1:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f5&type=runjs&fn=$file_name",
+  // "cmd": "powershell curl '\"http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=runjs&fn=test/$file_name\"' | Select-Object -Expand Content"
 }

@@ -22,7 +22,7 @@ services:
     container_name: clash
     restart: always
     ports:
-      - "8008:7890"
-      - "8090:9090"
+      - "8008:8008"
+      - "8090:8090"
     volumes:
       - "/clash/config.yaml:/clash/config.yaml"
