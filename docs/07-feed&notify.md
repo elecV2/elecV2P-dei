@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-7-27
-适用版本： 2.2.7
+最近更新： 2020-9-14
+适用版本： 2.5.3
 ```
 
 ## 通知方式
@@ -8,12 +8,12 @@
 - feed rss 订阅
 - ifttt webhook
 
-### Feed rss 订阅 
+### Feed rss 订阅
 
 地址为网页端口（默认为 80） + /feed
-**:80/feed**
+例如：**http://127.0.0.1/feed**
 
-使用各种 rss 阅读软件直接订阅即可。
+然后使用 rss 阅读软件直接订阅即可。
 
 ### ifttt webhook 
 
@@ -26,11 +26,7 @@
 ## 通知内容
 
 - 任务开始/暂停/删除/及结束
-- JS 总运行到一定次数（默认 50）
-
-### 其他说明
-
-当通知主题含有 **test** 关键字时，自动路过，不添加通知内容。（方便调试）
+- JS 运行设定次数（默认 50）
 
 ## JS 调用 - $feed
 
@@ -45,3 +41,24 @@ $feed.push('elecV2P notification', '这是一条来自 elecV2P 的通知', 'http
 *先设置好 ifttt webhook key*
 
 *url 可省略*
+
+### 其他说明
+
+- 当通知主题含有 **test** 关键字时，自动路过，不添加通知内容。（方便调试）
+- 如果想要在 JS 中使用 $notify/$notification 进行 iftttt 通知，在 config.json (默认位于 script/Lists) 中添加 { ..., "JSIFTTT": true } 项。
+
+``` JS 在浏览器 Console 中快速修改 config
+fetch('/config', {
+  method: 'put',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    "type": "config",
+    "data": {
+      // "minishell": true,
+      "JSIFTTT": true 
+    }
+  })
+}).then(res=>res.text()).then(s=>console.log(s))
+```
