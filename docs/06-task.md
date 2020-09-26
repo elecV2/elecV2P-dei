@@ -44,7 +44,7 @@
 - runjs: 运行 JS
 - taskstart: 开始定时任务
 - taskstop: 停止定时任务
-- exec: exec 命令
+- exec: Shell 指令
 
 ### 运行 JS
 
@@ -65,7 +65,7 @@ if (typeof($cookie) != "undefined") {
 }
 ```
 
-### exec 命令
+### Shell 指令
 
 使用 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 函数
 

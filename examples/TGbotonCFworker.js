@@ -120,7 +120,7 @@ async function handlePostRequest(request) {
         } else if (/^\/taskinfo/.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           payload.text = await getTaskinfo(cont)
-        } else if (/^\/log/.test(bodytext)) {
+        } else if (/\.log$/.test(bodytext) || /^\/log/.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           if (!/\.log$/.test(cont)) cont = cont + '.js.log'
           payload.text = await getLogs(cont)
