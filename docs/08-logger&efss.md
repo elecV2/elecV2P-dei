@@ -1,11 +1,11 @@
 ```
-最近更新： 2020-7-8
-适用版本： 2.0.5
+最近更新： 2020-10-10
+适用版本： 2.5.6
 ```
 
 # logger - class
 
-``` JS
+``` JS nodejs
 const { logger } = require('./utils')
 const clog = new logger({ head: 'example', level: 'debug', file: 'test' })
 clog.info('hello elecV2P!')
@@ -32,9 +32,17 @@ clog.info('hello elecV2P!')
 
 ## 全局日志级别
 
-``` JS
+``` JS nodejs
 const { setGlog } = require('./utils')
 setGlog('debug')
 
 // 只有当 new logger({}) 中的参数 level 和 全局日志 level 同时为 debug，才会输出 debug 信息
 ```
+
+# efss - elecV2P file storage system
+
+目的：用于比较大的文件存储和读取，比如图片文件/视频文件。
+
+计划：
+- 未来可配合定时任务/脚本使用，下载保存磁力/种子文件。
+- 也可作为一个简易的网盘使用。
