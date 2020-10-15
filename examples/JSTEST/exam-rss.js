@@ -1,7 +1,8 @@
 // 使用 cheerio 解析 rss 的小例子
 // iOS 限免软件推送。需要先设置好 IFTTT
 
-const feedurl = 'https://rss.elecv2.usw1.kubesail.org/telegram/channel/BaccanoSoul/%23%E9%99%90%E5%85%8D%E6%9B%B4%E6%96%B0%E6%9D%BFiOS'
+const feedurl = 'https://rsshub.app/telegram/channel/BaccanoSoul/%23%E9%99%90%E5%85%8D%E6%9B%B4%E6%96%B0%E6%9D%BFiOS'
+// rss 来源： https://docs.rsshub.app/
 
 $axios(feedurl).then(res=>{
   const $ = $cheerio.load(res.data, {
@@ -29,7 +30,7 @@ $axios(feedurl).then(res=>{
     console.log('new item', title)
     const description = $('description', items[i]).text()
     const content = $cheerio.load(description)
-    const link = content('blockquote a').attr('href')
+    const link = content('a[href*=apple]').attr('href')
     $feed.ifttt(title[0], title[1], link)
     console.log(content.text())
   }
