@@ -1,5 +1,5 @@
 ```
-最近更新： 2020-10-29
+最近更新： 2020-10-30
 适用版本： 2.6.3
 ```
 
@@ -19,8 +19,10 @@
 
 1. 在手机上下载 ifttt 软件，用于接收通知。
 2. 在 ifttt 中搜索 webhook，或访问 https://ifttt.com/maker_webhooks/ ，添加 webhook 服务
-3. 在 ifttt 中新建一条规则，if **Webhook** than **Notifications**
-   - webhook Event Name: **elecV2P**
+3. 在 ifttt 中新建一条规则，if **Webhook** than **Notifications**。 webhook 的 Event Name（事件名称）设置为: **elecV2P**
+
+![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/setiftttm.jpg)
+
 4. 在 ifttt 的 webhook setting edit 中找到对应的 **key**, 然后把 key 填写到 webUI 后台管理页面的 setting 对应位置
 
 ![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/setifttt.png)
@@ -61,7 +63,7 @@ $feed.push('elecV2P notification', '这是一条来自 elecV2P 的通知', 'http
 - 当通知主题含有 **test** 关键字时，自动跳过，不添加通知内容。（方便调试）
 - 如果想要在 JS 中使用 $notify/$notification 进行 iftttt 通知，在 config.json (默认位于 script/Lists) 中添加 { ..., "JSIFTTT": true } 项。
 
-- 或者在浏览器 Console 中快速修改 config （在 webUI 管理页面）
+- 或者在浏览器 Console 中快速修改 config（在 webUI 管理页面打开控制台，运行以下代码）
 ``` JS
 fetch('/config', {
   method: 'put',
