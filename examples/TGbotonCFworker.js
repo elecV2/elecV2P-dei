@@ -1,10 +1,15 @@
 /**
- * 先设置好 CONFIG 内容
- * tgbot token: 先申请 telegram bot api token, 然后填写到相应位置
- * 使用 https://api.telegram.org/bot(mytoken)/setWebhook?url=https://mywebpagetorespondtobot 给 tg bot 添加 webhook 才可生效
+ * 说明：可部署到 cloudfalre worker 的 TGbot 后台代码
  *
- * TGbot 相关指令
- * 服务器资源使用状态
+ * 使用方式：
+ * 先申请好 TG BOT(https://t.me/botfather)，然后设置好 CONFIG 内容
+ * tgbot token: 在 telegram botfather 中找到 api token, 然后填写到相应位置
+ * 然后把修改后的整个 JS 内容粘贴到 cloudfalre worker 代码框，保存即可。得到一个类似 https://xx.xxxxx.workders.dev 的网址
+ * 接着使用 https://api.telegram.org/bot(你的 tgbot token)/setWebhook?url=https://xx.xxxxx.workders.dev 给 tg bot 添加 webhook，部署完成。
+ * 最后，打开 tgbot 对话框，输入下面的相关指令，测试 TGbot 是否成功。
+ *
+ * 实现功能及相关指令：
+ * 查看服务器资源使用状态
  * status === /status  ;任何包含 status 关键字的指令
  * 
  * 删除 log 文件
@@ -20,22 +25,26 @@
  * /taskinfo all        ;获取所有任务信息
  * /taskstart taskid    ;开始任务
  * /taskstop taskid     ;停止任务
- *
- * 运行脚本
- * /runjs file.js
+ * /tasksave            ;保存当前任务列表
+ * 
+ * 脚本相关
+ * /listjs              ;列出所有 JS 脚本。
+ * /runjs file.js       ;运行脚本
  * /runjs https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/webhook.js
- */
+ * /deljs file.js       ;删除脚本
+**/
 
 const CONFIG_EV2P = {
-  url: "https://xxxxx.xxxxxx.com/",      // web 地址
-  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',  // webhook token
-  token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",      // teleram bot token
-  slice: -800           // 截取日志最后 800 个字符，以防太长无法传输
+  url: "https://xxxxx.xxxxxx.com/",          // 服务器地址
+  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // 服务器 webhook token
+  token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",     // teleram bot token
+  slice: -800,           // 截取日志最后 800 个字符，以防太长无法传输
+  userid: null           // 只对该 userid 发出的指令进行回应。null：回应所有用户的指令
 }
 
 function getLogs(s){
   return new Promise((resolve,reject)=>{
-    fetch(CONFIG_EV2P.url + 'logs/' + s).then(res=>res.text()).then(r=>{
+    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=getlog&fn=' + s).then(res=>res.text()).then(r=>{
       resolve(r)
     }).catch(e=>{
       reject(e)
@@ -86,9 +95,48 @@ function opTask(tid, op) {
   })
 }
 
+function saveTask() {
+  return new Promise((resolve,reject)=>{
+    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=tasksave').then(res=>res.text()).then(r=>{
+      resolve(r)
+    }).catch(e=>{
+      reject(e)
+    })
+  })
+}
+
 function jsRun(fn) {
+  if (!fn.startsWith('http') && !/\.js$/.test(fn)) fn += '.js'
   return new Promise((resolve,reject)=>{
     fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=runjs&fn=' + fn).then(res=>res.text()).then(r=>{
+      resolve(r)
+    }).catch(e=>{
+      reject(e)
+    })
+  })
+}
+
+function getJsLists() {
+  return new Promise((resolve,reject)=>{
+    fetch(CONFIG_EV2P.url + 'jsmanage').then(res=>res.json()).then(r=>{
+      resolve(r.jslists.join('    ') + '\ntotal: ' + r.jslists.length)
+    }).catch(e=>{
+      reject(e)
+    })
+  })
+}
+
+function deleteJS(name) {
+  return new Promise((resolve,reject)=>{
+    fetch(CONFIG_EV2P.url + 'jsfile', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        jsfn: name
+      })
+    }).then(res=>res.text()).then(r=>{
       resolve(r)
     }).catch(e=>{
       reject(e)
@@ -111,32 +159,41 @@ async function handlePostRequest(request) {
       };
       if (body.message.text) {
         let bodytext = body.message.text
-        if (/status/.test(bodytext)) {
+        if (CONFIG_EV2P.userid && body.message.chat.id !== CONFIG_EV2P.userid ) {
+          payload.text = "check the project: https://github.com/elecV2/elecV2P"
+        } else if (/^\/?status/.test(bodytext)) {
           payload.text = await getStatus()
-        } else if (/^\/(del|delete)/.test(bodytext)) {
+        } else if (/^\/?(del|delete) /.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           if (!(cont === 'all' || /\.log$/.test(cont))) cont = cont + '.js.log'
           payload.text = await delLogs(cont)
-        } else if (/^\/taskinfo/.test(bodytext)) {
+        } else if (/^\/?taskinfo /.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           payload.text = await getTaskinfo(cont)
-        } else if (/\.log$/.test(bodytext) || /^\/log/.test(bodytext)) {
+        } else if (/\.log$/.test(bodytext) || /^\/?log /.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           if (!/\.log$/.test(cont)) cont = cont + '.js.log'
           payload.text = await getLogs(cont)
-        } else if (/^\/taskstart/.test(bodytext)) {
+        } else if (/^\/?taskstart /.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           payload.text = await opTask(cont, 'start')
-        } else if (/^\/taskstop/.test(bodytext)) {
+        } else if (/^\/?taskstop /.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           payload.text = await opTask(cont, 'stop')
-        } else if (/^\/runjs/.test(bodytext)) {
+        } else if (/^\/?tasksave/.test(bodytext)) {
+          payload.text = await saveTask()
+        } else if (/^\/?listjs/.test(bodytext)) {
+          payload.text = await getJsLists()
+        } else if (/^\/?deljs /.test(bodytext)) {
+          let cont = bodytext.split(' ').pop()
+          payload.text = await deleteJS(cont)
+        } else if (/^\/?runjs /.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           payload.text = await jsRun(cont)
         } else if (/^all/.test(bodytext)) {
           bodytext = 'all'
-          payload.text = await getLogs(bodytext)
-          let map = [ ...payload.text.matchAll(/>([A-z0-9\.]+)<\/a>/g) ]
+          let res = await getLogs(bodytext)
+          let map = JSON.parse(res)
           let keyb = { 
                 keyboard:[
                   [
