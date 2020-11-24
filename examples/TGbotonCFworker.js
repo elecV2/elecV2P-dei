@@ -118,7 +118,7 @@ function jsRun(fn) {
 
 function getJsLists() {
   return new Promise((resolve,reject)=>{
-    fetch(CONFIG_EV2P.url + 'jsmanage').then(res=>res.json()).then(r=>{
+    fetch(CONFIG_EV2P.url + 'jsmanage?token=' + CONFIG_EV2P.wbrtoken).then(res=>res.json()).then(r=>{
       resolve(r.jslists.join('    ') + '\ntotal: ' + r.jslists.length)
     }).catch(e=>{
       reject(e)
@@ -128,7 +128,7 @@ function getJsLists() {
 
 function deleteJS(name) {
   return new Promise((resolve,reject)=>{
-    fetch(CONFIG_EV2P.url + 'jsfile', {
+    fetch(CONFIG_EV2P.url + 'jsfile?token=' + CONFIG_EV2P.wbrtoken, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
@@ -190,11 +190,11 @@ async function handlePostRequest(request) {
         } else if (/^\/?runjs /.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           payload.text = await jsRun(cont)
-        } else if (/^all/.test(bodytext)) {
+        } else if (/^\/?all/.test(bodytext)) {
           bodytext = 'all'
           let res = await getLogs(bodytext)
           let map = JSON.parse(res)
-          let keyb = { 
+          let keyb = {
                 keyboard:[
                   [
                     { text: 'all - ' + map.length },
@@ -210,10 +210,10 @@ async function handlePostRequest(request) {
             let row = parseInt(ind/2) + 1
             keyb.keyboard[row]
             ? keyb.keyboard[row].push({
-              text: s[1].replace(/\.js\.log$/g, '')
+              text: s.replace(/\.js\.log$/g, '')
             }) 
             : keyb.keyboard[row] = [{
-              text: s[1].replace(/\.js\.log$/g, '')
+              text: s.replace(/\.js\.log$/g, '')
             }]
           })
           payload.text = "点击查看日志"
@@ -223,7 +223,7 @@ async function handlePostRequest(request) {
           payload.text = await getLogs(bodytext)
           payload.text = payload.text.slice(CONFIG_EV2P.slice)
         } else {
-          payload.text = '暂不支持的指令'
+          payload.text = '暂不支持的指令\ncheck the project: https://github.com/elecV2/elecV2P'
         }
 
         const myInit = {
