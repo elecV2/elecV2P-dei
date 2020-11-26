@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-8-16
-适用版本： 2.4.3
+最近更新： 2020-11-26
+适用版本： 2.7.7
 ```
 
 ## 简介
@@ -13,6 +13,7 @@
 - 运行 JS 脚本
 - 定时任务（倒计时/cron 定时）
 - FEED/IFTTT 通知
+- EFSS 文件管理
 
 ## 安装/install
 
@@ -21,11 +22,17 @@
 ### nodejs （不推荐）
 
 ``` sh
+git clone https://github.com/elecV2/elecV2P.git
+cd elecV2P
+
 yarn
 yarn start
 ```
 
 ### docker
+
+基础镜像：elecv2/elecv2p
+ARM 平台：elecv2/elecv2p:arm64 - 适用于 N1/OPENWRT/树莓派等 ARM 架构的系统
 
 ``` sh
 docker run --restart=always -d --name elecv2p -p 80:80 -p 8001:8001 -p 8002:8002 elecv2/elecv2p
@@ -34,7 +41,7 @@ docker run --restart=always -d --name elecv2p -p 80:80 -p 8001:8001 -p 8002:8002
 ### docker-compose （推荐）
 
 docker-compose.yaml
-```
+``` yaml
 version: '3.7'
 services:
   elecv2p:
@@ -50,10 +57,16 @@ services:
       - "/elecv2p/JSFile:/usr/local/app/script/JSFile"
       - "/elecv2p/Lists:/usr/local/app/script/Lists"
       - "/elecv2p/Store:/usr/local/app/script/Store"
+      - "/elecv2p/Shell:/usr/local/app/script/Shell"
+      - "/elecv2p/rootCA:/usr/local/app/rootCA"
+      - "/elecv2p/efss:/usr/local/app/efss"
 ```
 
 ``` sh
 docker-compose up -d
+
+# 更新镜像并重启
+docker-compose pull elecv2p && docker-compose up -d
 ```
 
 ## 端口说明
@@ -64,7 +77,9 @@ docker-compose up -d
 
 ## 使用说明
 
-### 根证书相关 - https 解密
+### 根证书相关 - HTTPS 解密
+
+*如果不使用 rules/rewrite 相关功能，此步骤可跳过。*
 
 #### 安装证书
 
@@ -130,7 +145,7 @@ docker-compose up -d
 
 ## 通知
 
-目前支持两种通知模式： feed/rss 和 ifttt
+目前支持两种通知模式：feed/rss 和 ifttt
 
 feed/rss 地址为 :80/feed。
 
@@ -140,6 +155,7 @@ ifttt 通知需先在设置（setting）面板添加 key。目前 ifttt 通知�
 
 - 定时任务开始/结束
 - 定时任务 JS 运行次数（默认运行 50 次通知一次）
+- JS 脚本中的自主调用通知
 
 ## docs
 
