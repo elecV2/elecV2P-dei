@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-10-30
-适用版本： 2.6.3
+最近更新： 2020-11-27
+适用版本： 2.7.8
 ```
 
 ## 通知方式
@@ -15,9 +15,13 @@
 
 然后使用 rss 阅读软件直接订阅即可。
 
-### ifttt webhook 
+*局域网内的 RSS 只能在局域网内查看，有外网地址才能实现远程订阅*
 
-1. 在手机上下载 ifttt 软件，用于接收通知。
+### ifttt webhook
+
+![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/iftttnotify.png)
+
+1. 在手机上下载 ifttt 软件，注册登录，用于接收实时通知。
 2. 在 ifttt 中搜索 webhook，或访问 https://ifttt.com/maker_webhooks/ ，添加 webhook 服务
 3. 在 ifttt 中新建一条规则，if **Webhook** than **Notifications**。 webhook 的 Event Name（事件名称）设置为: **elecV2P**
 
@@ -60,22 +64,5 @@ $feed.push('elecV2P notification', '这是一条来自 elecV2P 的通知', 'http
 
 ### 其他说明
 
-- 当通知主题含有 **test** 关键字时，自动跳过，不添加通知内容。（方便调试）
-- 如果想要在 JS 中使用 $notify/$notification 进行 iftttt 通知，在 config.json (默认位于 script/Lists) 中添加 { ..., "JSIFTTT": true } 项。
-
-- 或者在浏览器 Console 中快速修改 config（在 webUI 管理页面打开控制台，运行以下代码）
-``` JS
-fetch('/config', {
-  method: 'put',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    "type": "config",
-    "data": {
-      // "minishell": true,
-      "JSIFTTT": true 
-    }
-  })
-}).then(res=>res.text()).then(s=>console.log(s))
-```
+- 当通知主题（title）中含有 **test** 关键字时，自动跳过，不添加通知内容。（方便调试）
+- 默认已打开 JS $notify/$notification 对应的 IFTTT 通知（version>2.6.6）
