@@ -2,8 +2,8 @@
 // 简易修改，测试使用，不保证原 boxjs 的所有功能能正常工作。
 // 在 JSMANAGE 中上传该文件
 // RULES 添加: host boxjs.com JS boxjs.ev.js 网络请求前
-// MITM  添加: boxjs.com
-// 然后代理 boxjs.com 到 anyproxy 端口（默认为 127.0.0.1:8001）
+// MITM  添加: boxjs.com (需安装证书)
+// 然后通过代理软件将 boxjs.com 分流到 anyproxy 服务器（默认为 127.0.0.1:8001）
 // 最后浏览器打开 https://boxjs.com
 
 const $ = new Env('BoxJs')
