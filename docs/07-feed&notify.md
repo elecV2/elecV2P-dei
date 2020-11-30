@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-11-27
-适用版本： 2.7.8
+最近更新： 2020-11-30
+适用版本： 2.8.0
 ```
 
 ## 通知方式
@@ -30,6 +30,10 @@
 4. 在 ifttt 的 webhook setting edit 中找到对应的 **key**, 然后把 key 填写到 webUI 后台管理页面的 setting 对应位置
 
 ![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/setifttt.png)
+
+*如果想通过 telegram 接收信息，则设置： if **Webhook** than **telegram***
+*通过邮箱接收： if **Webhook** than **email***
+*像其他的短信通知，iOS Reminders，发送到网盘Drive/evernote/twiter/Alexa 等等，都可以通过类似的方式去实现*
 
 #### 测试设置是否成功
 
