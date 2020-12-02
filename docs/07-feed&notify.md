@@ -1,12 +1,16 @@
 ```
-最近更新： 2020-11-30
-适用版本： 2.8.0
+最近更新： 2020-12-02
+适用版本： 2.8.1
 ```
 
 ## 通知方式
 
-- feed rss 订阅
-- ifttt webhook
+- FEED RSS 订阅
+- IFTTT WEBHOOK
+
+**2.8.1 新增两种通知方式**
+- BARK 通知
+- SERVER 酱
 
 ### Feed rss 订阅
 
@@ -37,13 +41,28 @@
 
 #### 测试设置是否成功
 
-在 JSMANAGE 页面的 JS 编辑框中复制以下代码：
+在 JSMANAGE 页面的 JS 编辑框中复制以下任一代码：
 
 ``` JS
-$feed.ifttt('elecV2P notification', '这是一条来自 elecV2P 的通知', 'http://192.168.1.101')
+// 所有通知测试
+$feed.push('elecV2P notification', '这是一条来自 elecV2P 的通知', 'http://192.168.1.101')
+
+// IFTTT 通知单独测试
+$feed.ifttt('IFTTT notification', '来自 elecV2P', 'https://github.com/elecV2/elecV2P')
 ```
 
-然后点击测试运行（快捷键 ctrl+enter），如果在手机上马上收到 ifttt 的通知，表示设置成功。如果没有收到，看程序的运行日志，对照上面的步骤检查一遍。
+然后点击测试运行（快捷键 ctrl+enter），如果能收到通知，表示设置成功。如果没有收到，看程序的运行日志，对照上面的步骤检查设置是否正确。
+
+### BARK 通知
+
+iOS 端通知 APP，下载地址：https://apps.apple.com/app/bark-customed-notifications/id1403753865
+Github 地址：https://github.com/Finb/Bark
+
+下载 APP 获取 KEY，然后填写到 SETTING 界面的 BARK KEY 位置即可。
+
+### SERVER 酱
+
+官方地址：http://sc.ftqq.com/ 。 上官网查看简要说明，然后获取 KEY 填写到 SERVERCHAN KEY 的位置。
 
 ## 默认通知内容
 

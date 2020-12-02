@@ -1,45 +1,36 @@
 ```
-最近更新： 2020-10-19
-适用版本： 2.6.0
+最近更新： 2020-12-02
+适用版本： 2.8.1
 ```
 
-# logger - class
+## LOG 日志
 
-``` JS nodejs
-const { logger } = require('./utils')
-const clog = new logger({ head: 'example', level: 'debug', file: 'test' })
-clog.info('hello elecV2P!')
+存储位置：项目目录/logs。 ..../elecV2P/logs
+访问地址： http://127.0.0.1/logs
 
-// 结果 [example     info][2020-6-20 8:48:56]: hello elecV2P!
-```
+日志分类：
+- errors.log
+- funcExec.log
+- 其他脚本日志
 
-## log 级别 - level
+### errors.log
 
-- error
-- notify
-- info
-- debug
+程序运行时所有的错误日志。如果程序意外崩溃，重启，可在此处查看错误原因。
 
-默认 'info', 即除 debug 信息外，其他信息全部显示
+### funcExec.log
 
-## new logger({}) 接收参数
+所有执行过的 Shell 指令及日志。shell 指令功能比较强大，可以对系统造成不可挽回的破坏，请谨慎使用。
 
-- head:          日志头部标识。省略为 *elecV2P*
-- level:         日志纪录级别。省略为 *info*
-- isalignHead:   是否对齐日志开头部分。 省略为对齐，*false* 取消对齐
-- cb:            接收一个回调函数进一步处理输出的日志信息
-- file:          日志保存文件。 省略不保存，设置任一值，日志文件将保存到 **logs** 文件夹
+### 其他脚本日志
 
-## 全局日志级别
+JS 脚本中 console 函数输出的内容。每个脚本单独一个文件，命名格式为：filename.js.log。
+子目录中的 JS 日志文件名为，目录-文件名.js.log，比如：test-a.js.log
 
-``` JS nodejs
-const { setGlog } = require('./utils')
-setGlog('debug')
+在 JSMANAGE 界面进行测试运行的脚本，日志命名格式为：filename-test.js.log。
 
-// 只有当 new logger({}) 中的参数 level 和 全局日志 level 同时为 debug，才会输出 debug 信息
-```
+## efss - elecV2P file storage system
 
-# efss - elecV2P file storage system
+elecV2P 文件管理系统
 
 目的：用于比较大的文件存储和读取，比如图片文件/视频文件。
 
@@ -48,15 +39,15 @@ setGlog('debug')
 - 通过 JS 下载网络文件至该目录
 - 配合 $exec / 手动安装 aria2, 实现下载磁力/种子（测试中
 
-## 访问路径 - /efss
+### 访问路径 - /efss
 
 例如：http://127.0.0.1/efss
 
-## efss 目录
+### efss 目录
 
 默认目录：当前工作路径/efss
 
-如需修改为其他目录，前往 webUI->setting->EFSS 目录 进行设置。
+如需修改为其他目录，前往 webUI->SETTING->EFSS 目录 进行设置。
 
 **./** - 相对目录。相对当前工作目录
 例如：./script/Shell, ./logs
@@ -65,5 +56,4 @@ setGlog('debug')
 例如： /etc, /usr/local/html
 
 *如果目录中包含大量静态文件，例如直接设置为根目录 **/**，可能引用比较耗时，请合理设置 efss 目录*
-
 *默认最大读取文件数为 200*
