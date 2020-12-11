@@ -21,7 +21,7 @@
 
 *局域网内的 RSS 只能在局域网内查看，有外网地址才能实现远程订阅*
 
-### ifttt webhook
+### IFTTT webhook
 
 ![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/iftttnotify.png)
 

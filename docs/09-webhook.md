@@ -44,7 +44,7 @@ fetch('http://192.168.1.102:12521/webhook', {
 }).then(res=>res.text()).then(s=>console.log(s))
 ```
 
-- 如果是远程 JS 会强制下载
+- 如果是远程 JS , 会强制下载 JS 文件并保存
 - 支持使用 rename 参数，修改远程 JS 下载后的文件名
 
 ## body/query 参数

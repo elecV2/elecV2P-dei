@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-11-26
-适用版本： 2.7.8
+最近更新： 2020-12-11
+适用版本： 2.9.0
 ```
 
 ## 简介
@@ -10,14 +10,14 @@
 ### 基础功能
 
 - 查看/修改 网络请求 (MITM)
-- 运行 JS 脚本
+- 运行 JS/SHELL 脚本
 - 定时任务（倒计时/cron 定时）
 - FEED/IFTTT 通知
-- EFSS 文件管理
+- EFSS 文件管理（优化中）
 
 ## 安装/INSTALL
 
-**软件开放权限较大，建议局域网使用。网络部署，风险自负**
+**程序使用权限较大，建议局域网使用。网络部署，风险自负**
 
 ### NODEJS （不推荐）
 
@@ -27,6 +27,15 @@ cd elecV2P
 
 yarn
 yarn start
+
+# 或者使用 PM2 运行，方便状态查看及管理
+yarn global add pm2
+pm2 start index.js
+
+# 升级
+# - 先备份好个人数据，比如 script 中的 JSFile/Store/Lists/Shell 文件夹，efss 文件夹等
+# - 然后再从 Github 下载最新的代码进行升级覆盖
+# - 最后两把备份好的文件复制到原来的位置
 ```
 
 ### DOCKER
@@ -47,9 +56,21 @@ docker run --restart=always -d --name elecv2p -e TZ=Asia/Shanghai -p 8100:80 -p 
 docker run --restart=always -d --name elecv2p -e TZ=Asia/Shanghai -p 8100:80 -p 8101:8001 -p 8102:8002 -v /elecv2p/JSFile:/usr/local/app/script/JSFile -v /elecv2p/Store:/usr/local/app/script/Store elecv2/elecv2p:arm64
 
 # 以上命令执行任意一条即可，根据实际需求进行调整。
+
+# 升级 Docker 镜像。（如果没有使用持久化存储，升级后所有个人数据会丢失，请提前手动备份导出）
+docker rm elecv2p              # 先删除旧的容器
+docker pull elecv2/elecv2p     # 再下载新的镜像。镜像名注意要和之前使用的相对应
+# 再使用之前的 docker run xxxx 命令启动即可
 ```
 
 ### docker-compose （推荐）
+
+可选择操作
+``` sh
+mkdir /elecv2p
+cd /elecv2p
+nano docker-compose.yaml
+```
 
 将以下内容保存为 docker-compose.yaml 文件。
 ``` yaml
@@ -74,12 +95,14 @@ services:
       - "/elecv2p/efss:/usr/local/app/efss"
 ```
 
+*具体的端口映射和存储映射，可根据个人情况进行调整*
+
 然后在 docker-compose.yaml 同目录下执行以下任一命令
 ``` sh
-# 直接启动
+# 直接启动。（首次启动命令）
 docker-compose up -d
 
-# 更新镜像并重新启动
+# 更新镜像并重新启动。 （docker-compose 已使用 volumes 映射存储了个人数据，无需再手动备份）
 docker-compose pull elecv2p && docker-compose up -d
 ```
 
@@ -96,11 +119,13 @@ docker logs elecv2p -f
 
 - 80：    后台管理界面。添加规则/JS 文件管理/定时任务管理/MITM 证书 等
 - 8001：  anyproxy 代理端口
-- 8002：  anyproxy 连接查看端口
+- 8002：  anyproxy 代理请求查看端口
+
+*可在 config.js 文件中进行修改*
 
 ## 根证书相关 - HTTPS 解密
 
-*如果不使用 rules/rewrite 相关功能，此步骤可跳过。*
+*如果不使用 RULES/REWRITE 相关功能，此步骤可跳过。*
 
 ### 安装证书
 
@@ -166,19 +191,22 @@ docker logs elecv2p -f
 
 ## 通知
 
-目前支持两种通知模式：feed/rss 和 ifttt
+目前支持通知方式：
+- FEED/RSS 订阅
+- IFTTT WEBHOOK
+- BARK 通知
+- SERVERCHAN 通知
 
-feed/rss 订阅地址为 :80/feed。
+FEED/RSS 订阅地址为 :80/feed。
 
-ifttt 通知需在手机端下载 IFTTT 软件，并创建一条 if **Webhook** than **Notifications** 规则。然后在设置（setting）面板中添加相关的 key。
+IFTTT 通知需在手机端下载 IFTTT APP，并创建一条 if **Webhook** than **Notifications** 规则。然后在设置（setting）面板中添加相关的 key。
 
 通知内容：
-
 - 定时任务开始/结束
 - 定时任务 JS 运行次数（默认运行 50 次通知一次）
 - JS 脚本中的自主调用通知
 
-详细说明参考: [07-feed&notify](https://github.com/elecV2/elecV2P-dei/tree/master/docs/07-feed&notify.md)
+BARK/SERVERCHAN 通知设置等其他详细说明参考: [07-feed&notify](https://github.com/elecV2/elecV2P-dei/tree/master/docs/07-feed&notify.md)
 
 ## DOCUMENTS&EXAMPLES
 
