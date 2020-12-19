@@ -25,6 +25,7 @@
  * /taskinfo all        ;获取所有任务信息
  * /taskstart taskid    ;开始任务
  * /taskstop taskid     ;停止任务
+ * /taskdel taskid      ;删除任务
  * /tasksave            ;保存当前任务列表
  * 
  * 脚本相关
@@ -83,7 +84,7 @@ function getTaskinfo(tid) {
 }
 
 function opTask(tid, op) {
-  if (!/start|stop/.test(op)) {
+  if (!/start|stop|del|delete/.test(op)) {
     return 'unknow operation' + op
   }
   return new Promise((resolve,reject)=>{
@@ -180,6 +181,9 @@ async function handlePostRequest(request) {
         } else if (/^\/?taskstop /.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           payload.text = await opTask(cont, 'stop')
+        } else if (/^\/?taskdel /.test(bodytext)) {
+          let cont = bodytext.split(' ').pop()
+          payload.text = await opTask(cont, 'del')
         } else if (/^\/?tasksave/.test(bodytext)) {
           payload.text = await saveTask()
         } else if (/^\/?listjs/.test(bodytext)) {

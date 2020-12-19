@@ -5,6 +5,7 @@
 // MITM  添加: boxjs.com (需安装证书)
 // 然后通过代理软件将 boxjs.com 分流到 anyproxy 服务器（默认为 127.0.0.1:8001）
 // 最后浏览器打开 https://boxjs.com
+// ** boxjs.com 可替换为任一域名，比如 e.com**
 
 const $ = new Env('BoxJs')
 
@@ -156,7 +157,8 @@ async function handlePage() {
       const isQueryUrl = debugger_web.includes('?')
       $.web = `${debugger_web}${isQueryUrl ? '&' : '?'}_=${new Date().getTime()}`
       boxdata.syscfgs.isDebugMode = true
-      console.log(`[WARN] 调试模式: $.web = : ${$.web}`)
+      console.log(`[WARN] 调试模式`)
+      // console.log(`[WARN] 调试模式: $.web = : ${$.web}`)
     }
     // 如果调用这个方法来获取缓存, 且标记为`非调试模式`
     const getcache = () => {
