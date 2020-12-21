@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-12-02
-适用版本： 2.8.1
+最近更新： 2020-12-21
+适用版本： 2.9.3
 ```
 
 ## 通知方式
@@ -58,11 +58,15 @@ $feed.ifttt('IFTTT notification', '来自 elecV2P', 'https://github.com/elecV2/e
 iOS 端通知 APP，下载地址：https://apps.apple.com/app/bark-customed-notifications/id1403753865
 Github 地址：https://github.com/Finb/Bark
 
-下载 APP 获取 KEY，然后填写到 SETTING 界面的 BARK KEY 位置即可。
+下载 BAKR APP 获取 KEY，然后填写到 webUI -> SETTING 界面的 BARK KEY 位置。
+
+> v2.9.3 更新支持 BARK 自定义服务器
+
+开启方式：在 BARK KEY 位置填写完整的服务器地址，比如 https://your.sever.app/youbarkkeylwoxxxxxxxkUP/
 
 ### SERVER 酱
 
-官方地址：http://sc.ftqq.com/ 。 上官网查看简要说明，然后获取 KEY 填写到 SERVERCHAN KEY 的位置。
+官方地址：http://sc.ftqq.com/ 。 上官网查看简要说明，然后获取 KEY 填写到 webUI -> SETTING 界面的 SERVERCHAN KEY 的位置。
 
 ## 默认通知内容
 

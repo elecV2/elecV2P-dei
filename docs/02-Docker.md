@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-11-27
-适用版本： 2.7.8
+最近更新： 2020-12-21
+适用版本： 2.9.3
 ```
 
 ## 简介
@@ -36,8 +36,8 @@ docker run --restart=always -d --name elecv2p -v /elecv2p:/usr/local/app/script 
 # 使用 ARM 镜像，时区更改以及持久化存储
 docker run --restart=always -d --name elecv2p -e TZ=Asia/Shanghai -p 8100:80 -p 8101:8001 -p 8102:8002 -v /elecv2p/JSFile:/usr/local/app/script/JSFile -v /elecv2p/Store:/usr/local/app/script/Store elecv2/elecv2p:arm32
 
-# 拉取最新的镜像
-docker pull elecv2/elecv2p
+# 查看 docker 运行状态
+docker ps
 
 # 进入镜像内部
 docker exec -it elecv2p /bin/sh
@@ -54,13 +54,23 @@ docker logs elecv2p --tail 20
 # 清空日志
 echo "" > $(docker inspect --format='{{.LogPath}}' elecv2p)
 
-# 移除容器
+# 升级容器
+# 先移除容器
 docker rm -f elecv2p
+# 再拉取最新的镜像
+docker pull elecv2/elecv2p
+# 最后再使用上面的 docker run 命令重新启动
 ```
 
-## 示例 docker-compose.yaml
+## docker-compose 启动
 
-将以下内容保存为 docker-compose.yaml 文件。
+``` sh
+mkdir /elecv2p && cd /elecv2p
+curl -sL https://git.io/JLw7s > docker-compose.yaml
+docker-compose up -d
+```
+
+或者将以下内容手动保存为 docker-compose.yaml 文件。
 ``` yaml
 version: '3.7'
 services:
@@ -80,6 +90,7 @@ services:
       - "/elecv2p/Store:/usr/local/app/script/Store"
       - "/elecv2p/Shell:/usr/local/app/script/Shell"
       - "/elecv2p/rootCA:/usr/local/app/rootCA"
+      - "/elecv2p/efss:/usr/local/app/efss"
 ```
 
 然后在 docker-compose.yaml 同目录执行命令 **docker-compose up -d** 启动程序。
@@ -87,9 +98,8 @@ services:
 ### 其他指令
 
 ``` sh
-docker-compose up -d
-
-docker-compose pull elecv2p
+# 更新容器
+docker-compose pull elecv2p && docker-compose up -d
 
 docker restart elecv2p_elecv2p_1
 docker exec -it elecv2p_elecv2p_1 /bin/sh
