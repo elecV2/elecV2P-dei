@@ -23,6 +23,8 @@
 
 ### IFTTT webhook
 
+IFTTT - If This Then That, 官方网站为：https://ifttt.com/
+
 ![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/iftttnotify.png)
 
 1. 在手机上下载 ifttt 软件，注册登录，用于接收实时通知。
@@ -41,7 +43,7 @@
 
 #### 测试设置是否成功
 
-在 JSMANAGE 页面的 JS 编辑框中复制以下任一代码：
+在 webUI -> JSMANAGE 页面的 JS 编辑框中复制以下代码：
 
 ``` JS
 // 所有通知测试
@@ -60,7 +62,7 @@ Github 地址：https://github.com/Finb/Bark
 
 下载 BAKR APP 获取 KEY，然后填写到 webUI -> SETTING 界面的 BARK KEY 位置。
 
-> v2.9.3 更新支持 BARK 自定义服务器
+* v2.9.3 更新支持 BARK 使用自定义服务器
 
 开启方式：在 BARK KEY 位置填写完整的服务器地址，比如 https://your.sever.app/youbarkkeylwoxxxxxxxkUP/
 
@@ -77,19 +79,19 @@ Github 地址：https://github.com/Finb/Bark
 
 ### 关键字： $feed
 
-- $feed.push(title, description, url)     // 表示添加一个 rss item
+- $feed.push(title, description, url)
+*添加一个 rss item 及 通知*
+*url 可省略*
 
 ``` JS example
 $feed.push('elecV2P notification', '这是一条来自 elecV2P 的通知', 'https://github.com/elecV2/elecV2P')
+
+$feed.ifttt('title', 'description', 'https://github.com/elecV2/elecV2P-dei')   // 发送一条 ifttt 通知
+// 先设置好 ifttt webhook key
+
+$feed.bark('Bark notification', 'a bark notification', 'https://t.me/elecV2')  // 发送一条 bark 通知
 ```
-
-- $feed.ifttt(title, description, url)   // 发送一条 ifttt 通知
-
-*先设置好 ifttt webhook key*
-
-*url 可省略*
 
 ### 其他说明
 
 - 当通知主题（title）中含有 **test** 关键字时，自动跳过，不添加通知内容。（方便调试）
-- 默认已打开 JS $notify/$notification 对应的 IFTTT 通知（version>2.6.6）

@@ -1,11 +1,12 @@
 // boxjs elecV2P 兼容版。修改自：https://github.com/chavyleung/scripts/tree/master/box
 // 简易修改，测试使用，不保证原 boxjs 的所有功能能正常工作。
-// 在 JSMANAGE 中上传该文件
+// 在 webUI -> JSMANAGE 中上传该文件 (远程链接：https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/JSTEST/boxjs.ev.js)
 // RULES 添加: host boxjs.com JS boxjs.ev.js 网络请求前
-// MITM  添加: boxjs.com (需安装证书)
-// 然后通过代理软件将 boxjs.com 分流到 anyproxy 服务器（默认为 127.0.0.1:8001）
-// 最后浏览器打开 https://boxjs.com
-// ** boxjs.com 可替换为任一域名，比如 e.com**
+// MITM  添加: boxjs.com (需安装证书) - 如果使用 http://boxjs.com 访问，此步骤可跳过（非 https）
+// 然后通过代理软件将 boxjs.com 分流到 anyproxy 端口（默认为 127.0.0.1:8001）
+// （如果使用 chrome 浏览器推荐使用 SwitchyOmega 插件来进行分流设置）
+// 最后浏览器打开 http://boxjs.com 或 https://boxjs.com (https 需要添加 MITM host 和证书)
+// **boxjs.com 可替换为任一域名，比如 e.com**
 
 const $ = new Env('BoxJs')
 
