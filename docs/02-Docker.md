@@ -19,8 +19,8 @@ ARM 镜像：（适用于 N1/OPENWRT/树莓派等 ARM 架构的系统）
 # docker 安装
 wget -qO- https://get.docker.com/ | sh
 
-# docker-compose 安装
-curl -L "https://github.com/docker/compose/releases/download/1.27.0-rc1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+# docker-compose 安装。（前往 https://github.com/docker/compose/releases 查看适合自己设备的版本）
+curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 ```
 
 ## 相关命令
@@ -70,6 +70,8 @@ curl -sL https://git.io/JLw7s > docker-compose.yaml
 docker-compose up -d
 ```
 
+*注意：默认的 docker-compose.yaml 文件已将 80/8001/8002 端口分别映射成了 8100/8101/8102，以防出现端口占用的情况。在访问时注意一下。如需调整为其他端口，可以自行修改下面的内容进行保存。*
+
 或者将以下内容手动保存为 docker-compose.yaml 文件。
 ``` yaml
 version: '3.7'
@@ -94,6 +96,8 @@ services:
 ```
 
 然后在 docker-compose.yaml 同目录执行命令 **docker-compose up -d** 启动程序。
+
+*部分用户反映，在有些设备上需要调整 version 的版本才能启动成功。如果启动出现问题，可以尝试把 docker-compose.yaml 文件开头的 version: '3.7' 更改为 version: '3.3'.*
 
 ### 其他指令
 
