@@ -1,16 +1,17 @@
 ```
-最近更新： 2020-12-30
-适用版本： 2.9.8
+最近更新： 2021-01-05
+适用版本： 3.0.0
 ```
 
 ## LOG 日志
 
 存储位置：项目目录/logs。 ./logs
-访问地址： http://127.0.0.1/logs
+访问地址：http://127.0.0.1/logs
 
 日志分类：
 - errors.log
 - funcExec.log
+- elecV2Proc.log
 - 其他脚本日志
 
 *如果有太多日志文件，可直接手动删除，并不影响使用。默认有一个 deletelog.js 文件，可设置一个定时任务进行自动清除。*
@@ -31,6 +32,24 @@ JS 脚本中 console 函数输出的内容。每个脚本单独一个文件，�
 子目录中的 JS 日志文件名为，目录-文件名.js.log，比如：test-a.js.log
 
 在 JSMANAGE 界面进行测试运行的脚本，日志命名格式为：filename-test.js.log。
+
+### 清空日志
+
+手动删除：
+cd logs
+rm -f *  (该指令会删除当前目录下所有文件，请不在其他目录随意使用)
+
+清除单个日志文件：
+rm -f 日志文件名
+
+或者在 JS 脚本中使用 **console.clear()** 函数，清空该脚本的所有日志。
+
+自动删除：
+使用自带的 deletelog.js 配合定时任务进行删除。
+在 webUI -> TASK 界面添加一个定时任务，名称随意，时间自行选择，任务选择执行 JS，后面填写 deletelog.js。
+
+例如，设置每天23点59分清除一下日志文件：
+清空日志 | cron定时 | 59 23 * * * | 运行 JS | deletelog.js
 
 ## efss - elecV2P file storage system
 
