@@ -1,9 +1,13 @@
 /**
- * 2.0 更新：添加上下文执行环境（还在测试优化中）
- * 输入 runjs 进行脚本执行环境，接下来直接输入文件名或远程链接则可直接运行
- * 其它模式完善中...
+ * 说明：可部署到 cloudfalre worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
  * 
- * 说明：可部署到 cloudfalre worker 的 TGbot 后台代码
+ * 2.0 更新：添加上下文执行环境（还在测试优化中）
+ * - 输入 runjs 进入脚本执行环境，接下来直接输入文件名或远程链接则可直接运行
+ * - 输入 task 进入任务操作环境，可直接点击按钮暂停开始任务。（前面的绿色龟表示任务运行中）
+ * - 输入 context 获取当前执行环境，如果没有，则为普通模式
+ * 其它模式完善中...
+ *
+ * 下面 /command 命令的优先级高于当前执行环境
  *
  * 使用方式：
  * 先申请好 TG BOT(https://t.me/botfather)，然后设置好 CONFIG 内容
@@ -17,8 +21,8 @@
  * status === /status  ;任何包含 status 关键字的指令
  * 
  * 删除 log 文件
- * /delete file === /delete file.js.log === /del file
- * /delete all  ;删除使用 log 文件
+ * /deletelog file === /deletelog file.js.log === /dellog file
+ * /dellog all  ;删除使用 log 文件
  *
  * 查看 log 文件
  * /log file === file === file.js.log
@@ -210,10 +214,13 @@ async function handlePostRequest(request) {
           payload.text = "这是 " + CONFIG_EV2P.name + " 私人 bot，不接受其他人的指令。\n如果有兴趣可以自己搭建一个：https://github.com/elecV2/elecV2P-dei"
         } else if (/^\/?end/.test(bodytext)) {
           await context.end(uid)
-          payload.text = '退出上文执行环境，回到正常模式'
+          payload.text = '退出上文执行环境，回到普通模式'
+        } else if (/^\/?context$/.test(bodytext)) {
+          if (userenv && userenv.context) payload.text = '当前执行环境为：' + userenv.context + '\n输入 end 回到普通模式'
+          else payload.text = '当前执行环境为：普通模式'
         } else if (/^\/?status/.test(bodytext)) {
           payload.text = await getStatus()
-        } else if (/^\/?(del|delete) /.test(bodytext)) {
+        } else if (/^\/?(dellog|deletelog) /.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           if (!(cont === 'all' || /\.log$/.test(cont))) cont = cont + '.js.log'
           payload.text = await delLogs(cont)
@@ -235,9 +242,34 @@ async function handlePostRequest(request) {
           payload.text = await opTask(cont, 'del')
         } else if (/^\/?tasksave/.test(bodytext)) {
           payload.text = await saveTask()
-        } else if (/^\/?listjs/.test(bodytext)) {
-          let jslists = await getJsLists()
-          payload.text = jslists.join('    ') + '\ntotal: ' + jslists.length
+        } else if (/^\/?task/.test(bodytext)) {
+          let cont = bodytext.trim().split(' ')
+          if (cont.length === 1) {
+            try {
+              await context.put('u' + payload['chat_id'], 'task')
+              let tasklists = await getTaskinfo('all')
+              let keyb = {
+                keyboard: [],
+                resize_keyboard: false,
+                one_time_keyboard: true,
+                selective: true
+              }
+              tasklists.split(/\r|\n/).forEach((s, ind)=> {
+                s = s.split(', ')
+                if (s.length !== 4) return
+
+                keyb.keyboard[ind] = [{
+                  text: (s[3] === 'true' ? '🐢' : '🦇') + s[1] + ' ' + s[0]
+                }]
+              })
+              payload.text = '进入 task 模式，点击开始/暂停任务'
+              payload.reply_markup = keyb
+            } catch(e) {
+              payload.text = e.message
+            }
+          } else {
+            payload.text = 'unknow task operation'
+          }
         } else if (/^\/?deljs /.test(bodytext)) {
           let cont = bodytext.split(' ').pop()
           payload.text = await deleteJS(cont)
@@ -291,18 +323,24 @@ async function handlePostRequest(request) {
             let row = parseInt(ind/2) + 1
             keyb.keyboard[row]
             ? keyb.keyboard[row].push({
-              text: s.replace(/\.js\.log$/g, '')
+              text: s.replace(/\.js\.log$/g, ''),
+              url: CONFIG_EV2P.url + 'log/' + s
             }) 
             : keyb.keyboard[row] = [{
-              text: s.replace(/\.js\.log$/g, '')
+              text: s.replace(/\.js\.log$/g, ''),
+              url: CONFIG_EV2P.url + 'log/' + s
             }]
           })
           payload.text = "点击查看日志"
           payload.reply_markup = keyb
         } else if (userenv && userenv.context) {
+          await context.put(uid, userenv.context, bodytext)
           switch (userenv.context) {
             case 'runjs':
               payload.text = await jsRun(bodytext)
+              break
+            case 'task':
+              payload.text = await opTask(bodytext.split(' ').pop(), /^🐢/.test(bodytext) ? 'stop' : 'start')
               break
             default: {
               payload.text = '未知执行环境' + userenv.context
