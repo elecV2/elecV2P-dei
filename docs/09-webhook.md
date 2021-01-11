@@ -1,6 +1,6 @@
 ```
-最近更新： 2020-11-28
-适用版本： 2.8.0
+最近更新： 2021-01-11
+适用版本： 3.0.1
 ```
 
 ## 功能
@@ -13,6 +13,7 @@
 - 添加/保存 定时任务
 - 删除 EFSS 中的文件
 - 远程下载文件到 EFSS （目前只支持下载 http 协议的远程文件）
+- 执行 shell 指令
 
 ## 使用
 
@@ -61,9 +62,11 @@ fetch('http://192.168.1.102:12521/webhook', {
 | taskadd   | task: {}       | 添加定时任务    |  { type: 'taskadd', task: {} }
 | efssdelete  | fn=filename  | 删除EFSS中的文件|  &type=efssdelete&fn=文件名称
 | download  | url=http://xxx | 下载文件到EFSS  |  &type=download&url=https://rawxxxx
+| shell     | command=ls     | 执行 shell 指令 |  &type=shell&command=node%20-v
 
 **每次请求注意带上 token**
 **如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
+**command 指令应该先使用 encodeURI 进行编码**
 
 ```
 # 获取内存使用信息
@@ -74,6 +77,9 @@ http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=taski
 
 # 远程离线下载文件到 EFSS 虚拟目录
 http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=download&url=https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/overview.png
+
+# 列出 script/Shell 目录下的文件
+http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell&command=ls%20-c%20script/Shell
 ```
 
 ### 添加定时任务 2.4.6 更新

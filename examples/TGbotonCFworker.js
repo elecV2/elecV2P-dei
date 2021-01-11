@@ -1,5 +1,5 @@
 /**
- * 说明：可部署到 cloudfalre worker 的 TGbot 后台代码
+ * 说明：可部署到 cloudfalre worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
  *
  * 使用方式：
  * 先申请好 TG BOT(https://t.me/botfather)，然后设置好 CONFIG 内容
@@ -36,8 +36,8 @@
 **/
 
 const CONFIG_EV2P = {
-  url: "https://xxxxx.xxxxxx.com/",          // 服务器地址
-  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // 服务器 webhook token
+  url: "https://xxxxx.xxxxxx.com/",          // elecV2P 服务器地址
+  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // elecV2P 服务器 webhook token
   token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",     // teleram bot token
   slice: -800,           // 截取日志最后 800 个字符，以防太长无法传输
   userid: null           // 只对该 userid 发出的指令进行回应。null：回应所有用户的指令

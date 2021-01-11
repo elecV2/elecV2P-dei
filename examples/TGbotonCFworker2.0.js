@@ -45,8 +45,8 @@
 
 const CONFIG_EV2P = {
   name: 'elecV2P',                           // bot 名称。可省略
-  url: "https://xxxxx.xxxxxx.com/",          // 服务器地址
-  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // 服务器 webhook token
+  url: "https://xxxxx.xxxxxx.com/",          // elecV2P 服务器地址
+  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // elecV2P 服务器 webhook token
   token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",     // teleram bot token
   slice: -800,           // 截取日志最后 800 个字符，以防太长无法传输
   userid: null,          // 只对该 userid 发出的指令进行回应。null：回应所有用户的指令
