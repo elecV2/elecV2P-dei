@@ -214,7 +214,7 @@ async function handlePostRequest(request) {
           payload.text = "这是 " + CONFIG_EV2P.name + " 私人 bot，不接受其他人的指令。\n如果有兴趣可以自己搭建一个：https://github.com/elecV2/elecV2P-dei"
         } else if (/^\/?end/.test(bodytext)) {
           await context.end(uid)
-          payload.text = '退出上文执行环境，回到普通模式'
+          payload.text = `退出上文执行环境${(userenv && userenv.context) || ''}，回到普通模式`
         } else if (/^\/?context$/.test(bodytext)) {
           if (userenv && userenv.context) payload.text = '当前执行环境为：' + userenv.context + '\n输入 end 回到普通模式'
           else payload.text = '当前执行环境为：普通模式'
