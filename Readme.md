@@ -2,6 +2,8 @@
 
 主项目地址: https://github.com/elecV2/elecV2P
 
+![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/overview.png)
+
 **软件使用可能需要一定的网络基础。如果遇到无法解决的问题，建议直接放弃 ^ _ ^ 。**
 
 ### 说明

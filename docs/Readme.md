@@ -1,7 +1,5 @@
 ## [elecV2P](https://github.com/elecV2/elecV2P) 说明文档
 
-![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/overview.png)
-
 *可直接跳转到想了解的部分，不必按顺序查看*
 
 1. [overview - 简介及基础安装](https://github.com/elecV2/elecV2P-dei/tree/master/docs/01-overview.md)
