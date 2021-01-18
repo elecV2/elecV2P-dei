@@ -8,7 +8,12 @@ $evui({
   width: 800,
   height: 400,
   content: "<p>a simple chatroom</p>",
-  style: "background: #FF8033; font-size: 32px; text-align: center",
+  style: {
+    title: "background: #6B8E23;",
+    content: "background: #FF8033; font-size: 32px; text-align: center",
+    cbdata: "height: 320px;",
+    cbbtn: "width: 220px;"
+  },
   resizable: true,
   cbable: true,
   cbdata: 'hello',
