@@ -1,7 +1,7 @@
 // (!!测试脚本)该脚本用于在前端网页显示近几天的京豆变化。适用环境： elecV2P
 // 参考修改自：https://github.com/dompling/Scriptable/blob/master/Scripts/JDDouK.js
 // 首次运行时耗时较长，请耐心等待
-// 脚本地址：https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/evui-dou.js
+// 脚本地址：https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/JSTEST/evui-dou.js
 
 class Widget {
   constructor() {

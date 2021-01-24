@@ -1,16 +1,14 @@
 ```
-最近更新： 2020-12-21
-适用版本： 2.9.3
+最近更新： 2021-01-24
+适用版本： 3.0.9
 ```
 
 ## 通知方式
 
 - FEED RSS 订阅
 - IFTTT WEBHOOK
-
-**2.8.1 新增两种通知方式**
 - BARK 通知
-- SERVER 酱
+- 自定义通知
 
 ### Feed rss 订阅
 
@@ -66,9 +64,28 @@ Github 地址：https://github.com/Finb/Bark
 
 开启方式：在 BARK KEY 位置填写完整的服务器地址，比如 https://your.sever.app/youbarkkeylwoxxxxxxxkUP/
 
-### SERVER 酱
+### 自定义通知
 
-官方地址：http://sc.ftqq.com/ 。 上官网查看简要说明，然后获取 KEY 填写到 webUI -> SETTING 界面的 SERVERCHAN KEY 的位置。
+通过不同平台提供的 API 接口，实现实时通知。以 **SERVER 酱** 为例，根据官方（http://sc.ftqq.com/ ）说明，可得到一个类似：http://sc.ftqq.com/SCKEY.send 的地址，然后 POST 的数据格式为：
+
+```
+{
+  "text": "$title$",
+  "desp": "$body$可以随便加点自定义文字[链接]($url$)"
+}
+```
+
+其中 **$title$**, **$body$**, **$url$** 三个字段分别表示原本通知的标题/主体和链接。
+
+![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/custnotify.png)
+
+上图所示为通过自定义设置，实现SERVER 酱的通知。
+
+如果是通知 GET 的请求方式进行通知，则直接在 URL 中使用这三个参数，例如：https://sc.ftqq.com/yourSCKEY.send?text=$title$
+
+如果要使用其他的通知方式，请根据其他通知平台提供的 API 说明文档，自行进行设置。
+
+*数据最终提交格式，会自动进行判断。如果是 json 格式，会自动以 application/json 的方式提交。*
 
 ## 默认通知内容
 
