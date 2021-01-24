@@ -35,9 +35,9 @@ IFTTT - If This Then That, 官方网站为：https://ifttt.com/
 
 ![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/setifttt.png)
 
-*如果想通过 telegram 接收信息，则设置： if **Webhook** than **telegram***
-*通过邮箱接收： if **Webhook** than **email***
-*像其他的短信通知，iOS Reminders，发送到网盘Drive/evernote/twiter/Alexa 等等，都可以通过类似的方式去实现*
+* 如果想通过 telegram 接收信息，则设置： if **Webhook** than **telegram**
+* 通过邮箱接收： if **Webhook** than **email**
+* 像其他的短信通知，iOS Reminders，发送到网盘Drive/evernote/twiter/Alexa 等等，都可以通过类似的方式去实现
 
 #### 测试设置是否成功
 
@@ -84,6 +84,21 @@ Github 地址：https://github.com/Finb/Bark
 如果是通知 GET 的请求方式进行通知，则直接在 URL 中使用这三个参数，例如：https://sc.ftqq.com/yourSCKEY.send?text=$title$
 
 如果要使用其他的通知方式，请根据其他通知平台提供的 API 说明文档，自行进行设置。
+
+例如使用 telegram bot 通知，通知链接：https://api.telegram.org/bot你的botapi/
+
+POST 方式，内容如下：
+```
+{
+  "method": "sendMessage",
+  "chat_id": 你的tg userid,
+  "parse_mode": "markdown",
+  "disable_web_page_preview": false,
+  "text": `$title$
+$body$
+[$url$]($url$)`
+}
+```
 
 *数据最终提交格式，会自动进行判断。如果是 json 格式，会自动以 application/json 的方式提交。*
 
