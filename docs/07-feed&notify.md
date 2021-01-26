@@ -70,8 +70,8 @@ Github 地址：https://github.com/Finb/Bark
 
 ```
 {
-  "text": "$title$",
-  "desp": "$body$可以随便加点自定义文字[链接]($url$)"
+  "text": `$title$`,
+  "desp": `$body$可以随便加点自定义文字[链接]($url$)`
 }
 ```
 
@@ -91,12 +91,10 @@ POST 方式，内容如下：
 ```
 {
   "method": "sendMessage",
-  "chat_id": 你的tg userid,
+  "chat_id": 你的TG userid,
   "parse_mode": "markdown",
   "disable_web_page_preview": false,
-  "text": `$title$
-$body$
-[$url$]($url$)`
+  "text": `$title$\n$body$\n[$url$]($url$)`
 }
 ```
 
