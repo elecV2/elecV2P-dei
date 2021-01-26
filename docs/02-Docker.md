@@ -1,16 +1,16 @@
 ```
-最近更新： 2020-12-21
-适用版本： 2.9.3
+最近更新： 2021-01-26
+适用版本： 3.1.0
 ```
 
 ## 简介
 
 Docker 地址：https://hub.docker.com/r/elecv2/elecv2p
 
-基础镜像：elecv2/elecv2p
-ARM 镜像：（适用于 N1/OPENWRT/树莓派等 ARM 架构的系统）
-- elecv2/elecv2p:arm64
-- elecv2/elecv2p:arm32
+- 基础镜像：elecv2/elecv2p
+- ARM镜像：（适用于 N1/OPENWRT/树莓派等 ARM 架构的系统）
+  - elecv2/elecv2p:arm64
+  - elecv2/elecv2p:arm32
 
 ## docker 及 docker-compose 的安装
 
@@ -25,21 +25,26 @@ curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compo
 
 ## 相关命令
 
-*以下命令仅作为参考，具体映射端口和卷根据实际情况进行调整*
+*以下命令仅供参考，具体映射端口和卷根据实际情况进行调整*
 ```sh
 # 基础启动命令
 docker run --restart=always -d --name elecv2p -p 80:80 -p 8001:8001 -p 8002:8002 elecv2/elecv2p
 
 # 宿主机保留 JS 文件/规则/任务/复写等列表/Store 文件等
-docker run --restart=always -d --name elecv2p -v /elecv2p:/usr/local/app/script -p 8100:80 -p 8101:8001 -p 8102:8002 elecv2/elecv2p
+docker run --restart=always -d --name elecv2p -v /elecv2p/script:/usr/local/app/script -p 8100:80 -p 8101:8001 -p 8102:8002 elecv2/elecv2p
 
-# 使用 ARM 镜像，时区更改以及持久化存储
-docker run --restart=always -d --name elecv2p -e TZ=Asia/Shanghai -p 8100:80 -p 8101:8001 -p 8102:8002 -v /elecv2p/JSFile:/usr/local/app/script/JSFile -v /elecv2p/Store:/usr/local/app/script/Store elecv2/elecv2p:arm32
+# 使用 ARM 镜像，并调整时区以及持久化存储
+docker run --restart=always -d --name elecv2p \
+  -e TZ=Asia/Shanghai \
+  -p 8100:80 -p 8101:8001 -p 8102:8002 \
+  -v /elecv2p/JSFile:/usr/local/app/script/JSFile \
+  -v /elecv2p/Store:/usr/local/app/script/Store \
+  elecv2/elecv2p:arm32
 
 # 查看 docker 运行状态
 docker ps
 
-# 进入镜像内部
+# 进入容器内部
 docker exec -it elecv2p /bin/sh
 
 # Docker 的启动暂停
@@ -68,9 +73,11 @@ docker pull elecv2/elecv2p
 mkdir /elecv2p && cd /elecv2p
 curl -sL https://git.io/JLw7s > docker-compose.yaml
 docker-compose up -d
-```
 
-*注意：默认的 docker-compose.yaml 文件已将 80/8001/8002 端口分别映射成了 8100/8101/8102，以防出现端口占用的情况。在访问时注意一下。如需调整为其他端口，可以自行修改下面的内容进行保存。*
+# 注意：默认的 docker-compose.yaml 文件使用的是基础镜像，如果是 ARM 平台请使用下面的文件手动进行修改。
+# 另外，默认把 80/8001/8002 端口分别映射成了 8100/8101/8102，以防出现端口占用的情况，访问时注意。
+# 如果需要调整为其他端口，可以自行修改下面的内容然后手动保存。
+```
 
 或者将以下内容手动保存为 docker-compose.yaml 文件。
 ``` yaml
@@ -97,14 +104,15 @@ services:
 
 然后在 docker-compose.yaml 同目录执行命令 **docker-compose up -d** 启动程序。
 
-*部分用户反映，在有些设备上需要调整 version 的版本才能启动成功。如果启动出现问题，可以尝试把 docker-compose.yaml 文件开头的 version: '3.7' 更改为 version: '3.3'.*
+*部分用户反映，在某些设备上需要调整 version 的版本才能启动。如果启动出现问题，可以尝试把 docker-compose.yaml 文件开头的 version: '3.7' 更改为 version: '3.3'。*
 
 ### 其他指令
 
 ``` sh
-# 更新容器
+# 更新升级
 docker-compose pull elecv2p && docker-compose up -d
 
+# 其他参考指令
 docker restart elecv2p_elecv2p_1
 docker exec -it elecv2p_elecv2p_1 /bin/sh
 docker logs elecv2p_elecv2p_1 -f

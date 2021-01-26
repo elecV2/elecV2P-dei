@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-01-24
-适用版本： 3.0.9
+最近更新： 2021-01-26
+适用版本： 3.1.0
 ```
 
 ## 通知方式
@@ -98,7 +98,7 @@ POST 方式，内容如下：
 }
 ```
 
-*数据最终提交格式，会自动进行判断。如果是 json 格式，会自动以 application/json 的方式提交。*
+*数据最终提交格式，会自动进行判断。如果是 JSON 格式，会自动以 application/json 的方式提交。*
 
 ## 默认通知内容
 
@@ -116,10 +116,12 @@ POST 方式，内容如下：
 ``` JS example
 $feed.push('elecV2P notification', '这是一条来自 elecV2P 的通知', 'https://github.com/elecV2/elecV2P')
 
-$feed.ifttt('title', 'description', 'https://github.com/elecV2/elecV2P-dei')   // 发送一条 ifttt 通知
-// 先设置好 ifttt webhook key
-
-$feed.bark('Bark notification', 'a bark notification', 'https://t.me/elecV2')  // 发送一条 bark 通知
+// 发送一条 IFTTT 通知。（先设置好 ifttt webhook key）
+$feed.ifttt('title', 'description', 'https://github.com/elecV2/elecV2P-dei')   
+// 发送一条 BARK 通知
+$feed.bark('Bark notification', 'a bark notification', 'https://t.me/elecV2')
+// 发送一条自定义通知
+$feed.cust('elecV2P customize notification', `一条自定义通知。\na customize notification` , 'https://t.me/elecV2')
 ```
 
 ### 其他说明
