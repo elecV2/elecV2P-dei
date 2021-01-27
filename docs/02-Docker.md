@@ -102,9 +102,11 @@ services:
       - "/elecv2p/efss:/usr/local/app/efss"
 ```
 
-然后在 docker-compose.yaml 同目录执行命令 **docker-compose up -d** 启动程序。
+*具体使用的镜像 image、端口映射和 volumes 目录，根据个人情况进行调整。*
 
 *部分用户反映，在某些设备上需要调整 version 的版本才能启动。如果启动出现问题，可以尝试把 docker-compose.yaml 文件开头的 version: '3.7' 更改为 version: '3.3'。*
+
+然后在 docker-compose.yaml 同目录执行命令 **docker-compose up -d** 启动程序。
 
 ### 其他指令
 

@@ -1,4 +1,4 @@
-## [elecV2P](https://github.com/elecV2/elecV2P) 说明文档
+## [elecV2P](https://github.com/elecV2/elecV2P) 使用说明
 
 *可直接跳转到想了解的部分，不必按顺序查看*
 

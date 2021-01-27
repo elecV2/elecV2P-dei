@@ -14,4 +14,4 @@ TG 交流群：https://t.me/elecV2G (主要为方便群友使用交流，群主2
 
 - 文档目录：[docs](https://github.com/elecV2/elecV2P-dei/tree/master/docs)
 - 例程目录：[examples](https://github.com/elecV2/elecV2P-dei/tree/master/examples)
-- 初次使用建议先把 docs 内容浏览一遍，涉及内容较多，大部分可以直接跳过，在使用中碰到问题时再回过头来查看
+- 初次使用建议先把 docs 内容浏览一遍，涉及内容较多，大部分可以直接跳过，在使用中碰到问题时再来查看
