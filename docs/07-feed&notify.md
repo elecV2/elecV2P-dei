@@ -66,7 +66,7 @@ Github 地址：https://github.com/Finb/Bark
 
 ### 自定义通知
 
-通过不同平台提供的 API 接口，实现实时通知。以 **SERVER 酱** 为例，根据官方（http://sc.ftqq.com/ ）说明，可得到一个类似：http://sc.ftqq.com/SCKEY.send 的地址，然后 POST 的数据格式为：
+通过不同平台提供的 API 接口，实现实时通知。以 **SERVER 酱** 为例，根据官方（http://sc.ftqq.com/ ）说明，可得到一个类似：http://sc.ftqq.com/SCKEY.send 的地址，然后 POST 的方式提交数据，数据格式为：
 
 ```
 {
@@ -98,7 +98,9 @@ POST 方式，内容如下：
 }
 ```
 
-*数据最终提交格式，会自动进行判断。如果是 JSON 格式，会自动以 application/json 的方式提交。*
+- *数据最终提交格式，会自动进行判断。如果是 JSON 格式，会自动以 application/json 的方式提交。*
+- *通常 API 都会有字符长度限制，比如 TG bot 的限制长度 4096，在使用时可能需要注意。*
+
 
 ## 默认通知内容
 
