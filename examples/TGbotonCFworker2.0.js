@@ -212,6 +212,11 @@ async function handlePostRequest(request) {
         
         if (CONFIG_EV2P.userid && body.message.chat.id !== CONFIG_EV2P.userid ) {
           payload.text = "这是 " + CONFIG_EV2P.name + " 私人 bot，不接受其他人的指令。\n如果有兴趣可以自己搭建一个：https://github.com/elecV2/elecV2P-dei"
+          tgPush({
+            ...payload,
+            "chat_id": CONFIG_EV2P.userid,
+            "text": `用户: ${body.message.chat.username}，ID: ${body.message.chat.id} 正在连接 elecV2P bot，发出指令为：${bodytext}。`
+          })
         } else if (/^\/?end/.test(bodytext)) {
           await context.end(uid)
           payload.text = `退出上文执行环境${(userenv && userenv.context) || ''}，回到普通模式`
@@ -354,19 +359,7 @@ async function handlePostRequest(request) {
           payload.text = '暂不支持的指令\ncheck the project: https://github.com/elecV2/elecV2P'
         }
 
-        const myInit = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=UTF-8'
-          },
-          body: JSON.stringify(payload)
-        };
-
-        let myRequest = new Request(`https://api.telegram.org/bot${CONFIG_EV2P.token}/`, myInit)
-
-        fetch(myRequest).then(function(x) {
-          console.log(x);
-        });
+        tgPush(payload)
         return new Response("OK")
       } else {
         return new Response("OK")
@@ -425,4 +418,18 @@ async function readRequestBody(request) {
     var objectURL = URL.createObjectURL(myBlob)
     return objectURL
   }
+}
+
+function tgPush(payload) {
+  const myInit = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    },
+    body: JSON.stringify(payload)
+  };
+
+  let myRequest = new Request(`https://api.telegram.org/bot${CONFIG_EV2P.token}/`, myInit)
+
+  fetch(myRequest).then(x=>console.log(x))
 }
