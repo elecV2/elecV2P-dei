@@ -1,19 +1,22 @@
-// boxjs elecV2P 兼容版。修改自：https://github.com/chavyleung/scripts/tree/master/box
-// 简易修改，测试使用，不保证原 boxjs 的所有功能能正常工作。
-// 在 webUI -> JSMANAGE 中上传该文件 (远程链接：https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/JSTEST/boxjs.ev.js)
-// RULES 添加: host boxjs.com JS boxjs.ev.js 网络请求前
-// MITM  添加: boxjs.com (需安装证书) - 如果使用 http://boxjs.com 访问，此步骤可跳过（非 https）
-// 然后通过代理软件将 boxjs.com 分流到 anyproxy 端口（默认为 127.0.0.1:8001）
-// （如果使用 chrome 浏览器推荐使用 SwitchyOmega 插件来进行分流设置）
-// 最后浏览器打开 http://boxjs.com 或 https://boxjs.com (https 需要添加 MITM host 和证书)
-// **boxjs.com 可替换为任一域名，比如 e.com**
+// BoxJs elecV2P 兼容版。修改自：https://github.com/chavyleung/scripts/tree/master/box
+// 简易修改，测试使用，不保证原 BoxJs 的所有功能能正常工作。
+// 使用方法：
+// - 在 webUI -> JSMANAGE 中上传该文件 (远程链接：https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/JSTEST/boxjs.ev.js)
+// - 在 RULES 中添加规则: host  boxjs.com  JS  boxjs.ev.js  网络请求前
+// - 然后将 boxjs.com 代理分流到 anyproxy 端口（默认为 127.0.0.1:8001）
+// （如果使用 chrome 浏览器推荐使用 SwitchyOmega 插件来进行分流设置，也可以直接使用系统代理）
+// - 最后浏览器打开 http://boxjs.com
+// 
+// 说明事项：
+// - boxjs.com 可替换为任一域名，比如 e.com
+// - 访问一个网址后浏览器会有缓存，如果首次测试失败，建议修改域名后再次尝试。（比如 e1.com/e2.cn/e3.org 等等）
 
 const $ = new Env('BoxJs')
 
 // 为 eval 准备的上下文环境
 const $eval_env = {}
 
-$.version = '0.7.58'
+$.version = '0.7.65'
 $.versionType = 'beta'
 
 // 发出的请求需要需要 Surge、QuanX 的 rewrite
@@ -54,10 +57,9 @@ $.html = $.name // `页面`类请求的响应体
 // 页面源码地址
 $.web = `https://cdn.jsdelivr.net/gh/chavyleung/scripts@${$.version}/box/chavy.boxjs.html?_=${new Date().getTime()}`
 // 版本说明地址 (Release Note)
-$.ver = 'https://gitee.com/chavyleung/scripts/raw/master/box/release/box.release.tf.json'
+$.ver = 'https://gitee.com/chavyleung/scripts/raw/master/box/release/box.release.tf.json';
 
-$result = new Promise(resolve => {
-!(async () => {
+(async () => {
   // 勿扰模式
   $.isMute = [true, 'true'].includes($.getdata('@chavy_boxjs_userCfgs.isMute'))
 
@@ -103,10 +105,11 @@ $result = new Promise(resolve => {
     $.type = 'api'
     await handleApi()
   }
+  doneBox()
+  return $result
 })()
   .catch((e) => $.logErr(e))
-  .finally(resolve(doneBox()))
-})
+  // .finally(() => doneBox())
 
 /**
  * http://boxjs.com/ => `http://boxjs.com`
@@ -158,8 +161,7 @@ async function handlePage() {
       const isQueryUrl = debugger_web.includes('?')
       $.web = `${debugger_web}${isQueryUrl ? '&' : '?'}_=${new Date().getTime()}`
       boxdata.syscfgs.isDebugMode = true
-      console.log(`[WARN] 调试模式`)
-      // console.log(`[WARN] 调试模式: $.web = : ${$.web}`)
+      console.log(`[WARN] 调试模式: $.web = : ${$.web}`)
     }
     // 如果调用这个方法来获取缓存, 且标记为`非调试模式`
     const getcache = () => {
@@ -356,6 +358,13 @@ function getSystemApps() {
 function getUserCfgs() {
   const defcfgs = { favapps: [], appsubs: [], isPinedSearchBar: true, httpapi: 'examplekey@127.0.0.1:6166' }
   const usercfgs = Object.assign(defcfgs, $.getjson($.KEY_usercfgs, {}))
+
+  // 处理异常数据：删除所有为 null 的订阅
+  if (usercfgs.appsubs.includes(null)) {
+    usercfgs.appsubs = usercfgs.appsubs.filter((sub) => sub)
+    $.setjson(usercfgs, $.KEY_usercfgs)
+  }
+
   return usercfgs
 }
 
@@ -562,7 +571,7 @@ async function apiRunScript() {
   } else {
     script_text = opts.script
   }
-  if ($.isSurge() && ishttpapi) {
+  if (0 && $.isSurge() && ishttpapi) {
     const runOpts = { timeout: opts.timeout }
     await $.runScript(script_text, runOpts).then((resp) => ($.json = JSON.parse(resp)))
   } else {
@@ -667,11 +676,11 @@ function upgradeUserData() {
 function doneBox() {
   // 记录当前使用哪个域名访问
   $.setdata(getHost($request.url), $.KEY_boxjs_host)
-  if ($.isOptions) return doneOptions()
-  else if ($.isPage) return donePage()
-  else if ($.isQuery) return doneQuery()
-  else if ($.isApi) return doneApi()
-  else return $.done()
+  if ($.isOptions) doneOptions()
+  else if ($.isPage) donePage()
+  else if ($.isQuery) doneQuery()
+  else if ($.isApi) doneApi()
+  else $.done()
 }
 
 function getBaseDoneHeaders(mixHeaders = {}) {
@@ -699,18 +708,18 @@ function getJsonDoneHeaders() {
 function doneOptions() {
   const headers = getBaseDoneHeaders()
   if ($.isSurge() || $.isLoon()) {
-    return { response: { headers } }
+    $.done({ response: { headers } })
   } else if ($.isQuanX()) {
-    return { headers }
+    $.done({ headers })
   }
 }
 
 function donePage() {
   const headers = getHtmlDoneHeaders()
   if ($.isSurge() || $.isLoon()) {
-    return { response: { status: 200, headers, body: $.html } }
+    $.done({ response: { status: 200, headers, body: $.html } })
   } else if ($.isQuanX()) {
-    return { status: 'HTTP/1.1 200', headers, body: $.html }
+    $.done({ status: 'HTTP/1.1 200', headers, body: $.html })
   }
 }
 
@@ -718,9 +727,9 @@ function doneQuery() {
   $.json = $.toStr($.json)
   const headers = getJsonDoneHeaders()
   if ($.isSurge() || $.isLoon()) {
-    return { response: { status: 200, headers, body: $.json } }
+    $.done({ response: { status: 200, headers, body: $.json } })
   } else if ($.isQuanX()) {
-    return { status: 'HTTP/1.1 200', headers, body: $.json }
+    $.done({ status: 'HTTP/1.1 200', headers, body: $.json })
   }
 }
 
@@ -728,9 +737,9 @@ function doneApi() {
   $.json = $.toStr($.json)
   const headers = getJsonDoneHeaders()
   if ($.isSurge() || $.isLoon()) {
-    return { response: { status: 200, headers, body: $.json } }
+    $.done({ response: { status: 200, headers, body: $.json } })
   } else if ($.isQuanX()) {
-    return { status: 'HTTP/1.1 200', headers, body: $.json }
+    $.done({ status: 'HTTP/1.1 200', headers, body: $.json })
   }
 }
 
