@@ -359,7 +359,7 @@ async function handlePostRequest(request) {
           payload.text = '暂不支持的指令\ncheck the project: https://github.com/elecV2/elecV2P'
         }
 
-        tgPush(payload)
+        await tgPush(payload)
         return new Response("OK")
       } else {
         return new Response("OK")
@@ -420,7 +420,7 @@ async function readRequestBody(request) {
   }
 }
 
-function tgPush(payload) {
+async function tgPush(payload) {
   const myInit = {
     method: 'POST',
     headers: {
@@ -431,5 +431,5 @@ function tgPush(payload) {
 
   let myRequest = new Request(`https://api.telegram.org/bot${CONFIG_EV2P.token}/`, myInit)
 
-  fetch(myRequest).then(x=>console.log(x))
+  await fetch(myRequest)
 }

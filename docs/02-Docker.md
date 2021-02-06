@@ -119,3 +119,7 @@ docker restart elecv2p_elecv2p_1
 docker exec -it elecv2p_elecv2p_1 /bin/sh
 docker logs elecv2p_elecv2p_1 -f
 ```
+
+### 一些说明
+
+如果使用国内的一些 docker 源，因为缓存问题，更新之后可能不是最新的版本，需要手动更换一下 docker 源。（具体步骤谷歌。）

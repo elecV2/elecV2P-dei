@@ -10,7 +10,7 @@
 
 ## 开启方式
 
-在 script/list/config.json 添加
+方法一：在 script/list/config.json 中添加下面的参数，然后重启服务。
 
 ``` JSON
 {
@@ -19,15 +19,29 @@
 }
 ```
 
-然后重启服务，再打开 webUI， 在 setting 的右上角有一个蓝黑的小圈，点击即可打开 **minishell** 界面。
+方法二：在 webUI 页面，打开浏览器开发者工具，在 Console 中执行以下代码，然后刷新一下页面。
+``` JS
+fetch('/config', {
+  method: 'put',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    "type": "config",
+    "data": {
+      "minishell": true
+    }
+  })
+}).then(res=>res.text()).then(s=>console.log(s))
+```
 
-**minishell** 的通信基于 websocket，确保执行任何命令前 websocket 是成功连接。
+再打开 webUI， 在 setting 界面的右上角有一个蓝黑的小圈，点击即可打开 **minishell** 交互台。
+
+**minishell** 的通信基于 websocket，确保执行任何命令前 websocket 是成功连接的。
 
 ## 基础使用
 
-minishell 基于 nodejs 的 child_process exec。另外做了一些修改。
-
-比如，跨平台的命令转换。在 windows 平台输入 **reboot** 命令，会自动转化为 **restart-computer**，相当于统一了 linux 和 windows 的 shell 命令。
+minishell 基于 nodejs 的 child_process exec。另外做了一些修改，比如，跨平台的命令转换。在 windows 平台输入 **reboot** 命令，会自动转化为 **restart-computer**，相当于简单统一了 linux 和 windows 的 shell 命令。
 
 更多跨平台统一命令持续添加中。
 
@@ -46,7 +60,7 @@ minishell 基于 nodejs 的 child_process exec。另外做了一些修改。
 ``` JS $exec
 // example 1
 $exec('test.py', {
-  cwd: './script/Shell',
+  cwd: './script/Shell',      // 命令执行目录
   cb(data, error){
     if (error) {
       console.error(error)
@@ -72,8 +86,6 @@ $exec('start https://github.com/elecV2/elecV2P')
 ```
 
 ## 相关说明
-
-为了方便直接调用 **Shell** 文件夹下的程序，建议将该目录添加到系统环境变量的 **PATH** 中。
 
 $exec 会调用系统默认程序执行相关文件，所以需提前安装好相关执行环境。
 比如，执行 **test.py**，需安装好 Python，并将 test.py 文件放置到 **cwd** 对应目录。
