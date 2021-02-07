@@ -35,7 +35,7 @@ fetch('/config', {
 }).then(res=>res.text()).then(s=>console.log(s))
 ```
 
-再打开 webUI， 在 setting 界面的右上角有一个蓝黑的小圈，点击即可打开 **minishell** 交互台。
+再打开 webUI， 在 SETTING 界面的右上角有一个蓝黑的小圈，点击即可打开 **minishell** 交互台。
 
 **minishell** 的通信基于 websocket，确保执行任何命令前 websocket 是成功连接的。
 
@@ -107,7 +107,7 @@ IP 以换行符或英文逗号(,)作为分隔。在黑名单中可用单个星�
 选择保存所有设置后，IP 列表会保存到 script/Lists/config.json 文件，重启服务后自动应用。
 
 可通过在请求中添加 **token=webhook token** 的参数绕过黑名单，以防不小心把自己屏蔽，而无法更改的情况。或者在非允许的 IP 网络中进行临时访问。
-例如：https://elecv2p.youser.com/?token=a8c259b2-67fe-4c64-8700-7bfdf1f55cb3 (服务器的 webhook token) , 或者
+例如：http://你的服务器地址/?token=a8c259b2-67fe-4c64-8700-7bfdf1f55cb3 (服务器的 webhook token) , 或者在浏览器开发者工具中执行以下代码
 
 ``` JS
 fetch('/config', {
@@ -116,10 +116,10 @@ fetch('/config', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    "token": "a8c259b2-67fe-4c64-8700-7bfdf1f55cb3",
+    "token": "a8c259b2-67fe-4c64-8700-7bfdf1f55cb3",           // 服务器的 webhook token。在 webUI->SETTING 界面查看和修改
     "type": "config",
     "data": {
-      "SECURITY": {"status": false}
+      "SECURITY": {"enable": false}
     }
   })
 }).then(res=>res.text()).then(s=>console.log(s))
