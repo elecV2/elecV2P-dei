@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-01-26
-适用版本： 3.1.0
+最近更新： 2021-02-08
+适用版本： 3.1.6
 ```
 
 ## 通知方式
@@ -87,24 +87,22 @@ Github 地址：https://github.com/Finb/Bark
 
 例如使用 telegram bot 通知，通知链接：https://api.telegram.org/bot你的botapi/
 
-POST 方式，内容如下：
+选择 POST 方式，内容如下：
+
 ```
 {
   "method": "sendMessage",
   "chat_id": 你的TG userid,
-  "parse_mode": "markdown",
-  "disable_web_page_preview": false,
-  "text": `$title$\n$body$\n[$url$]($url$)`
+  "text": `$title$\n$body$\n$url$`
 }
 ```
 
 - *数据最终提交格式，会自动进行判断。如果是 JSON 格式，会自动以 application/json 的方式提交。*
 - *通常 API 都会有字符长度限制，比如 TG bot 的限制长度 4096，在使用时可能需要注意。*
 
-
 ## 默认通知内容
 
-- 任务开始/暂停/删除/及结束
+- 任务开始/暂停/删除
 - JS 运行设定次数（默认 50）
 
 ## JS 调用 - 自定义通知
@@ -129,3 +127,4 @@ $feed.cust('elecV2P customize notification', `一条自定义通知。\na custom
 ### 其他说明
 
 - 当通知主题（title）中含有 **test** 关键字时，自动跳过，不添加通知内容。（方便调试）
+- 当通知主体（description）内容长度超过 1200 个字符时，会自动进行分段通知。默认 feed 通知不限制字符长度，不分段。单独调用 （$feed.ifttt/$feed.bark/$feed.cust）时也不分段通知。只有默认通知和使用 **$feed.push** 通知，在字符超过 1200 时才会分段发送。
