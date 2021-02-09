@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-01-26
-适用版本： 3.1.0
+最近更新： 2021-02-09
+适用版本： 3.1.6
 ```
 
 ## 简介
@@ -23,7 +23,7 @@ wget -qO- https://get.docker.com/ | sh
 curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 ```
 
-## 相关命令
+## Docker 相关命令
 
 *以下命令仅供参考，具体映射端口和卷根据实际情况进行调整*
 ```sh
@@ -31,15 +31,30 @@ curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compo
 docker run --restart=always -d --name elecv2p -p 80:80 -p 8001:8001 -p 8002:8002 elecv2/elecv2p
 
 # 宿主机保留 JS 文件/规则/任务/复写等列表/Store 文件等
-docker run --restart=always -d --name elecv2p -v /elecv2p/script:/usr/local/app/script -p 8100:80 -p 8101:8001 -p 8102:8002 elecv2/elecv2p
+docker run --restart=always -d --name elecv2p -e TZ=Asia/Shanghai -v /elecv2p/script:/usr/local/app/script -p 8100:80 -p 8101:8001 -p 8102:8002 elecv2/elecv2p:arm32
 
 # 使用 ARM 镜像，并调整时区以及持久化存储
-docker run --restart=always -d --name elecv2p \
+docker run --restart=always \
+  -d --name elecv2p \
   -e TZ=Asia/Shanghai \
   -p 8100:80 -p 8101:8001 -p 8102:8002 \
   -v /elecv2p/JSFile:/usr/local/app/script/JSFile \
+  -v /elecv2p/Lists:/usr/local/app/script/Lists \
   -v /elecv2p/Store:/usr/local/app/script/Store \
-  elecv2/elecv2p:arm32
+  elecv2/elecv2p:arm64
+
+# 最终推荐使用命令（最后镜像根据使用平台进行调整）
+docker run --restart=always \
+  -d --name elecv2p \
+  -e TZ=Asia/Shanghai \
+  -p 8100:80 -p 8101:8001 -p 8102:8002 \
+  -v /elecv2p/JSFile:/usr/local/app/script/JSFile \
+  -v /elecv2p/Lists:/usr/local/app/script/Lists \
+  -v /elecv2p/Store:/usr/local/app/script/Store \
+  -v /elecv2p/Shell:/usr/local/app/script/Shell \
+  -v /elecv2p/rootCA:/usr/local/app/rootCA \
+  -v /elecv2p/efss:/usr/local/app/efss \
+  elecv2/elecv2p
 
 # 查看 docker 运行状态
 docker ps
@@ -52,11 +67,11 @@ docker start elecv2p
 docker stop elecv2p
 docker restart elecv2p
 
-# 查看日志
+# 查看 Docker 运行日志
 docker logs elecv2p -f
 docker logs elecv2p --tail 20
 
-# 清空日志
+# 清除 Docker 运行日志
 echo "" > $(docker inspect --format='{{.LogPath}}' elecv2p)
 
 # 升级容器

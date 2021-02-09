@@ -37,8 +37,6 @@ fetch('/config', {
 
 再打开 webUI， 在 SETTING 界面的右上角有一个蓝黑的小圈，点击即可打开 **minishell** 交互台。
 
-**minishell** 的通信基于 websocket，确保执行任何命令前 websocket 是成功连接的。
-
 ## 基础使用
 
 minishell 基于 nodejs 的 child_process exec。另外做了一些修改，比如，跨平台的命令转换。在 windows 平台输入 **reboot** 命令，会自动转化为 **restart-computer**，相当于简单统一了 linux 和 windows 的 shell 命令。
@@ -52,6 +50,11 @@ minishell 基于 nodejs 的 child_process exec。另外做了一些修改，比�
 - cls/clear   // 清空屏幕
 - cwd         // 获取当前工作目录
 - cd xxx      // 更改当前工作目录到xxx
+
+### 其他说明
+
+- *minishell 的通信基于 websocket，确保执行任何命令前 websocket 是成功连接的*
+- *单击上方日志输出部分，停止自动滚动。单击下方命令输入部分，开启自动滚动*
 
 # 2. $exec 执行任一程序
 
