@@ -211,7 +211,7 @@ async function handlePostRequest(request) {
         let userenv = await context.get(uid)
         
         if (CONFIG_EV2P.userid && body.message.chat.id !== CONFIG_EV2P.userid ) {
-          payload.text = "这是 " + CONFIG_EV2P.name + " 私人 bot，不接受其他人的指令。\n如果有兴趣可以自己搭建一个：https://github.com/elecV2/elecV2P-dei"
+          payload.text = "这是 " + CONFIG_EV2P.name + " 私人 bot，不接受其他人的指令。\n如果有兴趣可以自己搭建一个：https://github.com/elecV2/elecV2P-dei。\n\n 频道：@elecV2  交流群：@elecV2G"
           tgPush({
             ...payload,
             "chat_id": CONFIG_EV2P.userid,
