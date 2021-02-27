@@ -41,6 +41,17 @@
  * /runjs file.js       ;运行脚本
  * /runjs https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/webhook.js
  * /deljs file.js       ;删除脚本
+ *
+ * bot commands 2.0
+runjs - 运行 JS
+task - 开始暂停任务
+status - 内存使用状态
+tasksave - 保存任务列表
+taskdel - 删除任务
+end - end context
+deljs - 删除 JS
+dellog - 删除日志
+log - 获取日志
 **/
 
 const CONFIG_EV2P = {

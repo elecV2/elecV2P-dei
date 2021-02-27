@@ -11,6 +11,8 @@
 
 等等
 
+*如果有其他比较好玩或有用的脚本，欢迎 Pull Request*
+
 ### TGbotonCFworker.js - 通过 TG bot 控制 elecV2P
 
 可实现功能：（所有操作可在 telegram 上完成）

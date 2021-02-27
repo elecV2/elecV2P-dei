@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-01-11
-适用版本： 3.0.1
+最近更新： 2021-02-23
+适用版本： 3.2.0
 ```
 
 ## 功能
@@ -54,6 +54,7 @@ fetch('http://192.168.1.102:12521/webhook', {
 | :-------: | -------------- | --------------- | --------------------
 | runjs     | fn=webhook.js  | 运行 JS         |  &type=runjs&fn=webhook.js
 | status    | 无 ---         | 服务器运行状态  |  &type=status
+| task      | 无 ---         | 获取任务列表    |  &type=task
 | tasksave  | 无 ---         | 保存任务列表    |  &type=tasksave
 | taskinfo  | tid=all or tid | 获取任务信息    |  &type=taskinfo&tid=all
 | taskstart | tid=xxtid      | 开始定时任务    |  &type=taskstart&tid=xxxowoxx
