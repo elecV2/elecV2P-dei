@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-02-27
-适用版本： 3.2.1
+最近更新： 2021-02-28
+适用版本： 3.2.2
 ```
 
 ![task](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/taskall.png)
@@ -21,9 +21,9 @@
 
 时间格式：* * * * * * （五/六位 cron 时间格式）
 
-|   * (0-59)   |  * (0-59)  |  * (0-23)  |  * (1-12)  |  * (1-31)  |  * (0-7)      
-:------------: | :--------: | :--------: | :--------: | :--------: | :---------:
-|  秒（可选）  |    分      |    小时    |      月    |     日     |    星期
+| * (0-59)   |  * (0-59)  |  * (0-23)  |  * (1-31)  |  * (1-12)  |  * (0-7)      
+:----------: | :--------: | :--------: | :--------: | :--------: | :---------:
+| 秒（可选） |    分      |    小时    |     日     |     月     |    星期
 
 
 ## 可执行任务类型
@@ -86,7 +86,7 @@ ls -c script/JSFile
 
 ## 保存任务列表
 
-当点击**保存当前任务列表**后，当前任务列表，包含运行状态，会保存到 script/Lists/task.list 文件中，在重启服务后，任务列表会自动从 task.list 文件中恢复。保存的任务基本格式为：
+当点击**保存当前任务列表**后，当前任务列表，包含运行状态，以及订阅信息列表，会保存到 script/Lists/task.list 文件中，在重启 elecV2P 后，任务列表会自动从 task.list 中恢复。保存的任务基本格式为：
 
 ``` JSON task.list
 {
@@ -101,7 +101,7 @@ ls -c script/JSFile
     }
   },
   "J8R0fbBN": {
-    "name": "任意的任务名称",
+    "name": "查看当前目录文件",
     "type": "cron",
     "time": "2 3 4 * * *",
     "running": false,
@@ -126,6 +126,8 @@ ls -c script/JSFile
 ## 远程订阅（请勿添加不信任的订阅链接）
 
 *v3.2.1 添加功能，更新后前往 webUI->TASK 界面查看。（不兼容其他软件的订阅格式）*
+
+![tasksub](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/tasksub.png)
 
 订阅内容格式为 JSON, 相关参数如下：
 ``` JSON
@@ -191,7 +193,12 @@ ls -c script/JSFile
 - 本地订阅文件导入
 
 将订阅文件上传到 efss 目录，然后添加一个本地订阅，例如：http://127.0.0.1/efss/tasksub.json
+或者远程 https://xxx/efss/tasksub.json
+
+*如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现了 Network Error 的错误提醒，可能是浏览器 CORS 导致的问题，尝试直接下载文件上传到 efss 目录，然后本地订阅*
 
 - 其他订阅格式转换
 
 参考脚本 https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/exam-tasksub.js
+
+**当订阅任务中包含类似 rm -f * 的 Shell 指令时，可能会删除服务器上的所有文件，所以请勿必清楚具体订阅任务后再进行添加，不要添加不信任的来源订阅**
