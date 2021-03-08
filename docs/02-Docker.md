@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-02-09
-适用版本： 3.1.6
+最近更新： 2021-03-05
+适用版本： 3.2.3
 ```
 
 ## 简介
@@ -23,16 +23,14 @@ wget -qO- https://get.docker.com/ | sh
 curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 ```
 
-## Docker 相关命令
+## Docker 运行 elecV2P
 
 *以下命令仅供参考，具体映射端口和卷根据实际情况进行调整*
 ```sh
-# 基础启动命令
+# 基础启动命令（重建后数据会丢失）
 docker run --restart=always -d --name elecv2p -p 80:80 -p 8001:8001 -p 8002:8002 elecv2/elecv2p
 
 # 宿主机保留 JS 文件/规则/任务/复写等列表/Store 文件等
-docker run --restart=always -d --name elecv2p -e TZ=Asia/Shanghai -v /elecv2p/script:/usr/local/app/script -p 8100:80 -p 8101:8001 -p 8102:8002 elecv2/elecv2p:arm32
-
 # 使用 ARM 镜像，并调整时区以及持久化存储
 docker run --restart=always \
   -d --name elecv2p \
@@ -129,12 +127,13 @@ services:
 # 更新升级
 docker-compose pull elecv2p && docker-compose up -d
 
-# 其他参考指令
-docker restart elecv2p_elecv2p_1
-docker exec -it elecv2p_elecv2p_1 /bin/sh
-docker logs elecv2p_elecv2p_1 -f
+# 拉取特定版本的镜像文件。可用版本以 https://hub.docker.com/r/elecv2/elecv2p 的 tag 为准
+docker pull elecv2/elecv2p:3.0
+docker pull elecv2/elecv2p:arm64-3.0    # 在使用这些特定版本的镜像时，docker run 后面的镜像名也要记得调整
+
+docker image prune       # 清除没有挂载的镜像文件
 ```
 
 ### 一些说明
 
-如果使用国内的一些 docker 源，因为缓存问题，更新之后可能不是最新的版本，需要手动更换一下 docker 源。（具体步骤谷歌。）
+- 使用国内的一些 docker 源，因为缓存问题，更新之后可能不是最新的版本，需要手动更换一下 docker 源。（具体步骤谷歌）

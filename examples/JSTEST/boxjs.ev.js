@@ -1,3 +1,5 @@
+// elecV2P v3.2.3 版本后，可直接使用 chavyleung 的 boxjs (https://raw.githubusercontent.com/chavyleung/scripts/master/box/chavy.boxjs.js)。本脚本不再维护
+// 
 // BoxJs elecV2P 兼容版。修改自：https://github.com/chavyleung/scripts/tree/master/box
 // 简易修改，测试使用，不保证原 BoxJs 的所有功能能正常工作。
 // 使用方法：
@@ -10,6 +12,7 @@
 // 说明事项：
 // - boxjs.com 可替换为任一域名，比如 e.com
 // - 访问一个网址后浏览器会有缓存，如果首次测试失败，建议修改域名后再次尝试。（比如 e1.com/e2.cn/e3.org 等等）
+// - 如果在 boxjs 中无法运行脚本，尝试在右上角菜单中清空 HTTP-API 内容，或者直接在左上角调整为 QuanX或Loon 模式
 
 const $ = new Env('BoxJs')
 
