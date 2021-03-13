@@ -12,9 +12,11 @@
  * 2.0 更新：添加上下文执行环境（还在测试优化中）
  * - /runjs   进入脚本执行环境，接下来直接输入文件名或远程链接则可直接运行
  * - /task    进入任务操作环境，可直接点击按钮暂停开始任务。（前面的绿色龟表示任务运行中）
- * - /shell   进行 shell 执行环境
+ * - /shell   进行 shell 执行环境，默认 timeout 为 3000ms（v3.2.4 版本后生效）
  * - /context 获取当前执行环境，如果没有，则为普通模式
  * 其它模式完善中...
+ * 
+ * 特殊指令 sudo clear ; 清空当前 context 值（以防服务器长时间无返回而卡死的问题）
  *
  * 下面 /command 命令的优先级高于当前执行环境
  *
@@ -46,15 +48,16 @@
  *
  * bot commands 2.0
 runjs - 运行 JS
-shell - 执行简单 shell 指令
 task - 开始暂停任务
 status - 内存使用状态
+shell - 执行简单 shell 指令
 end - end context
 tasksave - 保存任务列表
 taskdel - 删除任务
 deljs - 删除 JS
 dellog - 删除日志
 log - 获取日志
+context - 查看当前执行模式
 **/
 
 const CONFIG_EV2P = {
@@ -219,8 +222,8 @@ function shellRun(command) {
     return '请输入 command 指令，比如：ls'
   }
   return new Promise((resolve,reject)=>{
-    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=shell&command=' + command).then(res=>res.text()).then(r=>{
-      resolve(r)
+    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=shell&timeout=3000&command=' + command).then(res=>res.text()).then(r=>{
+      resolve(r.slice(CONFIG_EV2P.slice))
     }).catch(e=>{
       reject(e)
     })
@@ -243,6 +246,13 @@ async function handlePostRequest(request) {
       if (body.message.text) {
         let bodytext = body.message.text.trim()
         let uid = 'u' + payload['chat_id']
+
+        if (bodytext === 'sudo clear') {
+          await store.delete(uid)
+          payload.text = 'current context is cleared.'
+          tgPush(payload)
+          return new Response("OK")
+        }
         let userenv = await context.get(uid)
         
         if (CONFIG_EV2P.userid && CONFIG_EV2P.userid.length && CONFIG_EV2P.userid.indexOf(body.message.chat.id) === -1) {

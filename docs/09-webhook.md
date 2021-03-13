@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-02-23
-适用版本： 3.2.0
+最近更新： 2021-03-13
+适用版本： 3.2.4
 ```
 
 ## 功能
@@ -11,15 +11,14 @@
 - 获取定时任务信息
 - 开始/暂停 定时任务
 - 添加/保存 定时任务
-- 删除 EFSS 中的文件
 - 远程下载文件到 EFSS （目前只支持下载 http 协议的远程文件）
 - 执行 shell 指令
 
 ## 使用
 
-假如服务器地址为： http://192.168.1.102:12521 （后台管理界面的地址，默认端口为 80。）
+假如服务器地址为： http://192.168.1.102:12521 （后台管理界面的地址，默认端口为 80）
 
-首先访问 webUI（上面的网页地址）-> SETTING，获取 webhook token.
+首先访问 webUI（上面的网页地址）-> SETTING，获取 webhook token
 
 webhook 可通过 GET/PUT/POST 三种请求方式触发，下面以几个简单的例子进行说明。
 
@@ -61,13 +60,14 @@ fetch('http://192.168.1.102:12521/webhook', {
 | taskstop  | tid=xxtid      | 暂停定时任务    |  &type=taskstop&tid=xxxowoxx
 | deletelog | fn=file.js.log | 删除日志文件    |  &type=deletelog&fn=file.js.log
 | taskadd   | task: {}       | 添加定时任务    |  { type: 'taskadd', task: {} }
-| efssdelete  | fn=filename  | 删除EFSS中的文件|  &type=efssdelete&fn=文件名称
 | download  | url=http://xxx | 下载文件到EFSS  |  &type=download&url=https://rawxxxx
 | shell     | command=ls     | 执行 shell 指令 |  &type=shell&command=node%20-v
 
-**每次请求注意带上 token**
-**如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
-**command 指令应该先使用 encodeURI 进行编码**
+- **每次请求注意带上 token**
+- **如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
+- **command 指令应该先使用 encodeURI 进行编码**
+- **shell 执行默认 timeout 为 5000ms（以防出现服务器长时间无响应的问题）**
+- **shell 支持附加 cwd 和 timeout 参数**
 
 ```
 # 获取内存使用信息
@@ -81,6 +81,9 @@ http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=downl
 
 # 列出 script/Shell 目录下的文件
 http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell&command=ls%20-c%20script/Shell
+
+# shell 使用 cwd 和 timeout 参数
+http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell&command=ls&cwd=script/JSFile&timeout=2000
 ```
 
 ### 添加定时任务 2.4.6 更新
@@ -110,3 +113,5 @@ fetch('/webhook', {
 ```
 
 task 格式参考：https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md
+
+> webhook 可配合 telegram bot 和 快捷指令使用，方便快速调用 elecV2P 相关功能

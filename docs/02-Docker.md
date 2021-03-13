@@ -54,6 +54,8 @@ docker run --restart=always \
   -v /elecv2p/efss:/usr/local/app/efss \
   elecv2/elecv2p
 
+#（某些设备上，可能无法在根目录创建 elecv2p 文件夹，这时请根据使用设备搜索可操作的目录，进行替换）
+
 # 查看 docker 运行状态
 docker ps
 

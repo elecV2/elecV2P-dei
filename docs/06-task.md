@@ -77,9 +77,9 @@ binaryfile
 ```
 
 **v2.3.4 更新 -e/-c**
-可通过 **-c/-e** 关键字更改工作目录和环境变量。
+可通过 **-c/-e** 关键字更改工作目录和环境变量，比如：
 
-``` sh 示例命令
+``` sh
 hello.sh -e name=Polo
 ls -c script/JSFile
 ```
@@ -201,4 +201,4 @@ ls -c script/JSFile
 
 参考脚本 https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/exam-tasksub.js
 
-**当订阅任务中包含类似 rm -f * 的 Shell 指令时，可能会删除服务器上的所有文件，所以请勿必清楚具体订阅任务后再进行添加，不要添加不信任的来源订阅**
+**当订阅任务中包含类似 rm -f * 的 Shell 指令时，可能会删除服务器上的所有文件，所以请勿必清楚具体订阅任务后再进行添加，不要添加不信任来源的订阅**
