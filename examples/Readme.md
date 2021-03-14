@@ -13,7 +13,9 @@
 
 *如果有其他比较好玩或有用的脚本，欢迎 Pull Request*
 
-### TGbotonCFworker.js - 通过 TG bot 控制 elecV2P
+### [TGbotonCFworker.js](https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker.js) - 通过 TG bot 控制 elecV2P
+
+2.0 版本(新增上下文执行环境): https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
 
 可实现功能：（所有操作可在 telegram 上完成）
 - 运行 JS
@@ -22,9 +24,8 @@
 - 获取定时任务信息
 - 开始/暂停 定时任务
 - 删除/保存 定时任务
+- 执行 shell 指令
 
-前提： elecV2P 服务器可通过外网访问
+前提: elecV2P 服务器可通过外网访问
 
-具体使用见 **TGbotonCFworker.js** 注释内容
-
-TGbotonCFworker2.0.js 新增上下文执行环境。
+具体使用见脚本内注释内容

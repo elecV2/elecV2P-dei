@@ -1,12 +1,14 @@
 /**
  * 说明：可部署到 cloudfalre worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
+ * 地址：https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker.js
+ * (该版本基本不再更新，最新功能见 2.0 版本 https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js)
  *
  * 使用方式：
  * 先申请好 TG BOT(https://t.me/botfather)，然后设置好 CONFIG 内容
  * tgbot token: 在 telegram botfather 中找到 api token, 然后填写到相应位置
  * 然后把修改后的整个 JS 内容粘贴到 cloudfalre worker 代码框，保存即可。得到一个类似 https://xx.xxxxx.workders.dev 的网址
- * 接着使用 https://api.telegram.org/bot(你的 tgbot token)/setWebhook?url=https://xx.xxxxx.workders.dev 给 tg bot 添加 webhook，部署完成。
- * 最后，打开 tgbot 对话框，输入下面的相关指令，测试 TGbot 是否成功。
+ * 接着使用 https://api.telegram.org/bot(你的 tgbot token)/setWebhook?url=https://xx.xxxxx.workders.dev 给 tg bot 添加 webhook，部署完成
+ * 最后，打开 tgbot 对话框，输入下面的相关指令，测试 TGbot 是否成功
  *
  * 实现功能及相关指令：
  * 查看服务器资源使用状态
@@ -235,12 +237,8 @@ async function handlePostRequest(request) {
           })
           payload.text = "点击查看日志"
           payload.reply_markup = keyb
-        } else if (!/\.log$/.test(bodytext)) {
-          bodytext = bodytext + '.js.log'
-          payload.text = await getLogs(bodytext)
-          payload.text = payload.text.slice(CONFIG_EV2P.slice)
         } else {
-          payload.text = '暂不支持的指令\ncheck the project: https://github.com/elecV2/elecV2P'
+          payload.text = 'TGbot 部署成功，可以使用相关指令和 elecV2P 服务器进行交互了\nPowered By: https://github.com/elecV2/elecV2P\n\n频道: @elecV2 | 群组: @elecV2G'
         }
 
         const myInit = {

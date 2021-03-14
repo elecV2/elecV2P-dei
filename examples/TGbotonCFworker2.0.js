@@ -1,5 +1,6 @@
 /**
  * 功能：部署在 cloudfalre worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
+ * 地址：https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
  * 
  * 使用方式：
  * 先申请好 TG BOT(https://t.me/botfather)，然后设置好下面代码中 CONFIG_EV2P 的内容
@@ -46,6 +47,10 @@
  * /runjs https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/webhook.js
  * /deljs file.js       ;删除脚本
  *
+ * shell 指令相关
+ * /exec ls  ===  /shell ls  ===  exec ls
+ * exec pm2 ls
+ * 
  * bot commands 2.0
 runjs - 运行 JS
 task - 开始暂停任务
@@ -67,7 +72,11 @@ const CONFIG_EV2P = {
   token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",     // teleram bot token
   slice: -800,           // 截取日志最后 800 个字符，以防太长无法传输
   userid: [],            // 只对该列表中的 userid 发出的指令进行回应。默认：回应所有用户的指令
-  kvname: elecV2P        // 保存上下文内容的 kv namespace。在 cf 上创建并绑定后自行更改
+  kvname: elecV2P,       // 保存上下文内容的 kv namespace。在 cf 上创建并绑定后自行更改
+  shell: {
+    timeout: 1000*6,     // shell exec 超时时间，单位: ms
+    contexttimeout: 1000*60*5,               // shell 模式自动退出时间
+  }
 }
 
 const store = {
@@ -92,7 +101,7 @@ const context = {
   },
   put: async (uid, uenv, command) => {
     let ctx = await context.get(uid)
-    if (!ctx) {
+    if (typeof ctx !== 'object') {
       ctx = {
         command: []
       }
@@ -103,6 +112,7 @@ const context = {
     if (command) {
       ctx.command ? ctx.command.push(command) : ctx.command = [command]
     }
+    ctx.active = Date.now()
     await store.put(uid, JSON.stringify(ctx))
   },
   run: async (uid, target) => {
@@ -222,7 +232,7 @@ function shellRun(command) {
     return '请输入 command 指令，比如：ls'
   }
   return new Promise((resolve,reject)=>{
-    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=shell&timeout=3000&command=' + command).then(res=>res.text()).then(r=>{
+    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + `&type=shell&timeout=${CONFIG_EV2P.shell && CONFIG_EV2P.shell.timeout || 3000}&command=` + command).then(res=>res.text()).then(r=>{
       resolve(r.slice(CONFIG_EV2P.slice))
     }).catch(e=>{
       reject(e)
@@ -274,27 +284,30 @@ async function handlePostRequest(request) {
         } else if (/^\/?status/.test(bodytext)) {
           payload.text = await getStatus()
         } else if (/^\/?(dellog|deletelog) /.test(bodytext)) {
-          let cont = bodytext.split(' ').pop()
+          let cont = bodytext.replace(/^\/?(dellog|deletelog) /, '')
           if (!(cont === 'all' || /\.log$/.test(cont))) cont = cont + '.js.log'
           payload.text = await delLogs(cont)
         } else if (/^\/?taskinfo /.test(bodytext)) {
-          let cont = bodytext.split(' ').pop()
+          let cont = bodytext.replace(/^\/?taskinfo /, '')
           payload.text = await getTaskinfo(cont)
-        } else if (/\.log$/.test(bodytext) || /^\/?log /.test(bodytext)) {
-          let cont = bodytext.split(' ').pop()
+        } else if (/^\/?log /.test(bodytext)) {
+          let cont = bodytext.replace(/^\/?log /, '')
           if (!/\.log$/.test(cont)) cont = cont + '.js.log'
           payload.text = await getLogs(cont)
         } else if (/^\/?taskstart /.test(bodytext)) {
-          let cont = bodytext.split(' ').pop()
+          let cont = bodytext.replace(/^\/?taskstart /, '')
           payload.text = await opTask(cont, 'start')
         } else if (/^\/?taskstop /.test(bodytext)) {
-          let cont = bodytext.split(' ').pop()
+          let cont = bodytext.replace(/^\/?taskstop /, '')
           payload.text = await opTask(cont, 'stop')
         } else if (/^\/?taskdel /.test(bodytext)) {
-          let cont = bodytext.split(' ').pop()
+          let cont = bodytext.replace(/^\/?taskdel /, '')
           payload.text = await opTask(cont, 'del')
         } else if (/^\/?tasksave/.test(bodytext)) {
           payload.text = await saveTask()
+        } else if (/^\/?deljs /.test(bodytext)) {
+          let cont = bodytext.replace(/^\/?deljs /, '')
+          payload.text = await deleteJS(cont)
         } else if (/^\/?task/.test(bodytext)) {
           let cont = bodytext.trim().split(' ')
           if (cont.length === 1) {
@@ -315,7 +328,7 @@ async function handlePostRequest(request) {
                   text: (s[3] === 'true' ? '🐢' : '🦇') + s[1] + ' ' + s[0]
                 }]
               })
-              payload.text = '进入 task 模式，点击开始/暂停任务'
+              payload.text = '进入 task 模式，点击开始/暂停任务。🐢 表示正在运行的任务，🦇 表示暂停中的任务。(ps: 操作后该任务列表的状态并不会立即变化)'
               payload.reply_markup = keyb
             } catch(e) {
               payload.text = e.message
@@ -323,9 +336,6 @@ async function handlePostRequest(request) {
           } else {
             payload.text = 'unknow task operation'
           }
-        } else if (/^\/?deljs /.test(bodytext)) {
-          let cont = bodytext.split(' ').pop()
-          payload.text = await deleteJS(cont)
         } else if (/^\/?runjs/.test(bodytext)) {
           let cont = bodytext.trim().split(' ')
           if (cont.length === 1) {
@@ -377,7 +387,7 @@ async function handlePostRequest(request) {
               payload.text = e.message
             }
           } else {
-            payload.text = await shellRun(cont.pop())
+            payload.text = await shellRun(bodytext.replace(/^\/?(shell|exec) /, ''))
           }
         } else if (/^\/?all/.test(bodytext)) {
           bodytext = 'all'
@@ -419,7 +429,11 @@ async function handlePostRequest(request) {
               payload.text = await opTask(bodytext.split(' ').pop(), /^🐢/.test(bodytext) ? 'stop' : 'start')
               break
             case 'shell':
-              payload.text = await shellRun(bodytext)
+              if (Date.now() - context.active > (CONFIG_EV2P.shell && CONFIG_EV2P.shell.contexttimeout)) {
+                payload.text = '已经超过' + CONFIG_EV2P.shell.contexttimeout + 'ms 没有执行 shell 指令，自动退出 shell 模式。使用 /shell 命令重新进入'
+              } else {
+                payload.text = await shellRun(bodytext)
+              }
               break
             default: {
               payload.text = '未知执行环境' + userenv.context
