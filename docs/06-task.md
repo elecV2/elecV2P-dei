@@ -192,7 +192,7 @@ ls -c script/JSFile
 
 - 本地订阅文件导入
 
-将订阅文件上传到 efss 目录，然后添加一个本地订阅，例如：http://127.0.0.1/efss/tasksub.json
+在 http://127.0.0.1/efss 界面上传订阅文件，然后添加一个本地订阅，例如：http://127.0.0.1/efss/tasksub文件名.json
 或者远程 https://xxx/efss/tasksub.json
 
 *如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现了 Network Error 的错误提醒，可能是浏览器 CORS 导致的问题，尝试直接下载文件上传到 efss 目录，然后本地订阅*

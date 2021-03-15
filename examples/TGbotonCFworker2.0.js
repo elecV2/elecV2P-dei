@@ -1,8 +1,8 @@
 /**
- * 功能：部署在 cloudfalre worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
- * 地址：https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
+ * 功能: 部署在 cloudfalre worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
+ * 地址: https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
  * 
- * 使用方式：
+ * 使用方式: 
  * 先申请好 TG BOT(https://t.me/botfather)，然后设置好下面代码中 CONFIG_EV2P 的内容
  * tgbot token: 在 telegram botfather 中找到 api token, 然后填写到相应位置
  * 然后把修改后的整个 JS 内容粘贴到 cloudfalre worker 代码框，保存即可。得到一个类似 https://xx.xxxxx.workders.dev 的网址
@@ -10,10 +10,10 @@
  * 接着在浏览器中打开链接: https://api.telegram.org/bot(你的 tgbot token)/setWebhook?url=https://xx.xxxxx.workders.dev 给 TGbot 添加 webhook，部署完成
  * 最后，打开 TGbot 对话框，输入下面的相关指令，测试 TGbot 是否成功
  *
- * 2.0 更新：添加上下文执行环境（还在测试优化中）
+ * 2.0 更新: 添加上下文执行环境（还在测试优化中）
  * - /runjs   进入脚本执行环境，接下来直接输入文件名或远程链接则可直接运行
  * - /task    进入任务操作环境，可直接点击按钮暂停开始任务。（前面的绿色龟表示任务运行中）
- * - /shell   进行 shell 执行环境，默认 timeout 为 3000ms（v3.2.4 版本后生效）
+ * - /shell   进行 shell 执行环境，默认 timeout 为 3000ms（elecV2P v3.2.4 版本后生效）
  * - /context 获取当前执行环境，如果没有，则为普通模式
  * 其它模式完善中...
  * 
@@ -21,7 +21,7 @@
  *
  * 下面 /command 命令的优先级高于当前执行环境
  *
- * 实现功能及相关指令：
+ * 实现功能及相关指令: 
  * 查看服务器资源使用状态
  * status === /status  ;任何包含 status 关键字的指令
  * 
@@ -63,6 +63,7 @@ deljs - 删除 JS
 dellog - 删除日志
 log - 获取日志
 context - 查看当前执行模式
+command - 列出所有指令
 **/
 
 const CONFIG_EV2P = {
@@ -71,11 +72,11 @@ const CONFIG_EV2P = {
   wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // elecV2P 服务器 webhook token
   token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",     // teleram bot token
   slice: -800,           // 截取日志最后 800 个字符，以防太长无法传输
-  userid: [],            // 只对该列表中的 userid 发出的指令进行回应。默认：回应所有用户的指令
+  userid: [],            // 只对该列表中的 userid 发出的指令进行回应。默认: 回应所有用户的指令
   kvname: elecV2P,       // 保存上下文内容的 kv namespace。在 cf 上创建并绑定后自行更改
   shell: {
     timeout: 1000*6,     // shell exec 超时时间，单位: ms
-    contexttimeout: 1000*60*5,               // shell 模式自动退出时间
+    contexttimeout: 1000*60*5,               // shell 模式自动退出时间，单位: ms
   }
 }
 
@@ -229,7 +230,7 @@ function shellRun(command) {
   if (command) {
     command = encodeURI(command)
   } else {
-    return '请输入 command 指令，比如：ls'
+    return '请输入 command 指令，比如: ls'
   }
   return new Promise((resolve,reject)=>{
     fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + `&type=shell&timeout=${CONFIG_EV2P.shell && CONFIG_EV2P.shell.timeout || 3000}&command=` + command).then(res=>res.text()).then(r=>{
@@ -262,24 +263,39 @@ async function handlePostRequest(request) {
           payload.text = 'current context is cleared.'
           tgPush(payload)
           return new Response("OK")
+        } else if (bodytext === '/command') {
+          payload.text = `/runjs - 运行 JS
+/task - 开始暂停任务
+/status - 内存使用状态
+/shell - 执行简单 shell 指令
+/end - end context
+/tasksave - 保存任务列表
+/taskdel - 删除任务
+/deljs - 删除 JS
+/dellog - 删除日志
+/log - 获取日志
+/context - 查看当前执行模式
+/command - 列出所有指令`
+          tgPush(payload)
+          return new Response("OK")
         }
         let userenv = await context.get(uid)
         
         if (CONFIG_EV2P.userid && CONFIG_EV2P.userid.length && CONFIG_EV2P.userid.indexOf(body.message.chat.id) === -1) {
-          payload.text = "这是 " + CONFIG_EV2P.name + " 私人 bot，不接受其他人的指令。\n如果有兴趣可以自己搭建一个：https://github.com/elecV2/elecV2P-dei\n\n频道：@elecV2  交流群：@elecV2G"
+          payload.text = "这是 " + CONFIG_EV2P.name + " 私人 bot，不接受其他人的指令。\n如果有兴趣可以自己搭建一个: https://github.com/elecV2/elecV2P-dei\n\n频道: @elecV2  交流群: @elecV2G"
           tgPush({
             ...payload,
             "chat_id": CONFIG_EV2P.userid,
-            "text": `用户: ${body.message.chat.username}，ID: ${body.message.chat.id} 正在连接 elecV2P bot，发出指令为：${bodytext}。`
+            "text": `用户: ${body.message.chat.username}，ID: ${body.message.chat.id} 正在连接 elecV2P bot，发出指令为: ${bodytext}。`
           })
         } else if (/^\/?end/.test(bodytext)) {
           await context.end(uid)
           payload.text = `退出上文执行环境${(userenv && userenv.context) || ''}，回到普通模式`
         } else if (/^\/?context$/.test(bodytext)) {
           if (userenv && userenv.context) {
-            payload.text = '当前执行环境为：' + userenv.context + '\n输入 end 回到普通模式'
+            payload.text = '当前执行环境为: ' + userenv.context + '\n输入 end 回到普通模式'
           } else {
-            payload.text = '当前执行环境为：普通模式'
+            payload.text = '当前执行环境为: 普通模式'
           }
         } else if (/^\/?status/.test(bodytext)) {
           payload.text = await getStatus()
@@ -381,7 +397,7 @@ async function handlePostRequest(request) {
                 one_time_keyboard: false,
                 selective: true
               }
-              payload.text = '进入 shell 模式，可执行简单 shell 指令，比如：ls, node -v 等'
+              payload.text = '进入 shell 模式，可执行简单 shell 指令，比如: ls, node -v 等'
               payload.reply_markup = keyb
             } catch(e) {
               payload.text = e.message
@@ -420,7 +436,6 @@ async function handlePostRequest(request) {
           payload.text = "点击查看日志"
           payload.reply_markup = keyb
         } else if (userenv && userenv.context) {
-          await context.put(uid, userenv.context, bodytext)
           switch (userenv.context) {
             case 'runjs':
               payload.text = await jsRun(bodytext)
@@ -429,16 +444,18 @@ async function handlePostRequest(request) {
               payload.text = await opTask(bodytext.split(' ').pop(), /^🐢/.test(bodytext) ? 'stop' : 'start')
               break
             case 'shell':
-              if (Date.now() - context.active > (CONFIG_EV2P.shell && CONFIG_EV2P.shell.contexttimeout)) {
-                payload.text = '已经超过' + CONFIG_EV2P.shell.contexttimeout + 'ms 没有执行 shell 指令，自动退出 shell 模式。使用 /shell 命令重新进入'
+              if (Date.now() - userenv.active > (CONFIG_EV2P.shell && CONFIG_EV2P.shell.contexttimeout)) {
+                payload.text = '已经超过 ' + CONFIG_EV2P.shell.contexttimeout/1000/60 + ' 分钟没有执行 shell 指令，自动退出 shell 模式\n使用 /shell 命令重新进入\n/end 回到普通模式'
+                userenv.context = 'normal'
               } else {
                 payload.text = await shellRun(bodytext)
               }
               break
             default: {
-              payload.text = '未知执行环境' + userenv.context
+              payload.text = '当前执行环境: ' + userenv.context + ' 无法处理指令: ' + bodytext
             }
           }
+          await context.put(uid, userenv.context, bodytext)
         } else {
           payload.text = 'TGbot 部署成功，可以使用相关指令和 elecV2P 服务器进行交互了\nPowered By: https://github.com/elecV2/elecV2P\n\n频道: @elecV2 | 群组: @elecV2G'
         }
