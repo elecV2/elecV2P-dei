@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-02-28
-适用版本： 3.2.2
+最近更新： 2021-03-17
+适用版本： 3.2.6
 ```
 
 ![task](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/taskall.png)
@@ -76,12 +76,12 @@ binaryfile
 # 以上文件会通过系统默认程序打开，请先安装好对应执行环境，以及注意文件的执行权限
 ```
 
-**v2.3.4 更新 -e/-c**
-可通过 **-c/-e** 关键字更改工作目录和环境变量，比如：
+**v3.2.6 更新增加 -env/-cwd 变量** (*v2.3.4 版本到 v3.2.5版本，使用关键字是 -e/-c，为避免和其他命令冲突，v3.2.6 修改为 **-env/-cwd***)
+可通过 **-cwd/-env** 关键字更改工作目录和环境变量，比如:
 
 ``` sh
-hello.sh -e name=Polo
-ls -c script/JSFile
+sh hello.sh -env name=Polo
+ls -cwd script/JSFile
 ```
 
 ## 保存任务列表

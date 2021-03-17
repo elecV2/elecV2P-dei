@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-03-13
-适用版本： 3.2.4
+最近更新： 2021-03-17
+适用版本： 3.2.6
 ```
 
 ## 功能
@@ -62,12 +62,14 @@ fetch('http://192.168.1.102:12521/webhook', {
 | taskadd   | task: {}       | 添加定时任务    |  { type: 'taskadd', task: {} }
 | download  | url=http://xxx | 下载文件到EFSS  |  &type=download&url=https://rawxxxx
 | shell     | command=ls     | 执行 shell 指令 |  &type=shell&command=node%20-v
+| info      | debug=1  可选  | 查看服务器信息  |  &type=info or &type=info&debug=true
 
 - **每次请求注意带上 token**
 - **如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
 - **command 指令应该先使用 encodeURI 进行编码**
 - **shell 执行默认 timeout 为 5000ms（以防出现服务器长时间无响应的问题）**
 - **shell 支持附加 cwd 和 timeout 参数**
+- **info v3.2.6 版本后添加**
 
 ```
 # 获取内存使用信息
@@ -84,6 +86,9 @@ http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell
 
 # shell 使用 cwd 和 timeout 参数
 http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell&command=ls&cwd=script/JSFile&timeout=2000
+
+# 获取elecV2P 及服务器相关信息
+http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=info&debug=true
 ```
 
 ### 添加定时任务 2.4.6 更新

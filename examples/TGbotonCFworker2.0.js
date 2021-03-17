@@ -10,10 +10,13 @@
  * 接着在浏览器中打开链接: https://api.telegram.org/bot(你的 tgbot token)/setWebhook?url=https://xx.xxxxx.workders.dev 给 TGbot 添加 webhook，部署完成
  * 最后，打开 TGbot 对话框，输入下面的相关指令，测试 TGbot 是否成功
  *
+ * 更新方式: 除了开头的 CONFIG_EV2P 保留为自己修改后的，后面所有内容直接复制覆盖即可
+ *
  * 2.0 更新: 添加上下文执行环境（还在测试优化中）
  * - /runjs   进入脚本执行环境，接下来直接输入文件名或远程链接则可直接运行
  * - /task    进入任务操作环境，可直接点击按钮暂停开始任务。（前面的绿色龟表示任务运行中）
- * - /shell   进行 shell 执行环境，默认 timeout 为 3000ms（elecV2P v3.2.4 版本后生效）
+ * - /shell   进入 shell 执行环境，默认 timeout 为 3000ms（elecV2P v3.2.4 版本后生效）
+ * - /log     进入 日志查看模式
  * - /context 获取当前执行环境，如果没有，则为普通模式
  * 其它模式完善中...
  * 
@@ -31,7 +34,6 @@
  *
  * 查看 log 文件
  * /log file
- * /all === all   ;返回所有 log 文件列表
  *
  * 任务相关
  * /taskinfo all        ;获取所有任务信息
@@ -42,7 +44,6 @@
  * /tasksave            ;保存当前任务列表
  * 
  * 脚本相关
- * /listjs              ;列出所有 JS 脚本。
  * /runjs file.js       ;运行脚本
  * /runjs https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/webhook.js
  * /deljs file.js       ;删除脚本
@@ -71,7 +72,7 @@ const CONFIG_EV2P = {
   url: "https://xxxxx.xxxxxx.com/",          // elecV2P 服务器地址
   wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // elecV2P 服务器 webhook token
   token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",     // teleram bot token
-  slice: -800,           // 截取日志最后 800 个字符，以防太长无法传输
+  slice: -1800,          // 截取日志最后 1800 个字符，以防太长无法传输
   userid: [],            // 只对该列表中的 userid 发出的指令进行回应。默认: 回应所有用户的指令
   kvname: elecV2P,       // 保存上下文内容的 kv namespace。在 cf 上创建并绑定后自行更改
   shell: {
@@ -125,6 +126,9 @@ const context = {
 }
 
 function getLogs(s){
+  if (s !== 'all' && !/\.log$/.test(s)) {
+    s = s + '.js.log'
+  }
   return new Promise((resolve,reject)=>{
     fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=getlog&fn=' + s).then(res=>res.text()).then(r=>{
       resolve(r.slice(CONFIG_EV2P.slice))
@@ -282,7 +286,7 @@ async function handlePostRequest(request) {
         let userenv = await context.get(uid)
         
         if (CONFIG_EV2P.userid && CONFIG_EV2P.userid.length && CONFIG_EV2P.userid.indexOf(body.message.chat.id) === -1) {
-          payload.text = "这是 " + CONFIG_EV2P.name + " 私人 bot，不接受其他人的指令。\n如果有兴趣可以自己搭建一个: https://github.com/elecV2/elecV2P-dei\n\n频道: @elecV2  交流群: @elecV2G"
+          payload.text = "这是 " + CONFIG_EV2P.name + " 私人 bot，不接受其他人的指令。\n如果有兴趣可以自己搭建一个: https://github.com/elecV2/elecV2P-dei\n\n频道: @elecV2 | 交流群: @elecV2G"
           tgPush({
             ...payload,
             "chat_id": CONFIG_EV2P.userid,
@@ -306,10 +310,6 @@ async function handlePostRequest(request) {
         } else if (/^\/?taskinfo /.test(bodytext)) {
           let cont = bodytext.replace(/^\/?taskinfo /, '')
           payload.text = await getTaskinfo(cont)
-        } else if (/^\/?log /.test(bodytext)) {
-          let cont = bodytext.replace(/^\/?log /, '')
-          if (!/\.log$/.test(cont)) cont = cont + '.js.log'
-          payload.text = await getLogs(cont)
         } else if (/^\/?taskstart /.test(bodytext)) {
           let cont = bodytext.replace(/^\/?taskstart /, '')
           payload.text = await opTask(cont, 'start')
@@ -336,15 +336,24 @@ async function handlePostRequest(request) {
                 one_time_keyboard: true,
                 selective: true
               }
-              tasklists.split(/\r|\n/).forEach((s, ind)=> {
+              let tlists = tasklists.split(/\r|\n/)
+              let runnum = 0
+              tlists.forEach((s, ind)=> {
                 s = s.split(', ')
-                if (s.length !== 4) return
+                if (s.length !== 4) {
+                  return
+                }
 
+                let status = '🦇'
+                if (s[3] === 'true') {
+                  status = '🐢'
+                  runnum++
+                }
                 keyb.keyboard[ind] = [{
-                  text: (s[3] === 'true' ? '🐢' : '🦇') + s[1] + ' ' + s[0]
+                  text: status + s[1] + ' ' + s[0]
                 }]
               })
-              payload.text = '进入 task 模式，点击开始/暂停任务。🐢 表示正在运行的任务，🦇 表示暂停中的任务。(ps: 操作后该任务列表的状态并不会立即变化)'
+              payload.text = `进入 TASK 模式，当前 elecV2P 上总任务数: ${tlists.length}，正在运行的任务数: ${runnum}\n点击开始/暂停任务。🐢 表示正在运行的任务，🦇 表示暂停中的任务\n(ps: 操作后键盘区的任务列表状态需再次刷新后才能看到变化)`
               payload.reply_markup = keyb
             } catch(e) {
               payload.text = e.message
@@ -374,7 +383,7 @@ async function handlePostRequest(request) {
                   text: s.replace(/\.js$/, '')
                 }]
               })
-              payload.text = '进入 runjs 模式，点击运行 JS，或直接输入远程链接'
+              payload.text = '进入 RUNJS 模式，当前 elecV2P 上 JS 文件数: ' + jslists.length + '\n点击运行 JS，也可以直接输入文件名或者远程链接'
               payload.reply_markup = keyb
             } catch(e) {
               payload.text = e.message
@@ -394,10 +403,10 @@ async function handlePostRequest(request) {
                   [{text: 'python3 -V'}, {text: 'pm2 ls'}]
                 ],
                 resize_keyboard: false,
-                one_time_keyboard: false,
+                one_time_keyboard: true,
                 selective: true
               }
-              payload.text = '进入 shell 模式，可执行简单 shell 指令，比如: ls, node -v 等'
+              payload.text = '进入 SHELL 模式，可执行简单 shell 指令，比如: ls, node -v 等'
               payload.reply_markup = keyb
             } catch(e) {
               payload.text = e.message
@@ -405,38 +414,42 @@ async function handlePostRequest(request) {
           } else {
             payload.text = await shellRun(bodytext.replace(/^\/?(shell|exec) /, ''))
           }
-        } else if (/^\/?all/.test(bodytext)) {
-          bodytext = 'all'
-          let res = await getLogs(bodytext)
-          let map = JSON.parse(res)
-          let keyb = {
-                keyboard:[
-                  [
-                    { text: 'all - ' + map.length },
-                    { text: 'status' }
-                  ]
-                ],
-                resize_keyboard: false,
-                one_time_keyboard: true,
-                selective: true
-              }
+        } else if (/^\/?log/.test(bodytext)) {
+          let cont = bodytext.trim().split(' ')
+          if (cont.length === 1) {
+            try {
+              await context.put('u' + payload['chat_id'], 'log')
+              let res = await getLogs('all')
+              let map = JSON.parse(res)
+              let keyb = {
+                    inline_keyboard: [ ],
+                  }
 
-          map.forEach((s, ind)=> {
-            let row = parseInt(ind/2) + 1
-            keyb.keyboard[row]
-            ? keyb.keyboard[row].push({
-              text: s.replace(/\.js\.log$/g, ''),
-              url: CONFIG_EV2P.url + 'log/' + s
-            }) 
-            : keyb.keyboard[row] = [{
-              text: s.replace(/\.js\.log$/g, ''),
-              url: CONFIG_EV2P.url + 'log/' + s
-            }]
-          })
-          payload.text = "点击查看日志"
-          payload.reply_markup = keyb
+              map.forEach((s, ind)=> {
+                let row = parseInt(ind/2)
+                keyb.inline_keyboard[row]
+                ? keyb.inline_keyboard[row].push({
+                  text: s.replace(/\.js\.log$/g, ''),
+                  url: CONFIG_EV2P.url + 'logs/' + s
+                }) 
+                : keyb.inline_keyboard[row] = [{
+                  text: s.replace(/\.js\.log$/g, ''),
+                  url: CONFIG_EV2P.url + 'logs/' + s
+                }]
+              })
+              payload.text = "进行日志查看模式，当前 elecV2P 上日志文件数: " + map.length + "\n点击查看日志或者直接输入 log 文件名进行查看"
+              payload.reply_markup = keyb
+            } catch(e) {
+              payload.text = e.message
+            }
+          } else {
+            payload.text = await getLogs(bodytext.replace(/^\/?log /, ''))
+          }
         } else if (userenv && userenv.context) {
           switch (userenv.context) {
+            case 'log':
+              payload.text = await getLogs(bodytext)
+              break
             case 'runjs':
               payload.text = await jsRun(bodytext)
               break
@@ -445,7 +458,10 @@ async function handlePostRequest(request) {
               break
             case 'shell':
               if (Date.now() - userenv.active > (CONFIG_EV2P.shell && CONFIG_EV2P.shell.contexttimeout)) {
-                payload.text = '已经超过 ' + CONFIG_EV2P.shell.contexttimeout/1000/60 + ' 分钟没有执行 shell 指令，自动退出 shell 模式\n使用 /shell 命令重新进入\n/end 回到普通模式'
+                payload.text = '已经超过 ' + CONFIG_EV2P.shell.contexttimeout/1000/60 + ' 分钟没有执行 shell 指令，自动退出 shell 模式\n使用 /shell 命令重新进入\n/end 回到普通模式\n/command 查看所有指令'
+                payload.reply_markup = JSON.stringify({
+                  remove_keyboard: true
+                })
                 userenv.context = 'normal'
               } else {
                 payload.text = await shellRun(bodytext)
@@ -457,7 +473,7 @@ async function handlePostRequest(request) {
           }
           await context.put(uid, userenv.context, bodytext)
         } else {
-          payload.text = 'TGbot 部署成功，可以使用相关指令和 elecV2P 服务器进行交互了\nPowered By: https://github.com/elecV2/elecV2P\n\n频道: @elecV2 | 群组: @elecV2G'
+          payload.text = 'TGbot 部署成功，可以使用相关指令和 elecV2P 服务器进行交互了\nPowered By: https://github.com/elecV2/elecV2P\n\n频道: @elecV2 | 交流群: @elecV2G'
         }
 
         await tgPush(payload)
