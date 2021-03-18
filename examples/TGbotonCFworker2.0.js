@@ -67,32 +67,35 @@ context - 查看当前执行模式
 command - 列出所有指令
 **/
 
-const CONFIG_EV2P = {
+const kvname = elecV2P   // 保存上下文内容的 kv namespace。在 cf 上创建并绑定后自行更改
+
+let CONFIG_EV2P = {
   name: 'elecV2P',                           // bot 名称。可省略
-  url: "https://xxxxx.xxxxxx.com/",          // elecV2P 服务器地址
-  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // elecV2P 服务器 webhook token
+  url: "https://xxxxx.xxxxxx.com/",          // 你的 elecV2P 服务器地址
+  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // 你的 elecV2P 服务器 webhook token
   token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",     // teleram bot token
   slice: -1800,          // 截取日志最后 1800 个字符，以防太长无法传输
   userid: [],            // 只对该列表中的 userid 发出的指令进行回应。默认: 回应所有用户的指令
-  kvname: elecV2P,       // 保存上下文内容的 kv namespace。在 cf 上创建并绑定后自行更改
   shell: {
     timeout: 1000*6,     // shell exec 超时时间，单位: ms
     contexttimeout: 1000*60*5,               // shell 模式自动退出时间，单位: ms
-  }
+  },
+  store: 'elecV2PBot_CONFIG',   // 是否储存当前 CONFIG 设置到 kv 库（下次使用时会自动读取并覆盖上面的设置，即上面的更改无效（方便更新)。建议调试时留空，调试完成后再设置回 'elecV2PBot_CONFIG' ）
+  storeforce: false,     // true: 使用当前设置强制覆盖 cf kv 库中的数据，false: kv 库中有配置相关数据则读取，没有则使用当前进行保存
 }
 
 const store = {
   put: async (key, value)=>{
-    return await CONFIG_EV2P.kvname.put(key, value)
+    return await kvname.put(key, value)
   },
   get: async (key, type)=>{
-    return await CONFIG_EV2P.kvname.get(key, type)
+    return await kvname.get(key, type)
   },
   delete: async (key)=>{
-    await CONFIG_EV2P.kvname.delete(key)
+    await kvname.delete(key)
   },
   list: async ()=>{
-    const val = await CONFIG_EV2P.kvname.list()
+    const val = await kvname.list()
     return val.keys
   }
 }
@@ -246,6 +249,15 @@ function shellRun(command) {
 }
 
 async function handlePostRequest(request) {
+  if (CONFIG_EV2P.store) {
+    let config = await store.get(CONFIG_EV2P.store, 'json')
+    if (!CONFIG_EV2P.storeforce && config) {
+      CONFIG_EV2P = config
+    } else {
+      await store.put(CONFIG_EV2P.store, JSON.stringify(CONFIG_EV2P))
+    }
+  }
+
   let bodyString = await readRequestBody(request)
 
   try {
@@ -330,31 +342,18 @@ async function handlePostRequest(request) {
             try {
               await context.put('u' + payload['chat_id'], 'task')
               let tasklists = await getTaskinfo('all')
-              let keyb = {
-                keyboard: [],
-                resize_keyboard: false,
-                one_time_keyboard: true,
-                selective: true
+              try {
+                let tlist = JSON.parse(tasklists)
+                let tlstr = ''
+                for (let tid in tlist.info) {
+                  tlstr += `${tlist.info[tid].name}, tid: ${tid}, running: ${tlist.info[tid].running}\n`
+                }
+                tlstr += `共 ${tlist.total} 个定时任务，运行中的任务 ${tlist.running} 个`
+                tasklists = tlstr
+              } catch(e) {
+                console.log('当前 elecV2P 版本低于 3.2.6')
               }
-              let tlists = tasklists.split(/\r|\n/)
-              let runnum = 0
-              tlists.forEach((s, ind)=> {
-                s = s.split(', ')
-                if (s.length !== 4) {
-                  return
-                }
-
-                let status = '🦇'
-                if (s[3] === 'true') {
-                  status = '🐢'
-                  runnum++
-                }
-                keyb.keyboard[ind] = [{
-                  text: status + s[1] + ' ' + s[0]
-                }]
-              })
-              payload.text = `进入 TASK 模式，当前 elecV2P 上总任务数: ${tlists.length}，正在运行的任务数: ${runnum}\n点击开始/暂停任务。🐢 表示正在运行的任务，🦇 表示暂停中的任务\n(ps: 操作后键盘区的任务列表状态需再次刷新后才能看到变化)`
-              payload.reply_markup = keyb
+              payload.text = `当前 elecV2P 任务列表如下:\n${tasklists}\n输入任务对应的 tid 开始任务，输入 stop tid 停止任务`
             } catch(e) {
               payload.text = e.message
             }
@@ -454,7 +453,7 @@ async function handlePostRequest(request) {
               payload.text = await jsRun(bodytext)
               break
             case 'task':
-              payload.text = await opTask(bodytext.split(' ').pop(), /^🐢/.test(bodytext) ? 'stop' : 'start')
+              payload.text = await opTask(bodytext.split(' ').pop(), /^(🐢|stop)/.test(bodytext) ? 'stop' : 'start')
               break
             case 'shell':
               if (Date.now() - userenv.active > (CONFIG_EV2P.shell && CONFIG_EV2P.shell.contexttimeout)) {
