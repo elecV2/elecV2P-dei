@@ -20,13 +20,17 @@
  * - /context 获取当前执行环境，如果没有，则为普通模式
  * 其它模式完善中...
  * 
- * 特殊指令 sudo clear ; 清空当前 context 值（以防服务器长时间无返回而卡死的问题）
+ * 特殊指令 sudo clear ; 用于清空当前 context 值（以防服务器长时间无返回而卡死的问题）
  *
  * 下面 /command 命令的优先级高于当前执行环境
  *
  * 实现功能及相关指令: 
- * 查看服务器资源使用状态
+ * 查看 elecV2P 运行状态
  * status === /status  ;任何包含 status 关键字的指令
+ *
+ * 查看服务器相关信息（elecV2P v3.2.6 版本后适用）
+ * /info
+ * /info debug
  * 
  * 删除 log 文件
  * /deletelog file === /deletelog file.js.log === /dellog file
@@ -154,6 +158,16 @@ function delLogs(logn) {
 function getStatus() {
   return new Promise((resolve,reject)=>{
     fetch(CONFIG_EV2P.url + 'webhook?type=status&token=' + CONFIG_EV2P.wbrtoken).then(res=>res.text()).then(r=>{
+      resolve(r)
+    }).catch(e=>{
+      reject(e)
+    })
+  })
+}
+
+function getInfo(debug) {
+  return new Promise((resolve,reject)=>{
+    fetch(CONFIG_EV2P.url + 'webhook?type=info&token=' + CONFIG_EV2P.wbrtoken + (debug ? '&debug=true' : '')).then(res=>res.text()).then(r=>{
       resolve(r)
     }).catch(e=>{
       reject(e)
@@ -315,6 +329,15 @@ async function handlePostRequest(request) {
           }
         } else if (/^\/?status/.test(bodytext)) {
           payload.text = await getStatus()
+        } else if (/^\/?info/.test(bodytext)) {
+          let cont = bodytext.trim().split(' ')
+          if (cont.length === 1) {
+            payload.text = await getInfo()
+          } else if (cont.pop() === 'debug') {
+            payload.text = await getInfo('debug')
+          } else {
+            payload.text = 'unknow info command'
+          }
         } else if (/^\/?(dellog|deletelog) /.test(bodytext)) {
           let cont = bodytext.replace(/^\/?(dellog|deletelog) /, '')
           if (!(cont === 'all' || /\.log$/.test(cont))) cont = cont + '.js.log'

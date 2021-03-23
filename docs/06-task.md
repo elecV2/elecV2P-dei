@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-03-17
-适用版本： 3.2.6
+最近更新: 2021-03-23
+适用版本: 3.2.7
 ```
 
 ![task](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/taskall.png)
@@ -15,11 +15,11 @@
 
 *当重复次数大于等于 **999** 时，无限循环。*
 
-示例： 400 8 10 3 ，表示倒计时40秒，随机10秒，所以具体倒计时时间位于 40-50 秒之间，重复运行 8-11 次
+示例: 400 8 10 3 ，表示倒计时40秒，随机10秒，所以具体倒计时时间位于 40-50 秒之间，重复运行 8-11 次
 
 - cron 定时 
 
-时间格式：* * * * * * （五/六位 cron 时间格式）
+时间格式: * * * * * * （五/六位 cron 时间格式）
 
 | * (0-59)   |  * (0-59)  |  * (0-23)  |  * (1-31)  |  * (1-12)  |  * (0-7)      
 :----------: | :--------: | :--------: | :--------: | :--------: | :---------:
@@ -38,12 +38,13 @@
 支持本地 JS, 及远程 JS。 
 本地 JS 文件位于 script/JSFile 目录，可在 webUI 管理界面的 JSMANAGE 中查看当前可用 JS。 如需使用定时运行，直接复制文件名到 TASK 任务列表的任务栏对应框即可。
 
-如使用远程 JS，则直接在任务栏对应框内输入以 **https?** 开头的网络地址。远程 JS 默认更新时间为 86400 秒（一天），可在 webUI->SETTING 界面修改。超过此时间，则会先下载最新的 JS 文件，然后再执行。如果下载失败，会继续尝试执行本地文件。
-所以在执行需要特别准时的任务时，不建议使用远程 JS。或者提前手动更新一下，避免执行任务时先下载文件带来的延迟。
+如使用远程 JS，则直接在任务栏对应框内输入以 **http 或 https** 开头的网络地址。远程 JS 默认更新时间为 86400 秒（一天），可在 webUI->SETTING 界面修改。超过此时间，则会先下载最新的 JS 文件，然后再执行。如果下载失败，会继续尝试执行本地 JS 文件。
+所以在执行需要特别准时的任务时，不建议使用远程 JS。或者提前手动更新一下，也可以设置一个稍微提前一点的定时任务提前下载好最新的 JS 文件，避免执行任务时先下载文件带来的延迟。
 
-定时任务运行 JS 还支持附带 env 变量, 使用 **-e** 关键字进行声明，然后在 JS 文件中使用 **$变量名** 的方式进行读取。例如： **exam-js-env.js -e name=一个名字 cookie=acookiestring**
+定时任务运行 JS 还支持附带 env 变量, 使用 **-env** 关键字进行声明，然后在 JS 文件中使用 **$变量名** 的方式进行读取。例如: **exam-js-env.js -env name=一个名字 cookie=acookiestring**
 
 ``` JS exam-js-env.js
+// exam-js-env.js 文件内容
 let name = 'elecV2P'
 if (typeof($name) != "undefined") {
   name = $name
@@ -71,9 +72,10 @@ reboot
 
 # 文件执行(先将相关文件放置到 script/Shell 目录下)
 hello.sh
-test.py
+python3 -u test.py
 binaryfile
 # 以上文件会通过系统默认程序打开，请先安装好对应执行环境，以及注意文件的执行权限
+# 文件可通过 EFSS 界面上传至相关目录
 ```
 
 **v3.2.6 更新增加 -env/-cwd 变量** (*v2.3.4 版本到 v3.2.5版本，使用关键字是 -e/-c，为避免和其他命令冲突，v3.2.6 修改为 **-env/-cwd***)
@@ -84,15 +86,22 @@ sh hello.sh -env name=Polo
 ls -cwd script/JSFile
 ```
 
+**v3.2.7 增加 -stdin 变量，用于延迟输入交互指令**
+
+``` sh
+askinput.py -stdin elecV2P%0Afine,%20thank%20you
+# -stdin 后面的文字如果较复杂，应先使用 encodeURI 函数进行简单编码
+```
+
 ## 保存任务列表
 
-当点击**保存当前任务列表**后，当前任务列表，包含运行状态，以及订阅信息列表，会保存到 script/Lists/task.list 文件中，在重启 elecV2P 后，任务列表会自动从 task.list 中恢复。保存的任务基本格式为：
+当点击**保存当前任务列表**后，当前任务列表，包含运行状态，以及订阅信息列表，会保存到 script/Lists/task.list 文件中，在重启 elecV2P 后，任务列表会自动从 task.list 中恢复。保存的任务基本格式为: 
 
 ``` JSON task.list
 {
   "taskuuid": {
     "name": "任务名称",
-    "type": "schedule",             // 定时方式： cron 定时 / schedule 倒计时
+    "type": "schedule",             // 定时方式: cron 定时 / schedule 倒计时
     "time": "30 999 2 3",           // 定时时间，具体格式见上文说明
     "running": true,                // 任务运行状态
     "job": {                        // 具体执行任务
@@ -114,7 +123,7 @@ ls -cwd script/JSFile
     "name": "定时任务订阅",
     "type": "sub",                  // v3.2.1 增加定时任务订阅功能。以 type = sub 表示
     "job": {
-      "type": "skip",               // 当订阅中存在同名任务时，选择合并方式： skip 跳过，replace: 替换, addition: 新增
+      "type": "skip",               // 当订阅中存在同名任务时，选择合并方式: skip 跳过，replace: 替换, addition: 新增
       "target": "https://raw.githubusercontent.com/elecV2/elecV2P/master/efss/tasksub.json",   // 远程订阅链接
     }
   }
@@ -129,7 +138,7 @@ ls -cwd script/JSFile
 
 ![tasksub](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/tasksub.png)
 
-订阅内容格式为 JSON, 相关参数如下：
+订阅内容格式为 JSON, 相关参数如下: 
 ``` JSON
 {
   "name": "elecV2P 定时任务订阅",     // 订阅名称
@@ -192,7 +201,7 @@ ls -cwd script/JSFile
 
 - 本地订阅文件导入
 
-在 http://127.0.0.1/efss 界面上传订阅文件，然后添加一个本地订阅，例如：http://127.0.0.1/efss/tasksub文件名.json
+在 http://127.0.0.1/efss 界面上传订阅文件，然后添加一个本地订阅，例如: http://127.0.0.1/efss/tasksub文件名.json
 或者远程 https://xxx/efss/tasksub.json
 
 *如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现了 Network Error 的错误提醒，可能是浏览器 CORS 导致的问题，尝试直接下载文件上传到 efss 目录，然后本地订阅*
