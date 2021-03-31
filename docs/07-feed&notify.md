@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-02-09
-适用版本： 3.1.7
+最近更新： 2021-03-31
+适用版本： 3.2.8
 ```
 
 ## 通知方式
@@ -41,7 +41,7 @@ IFTTT - If This Then That, 官方网站为：https://ifttt.com/
 
 #### 测试设置是否成功
 
-在 webUI -> JSMANAGE 页面的 JS 编辑框中复制以下代码：
+在 webUI->JSMANAGE 页面的 JS 编辑框中复制以下代码：
 
 ``` JS
 // 所有通知测试
@@ -58,15 +58,15 @@ $feed.ifttt('IFTTT notification', '来自 elecV2P', 'https://github.com/elecV2/e
 iOS 端通知 APP，下载地址：https://apps.apple.com/app/bark-customed-notifications/id1403753865
 Github 地址：https://github.com/Finb/Bark
 
-下载 BAKR APP 获取 KEY，然后填写到 webUI -> SETTING 界面的 BARK KEY 位置。
+下载 BAKR APP 获取 KEY，然后填写到 webUI->SETTING 界面中的 BARK KEY 位置。
 
 * v2.9.3 更新支持 BARK 使用自定义服务器
 
-开启方式：在 BARK KEY 位置填写完整的服务器地址，比如 https://your.sever.app/youbarkkeylwoxxxxxxxkUP/
+开启方式: 在 BARK KEY 位置填写完整的服务器地址，比如 https://your.sever.app/youbarkkeylwoxxxxxxxkUP/
 
 ### 自定义通知
 
-通过不同平台提供的 API 接口，实现实时通知。以 **SERVER 酱** 为例，根据官方（http://sc.ftqq.com/ ）说明，可得到一个类似：http://sc.ftqq.com/SCKEY.send 的地址，然后 POST 的方式提交数据，数据格式为：
+通过不同平台提供的 API 接口，实现实时通知。以 **SERVER 酱** 为例，根据官方（http://sc.ftqq.com/ ）说明，获得通知 url 为类似: http://sc.ftqq.com/SCKEY.send 的链接地址，然后使用 POST 的方式提交数据，数据格式为：
 
 ```
 {
@@ -97,8 +97,8 @@ Github 地址：https://github.com/Finb/Bark
 }
 ```
 
-- *数据最终提交格式，会自动进行判断。如果是 JSON 格式，会自动以 application/json 的方式提交。*
-- *通常 API 都会有字符长度限制，比如 TG bot 的限制长度 4096，在使用时可能需要注意。*
+- *自定义通知数据最终提交格式，会自动进行判断。如果是 JSON 格式，会自动以 application/json 的方式提交。*
+- *通常 API 都会有字符长度限制，比如 TG bot 的限制长度为 4096，在使用时可能需要注意。*
 
 ## 默认通知内容
 
@@ -106,13 +106,18 @@ Github 地址：https://github.com/Finb/Bark
 - 倒计时任务完成
 - JS 运行设定次数（默认 50）
 
-## JS 调用 - 自定义通知
+## 在 JS 调用通知模块
 
-### 关键字： $feed
+**请提前在 webUI->SETTING 界面设置好通知相关参数**
 
-- $feed.push(title, description, url)
-*添加一个 rss item 及 通知*
-*url 可省略*
+### 关键字：$feed
+
+**$feed.push(title, description, url)**
+
+- 添加一个 rss item 及通知
+- url 可省略，如省略 title/description 内容，将自动补充默认字符，以防部分通知软件因为空数据而导致通知失败的情况
+- 如 title 省略，将默认补充为: **elecV2P 通知**
+- 如 description 省略，将默认补充为: **a empty message\n没有任何通知内容**
 
 ``` JS example
 $feed.push('elecV2P notification', '这是一条来自 elecV2P 的通知', 'https://github.com/elecV2/elecV2P')
@@ -122,13 +127,22 @@ $feed.ifttt('title', 'description', 'https://github.com/elecV2/elecV2P-dei')
 // 发送一条 BARK 通知
 $feed.bark('Bark notification', 'a bark notification', 'https://t.me/elecV2')
 // 发送一条自定义通知
-$feed.cust('elecV2P customize notification', `一条自定义通知。\na customize notification` , 'https://t.me/elecV2')
+$feed.cust('elecV2P customize notification', `一条自定义通知。\na customize notification`, 'https://t.me/elecV2G')
+
+// 在通知关闭的情况下，在 title 开头添加 $enable$ 强制发送 (v3.2.8 添加功能)
+$feed.bark('$enable$elecV2P 强制通知', '通过在 title 开头添加 $enable$ 强制发送的通知', 'https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/overview.png')
+// 开头的 $enable$ 字符串在实际通知中会被省略掉
 ```
 
 ### 其他说明
 
 - 当通知标题（title）中含有 **test** 关键字时，自动跳过，不添加通知内容。（方便调试）
-- 当通知主体（description）内容长度超过一定数值（默认 1200）时，会自动进行分段通知。
-  - 默认 feed 通知不限制字符长度，不分段。
-  - 单独调用 （$feed.ifttt/$feed.bark/$feed.cust）时也不分段通知。
-  - 只有默认通知和使用 **$feed.push**，在字符超过设定值时才会分段发送。该设定值可在 SETTING 界面修改，0 表示始终不分段。
+- 当通知主体（description）内容长度超过一定数值（默认 1200）时，会自动进行分段通知
+  - 默认 feed 通知不限制字符长度，不分段
+  - 单独调用（$feed.ifttt/$feed.bark/$feed.cust）时也不分段通知
+  - 只有默认通知和使用 **$feed.push**，在字符超过设定值时才会分段发送。该设定值可在 webUI->SETTING 界面修改，0 表示始终不分段
+
+- 当通知标题（title）以 **$enable$** 开头时，强制发送通知 (v3.2.8 添加功能)
+  - 必须是 **$** 字符 + 小写的 **enable**
+  - 仅在已设置好相关通知的 KEY 等参数时才有效
+  - 开头的 **$enable$** 字符串在实际发出通知时会被自动截取掉

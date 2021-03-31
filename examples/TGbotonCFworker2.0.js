@@ -68,6 +68,7 @@ deljs - 删除 JS
 dellog - 删除日志
 log - 获取日志
 context - 查看当前执行模式
+info - 查看服务器信息
 command - 列出所有指令
 **/
 
@@ -305,6 +306,7 @@ async function handlePostRequest(request) {
 /dellog - 删除日志
 /log - 获取日志
 /context - 查看当前执行模式
+/info - 查看服务器信息
 /command - 列出所有指令`
           tgPush(payload)
           return new Response("OK")

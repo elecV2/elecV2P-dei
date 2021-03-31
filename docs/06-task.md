@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-03-23
-适用版本: 3.2.7
+最近更新: 2021-03-31
+适用版本: 3.2.8
 ```
 
 ![task](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/taskall.png)
@@ -36,7 +36,7 @@
 ### 运行 JS
 
 支持本地 JS, 及远程 JS。 
-本地 JS 文件位于 script/JSFile 目录，可在 webUI 管理界面的 JSMANAGE 中查看当前可用 JS。 如需使用定时运行，直接复制文件名到 TASK 任务列表的任务栏对应框即可。
+本地 JS 文件位于 script/JSFile 目录，可在 webUI->JSMANAGE 中查看。设置定时任务时，直接复制文件名到任务栏对应框即可。
 
 如使用远程 JS，则直接在任务栏对应框内输入以 **http 或 https** 开头的网络地址。远程 JS 默认更新时间为 86400 秒（一天），可在 webUI->SETTING 界面修改。超过此时间，则会先下载最新的 JS 文件，然后再执行。如果下载失败，会继续尝试执行本地 JS 文件。
 所以在执行需要特别准时的任务时，不建议使用远程 JS。或者提前手动更新一下，也可以设置一个稍微提前一点的定时任务提前下载好最新的 JS 文件，避免执行任务时先下载文件带来的延迟。
@@ -56,6 +56,13 @@ if (typeof($cookie) != "undefined") {
 }
 ```
 
+**v3.2.8 增加 -local 关键字，用于优先使用本地文件（如果存在），忽略默认更新时间间隔**
+
+具体使用:
+| 运行 JS | https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/test.js -local
+
+如果本地存在 test.js 文件，则直接运行，否则，下载远程文件后再运行
+
 ### Shell 指令
 
 Shell 指令的运行使用了 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 模块
@@ -67,7 +74,8 @@ cwd 默认目录为 script/Shell
 # 单条命令
 ls
 node -v
-start https://github.com/elecV2/elecV2P
+start https://github.com/elecV2/elecV2P    # v3.2.8 前命令
+start -https://github.com/elecV2/elecV2P   # v3.2.8 后会自动下载命令中的 http 远程文件，如果不想下载需要在前面加 - 进行转义
 reboot
 
 # 文件执行(先将相关文件放置到 script/Shell 目录下)
@@ -92,6 +100,37 @@ ls -cwd script/JSFile
 askinput.py -stdin elecV2P%0Afine,%20thank%20you
 # -stdin 后面的文字如果较复杂，应先使用 encodeURI 函数进行简单编码
 ```
+
+**v3.2.8 增加支持运行远程文件**
+
+``` sh
+python -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/test.py
+
+sh https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/hello.sh
+
+# 如果原来的命令中带有 http 链接，需使用 -http 进行转义
+echo -http://127.0.0.1/efss/readme.md
+
+# 假如没有转义，直接使用命令
+echo http://127.0.0.1/efss/readme.md
+# elecV2P 将会尝试先下载 http://127.0.0.1/efss/readme.md 文件到 script/Shell 目录，然后使用下载完成后的文件地址替换远程链接，所以最终输出结果可能是: /xxxx/xxxx/script/Shell/readme.md
+
+# curl/wget/git/start 开头命令已自动排除下载（无需转义）
+curl https://www.google.com/
+```
+
+- shell 远程执行文件下载存储目录为 **script/Shell**
+- 远程文件执行时默认每次都会重新下载
+- 如果远程文件下载失败将会尝试运行本地文件
+- 可使用 \-local 关键字优先使用本地文件
+
+``` sh
+python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/test.py -local
+# elecV2P 会检查本地是否存在 test.py 文件，如果没有则下载，然后执行
+```
+
+- 如果原来的命令中带有 http 链接，需使用 -http 进行转义
+- curl/wget/git/start 开头命令已排除下载（无需转义）
 
 ## 保存任务列表
 
@@ -204,10 +243,10 @@ askinput.py -stdin elecV2P%0Afine,%20thank%20you
 在 http://127.0.0.1/efss 界面上传订阅文件，然后添加一个本地订阅，例如: http://127.0.0.1/efss/tasksub文件名.json
 或者远程 https://xxx/efss/tasksub.json
 
-*如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现了 Network Error 的错误提醒，可能是浏览器 CORS 导致的问题，尝试直接下载文件上传到 efss 目录，然后本地订阅*
+*如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现了 Network Error 的错误提醒，可能是浏览器 CORS 导致的问题，尝试直接下载文件，然后上传到 efss 目录，再使用本地订阅*
 
 - 其他订阅格式转换
 
 参考脚本 https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/exam-tasksub.js
 
-**当订阅任务中包含类似 rm -f * 的 Shell 指令时，可能会删除服务器上的所有文件，所以请勿必清楚具体订阅任务后再进行添加，不要添加不信任来源的订阅**
+**当订阅任务中包含类似 rm -f * 的 Shell 指令时，可能会删除服务器上的所有文件，所以请勿必清楚具体订阅任务后再进行添加，不要添加不信任的来源订阅**

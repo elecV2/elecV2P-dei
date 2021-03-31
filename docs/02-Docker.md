@@ -54,7 +54,8 @@ docker run --restart=always \
   -v /elecv2p/efss:/usr/local/app/efss \
   elecv2/elecv2p
 
-#（某些设备上，可能无法在根目录创建 elecv2p 文件夹，这时请根据使用设备搜索可操作的目录，进行替换）
+# 某些设备上，可能无法在根目录创建 elecv2p 文件夹，这时请根据使用设备搜索可操作的目录，进行替换
+# 如果在部分复杂的网络情况下出现无法联网或访问的问题，尝试在命令中添加 --net=host
 
 # 查看 docker 运行状态
 docker ps
@@ -117,11 +118,11 @@ services:
       - "/elecv2p/efss:/usr/local/app/efss"
 ```
 
-*具体使用的镜像 image、端口映射和 volumes 目录，根据个人情况进行调整。*
+- *具体使用的镜像 image、端口映射和 volumes 目录，根据个人情况进行调整。*
 
-*部分用户反映，在某些设备上需要调整 version 的版本才能启动。如果启动出现问题，可以尝试把 docker-compose.yaml 文件开头的 version: '3.7' 更改为 version: '3.3'。*
+- *部分用户反映，在某些设备上需要调整 version 的版本才能启动。如果启动出现问题，可以尝试把 docker-compose.yaml 文件开头的 version: '3.7' 更改为 version: '3.3'。*
 
-然后在 docker-compose.yaml 同目录执行命令 **docker-compose up -d** 启动程序。
+然后在 docker-compose.yaml 同目录执行命令 **docker-compose up -d** ，启动程序。
 
 ### 其他指令
 
