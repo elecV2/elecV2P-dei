@@ -1,6 +1,7 @@
 /**
  * 功能: 部署在 cloudfalre worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
  * 地址: https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
+ * 更新: 2021-04-06
  * 
  * 使用方式: 
  * 先申请好 TG BOT(https://t.me/botfather)，然后设置好下面代码中 CONFIG_EV2P 的内容
@@ -76,8 +77,8 @@ const kvname = elecV2P   // 保存上下文内容的 kv namespace。在 cf 上�
 
 let CONFIG_EV2P = {
   name: 'elecV2P',                           // bot 名称。可省略
-  url: "https://xxxxx.xxxxxx.com/",          // 你的 elecV2P 服务器地址
-  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // 你的 elecV2P 服务器 webhook token
+  url: "https://xxxxx.xxxxxx.com/",          // elecV2P 服务器地址
+  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // elecV2P 服务器 webhook token
   token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",     // teleram bot token
   slice: -1800,          // 截取日志最后 1800 个字符，以防太长无法传输
   userid: [],            // 只对该列表中的 userid 发出的指令进行回应。默认: 回应所有用户的指令
@@ -111,7 +112,7 @@ const context = {
   },
   put: async (uid, uenv, command) => {
     let ctx = await context.get(uid)
-    if (typeof ctx !== 'object') {
+    if (ctx === null || typeof ctx !== 'object') {
       ctx = {
         command: []
       }
@@ -317,8 +318,8 @@ async function handlePostRequest(request) {
           payload.text = "这是 " + CONFIG_EV2P.name + " 私人 bot，不接受其他人的指令。\n如果有兴趣可以自己搭建一个: https://github.com/elecV2/elecV2P-dei\n\n频道: @elecV2 | 交流群: @elecV2G"
           tgPush({
             ...payload,
-            "chat_id": CONFIG_EV2P.userid,
-            "text": `用户: ${body.message.chat.username}，ID: ${body.message.chat.id} 正在连接 elecV2P bot，发出指令为: ${bodytext}。`
+            "chat_id": CONFIG_EV2P.userid[0],
+            "text": `用户: ${body.message.chat.username}，ID: ${body.message.chat.id} 正在连接 elecV2P bot，发出指令为: ${bodytext}`
           })
         } else if (/^\/?end/.test(bodytext)) {
           await context.end(uid)
