@@ -1,7 +1,7 @@
 /**
  * 功能: 部署在 cloudfalre worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
  * 地址: https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
- * 更新: 2021-04-06
+ * 更新: 2021-04-13
  * 
  * 使用方式: 
  * 先申请好 TG BOT(https://t.me/botfather)，然后设置好下面代码中 CONFIG_EV2P 的内容
@@ -10,8 +10,6 @@
  * (2.0 版本需要使用 CF 的 kv 功能，先在 CF 中创建一个 kv 库，然后绑定到当前 worker，命名为 elecV2P)
  * 接着在浏览器中打开链接: https://api.telegram.org/bot(你的 tgbot token)/setWebhook?url=https://xx.xxxxx.workders.dev 给 TGbot 添加 webhook，部署完成
  * 最后，打开 TGbot 对话框，输入下面的相关指令，测试 TGbot 是否成功
- *
- * 更新方式: 除了开头的 CONFIG_EV2P 保留为自己修改后的，后面所有内容直接复制覆盖即可
  *
  * 2.0 更新: 添加上下文执行环境（还在测试优化中）
  * - /runjs   进入脚本执行环境，接下来直接输入文件名或远程链接则可直接运行
@@ -71,6 +69,10 @@ log - 获取日志
 context - 查看当前执行模式
 info - 查看服务器信息
 command - 列出所有指令
+
+ * 更新方式: 
+ * - 如果在 CONFIG_EV2P 中设置了 store，直接复制当前整个文件到 cf worker 即可
+ * - 如果没有设置 store，则复制除了开头的 CONFIG_EV2P 外其他所有内容到 cf worker
 **/
 
 const kvname = elecV2P   // 保存上下文内容的 kv namespace。在 cf 上创建并绑定后自行更改
@@ -88,6 +90,7 @@ let CONFIG_EV2P = {
   },
   store: 'elecV2PBot_CONFIG',   // 是否储存当前 CONFIG 设置到 kv 库（下次使用时会自动读取并覆盖上面的设置，即上面的更改无效（方便更新)。建议调试时留空，调试完成后再设置回 'elecV2PBot_CONFIG' ）
   storeforce: false,     // true: 使用当前设置强制覆盖 cf kv 库中的数据，false: kv 库中有配置相关数据则读取，没有则使用当前进行保存
+  timeout: 5000,         // runjs 请求超时时间，以防请求时间过长，导致反复请求，bot 被卡死
 }
 
 const store = {
@@ -132,6 +135,10 @@ const context = {
   end: async (uid) => {
     await store.put(uid, JSON.stringify({}))
   }
+}
+
+function timeoutPromise(timeout = CONFIG_EV2P.timeout || 5000) {
+  return new Promise(resolve => setTimeout(resolve, timeout, '请求超时 ' + timeout + ' ms，相关请求应该已发送至 elecV2P，这里提前返回结果，以免发送重复请求'))
 }
 
 function getLogs(s){
@@ -211,14 +218,17 @@ function saveTask() {
 }
 
 function jsRun(fn) {
-  if (!fn.startsWith('http') && !/\.js$/.test(fn)) fn += '.js'
-  return new Promise((resolve,reject)=>{
+  if (!fn.startsWith('http') && !/\.js$/.test(fn)) {
+    fn += '.js'
+  }
+
+  return Promise.race([new Promise((resolve,reject)=>{
     fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=runjs&fn=' + fn).then(res=>res.text()).then(r=>{
       resolve(r)
     }).catch(e=>{
       reject(e)
     })
-  })
+  }), timeoutPromise()])
 }
 
 function getJsLists() {
@@ -273,19 +283,20 @@ async function handlePostRequest(request) {
       await store.put(CONFIG_EV2P.store, JSON.stringify(CONFIG_EV2P))
     }
   }
+  CONFIG_EV2P.timeout = CONFIG_EV2P.timeout || 5000
 
   let bodyString = await readRequestBody(request)
+  let payload = {
+    "method": "sendMessage",
+    "chat_id": CONFIG_EV2P.userid[0],
+    "parse_mode": "html",
+    "disable_web_page_preview": true,
+  }
 
   try {
-    let body = JSON.parse(bodyString);
-
+    let body = JSON.parse(bodyString)
+    payload["chat_id"] = body.message.chat.id
     if (body.message) {
-      let payload = {
-        "method": "sendMessage",
-        "chat_id": body.message.chat.id,
-        "parse_mode": "html",
-        "disable_web_page_preview": true,
-      }
       if (body.message.text) {
         let bodytext = body.message.text.trim()
         let uid = 'u' + payload['chat_id']
@@ -499,6 +510,15 @@ async function handlePostRequest(request) {
           await context.put(uid, userenv.context, bodytext)
         } else {
           payload.text = 'TGbot 部署成功，可以使用相关指令和 elecV2P 服务器进行交互了\nPowered By: https://github.com/elecV2/elecV2P\n\n频道: @elecV2 | 交流群: @elecV2G'
+          if (bodytext === '/start') {
+            let status = ''
+            try {
+              status = await getStatus()
+            } catch(e) {
+              status = (e.message || e) + '\nelecV2P 服务器没有响应，请检查服务器地址和 webhook token 是否设置正确。'
+            }
+            payload.text += '\n' + status
+          }
         }
 
         await tgPush(payload)
@@ -512,7 +532,9 @@ async function handlePostRequest(request) {
       })
     }
   } catch(e) {
-    return new Response(e)
+    payload.text = e.message || e
+    tgPush(payload)
+    return new Response("OK")
   }
 }
 
