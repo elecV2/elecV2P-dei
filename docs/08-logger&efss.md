@@ -1,18 +1,22 @@
 ```
-最近更新： 2021-02-20
-适用版本： 3.2.0
+最近更新： 2021-04-03
+适用版本： 3.2.9
 ```
 
 ## LOG 日志
 
 物理存储位置：项目目录/logs。 ./logs
-网络访问地址：webUI端口/logs。 比如： http://127.0.0.1/logs
+网络访问地址：webUI端口/logs。 比如: http://127.0.0.1/logs
 
 日志分类：
-- errors.log
-- funcExec.log
-- elecV2Proc.log
-- 其他脚本日志
+- 错误日志 errors.log
+- shell 命令执行日志 funcExec.log
+- 其他未处理类日志 elecV2Proc.log
+- JAVASCRIPT 运行日志 xxx.js.log
+- 定时任务 shell 指令日志 任务名.log
+
+v3.2.9 增加支持二级目录，二级目录访问时在 url 中目录以两个下线(\_\_) 开始和结束。 比如在当前 logs 文件夹下有一个二级目录 backup, backup 文件夹中有一个日志文件 test.js.log，那么要在浏览器中查看该文件时 url 应该为: http://127.0.0.1/logs/__backup__test.js.log （实际访问时不用手动输入，从首页开始直接点就可以了）。
+另外这里会导致的一个问题就是：如果原 JS 文件名是以两个下划线开始，且后面还有两个下划线，在读取该 JS 的运行日志时会出错，所以尽量不要用这种方式命名 JS 文件。如果必须要这样命名，或者想查看更多级的目录日志，可以在 EFSS 页面设置目录为 ./logs
 
 ### errors.log
 

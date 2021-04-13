@@ -1,6 +1,7 @@
 ```
-最近更新: 2021-03-26
-适用版本: 3.2.8
+最近更新: 2021-04-08
+适用版本: 3.2.9
+文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/Advanced.md
 ```
 
 ## elecV2P 进阶使用篇
@@ -9,7 +10,7 @@
 
 # 1. minishell
 
-小型 shell 网页客户端，可执行一些简单的 shell 命令。比如: **ls**、 **rm -rf \***、 **reboot** 等
+小型 shell 网页客户端，可执行一些简单的 shell 命令。比如: **ls**、 **python3 -V**、 **rm -rf \***、 **reboot** 等
 
 ![minishell](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/minishell.png)
 
@@ -44,13 +45,23 @@ fetch('/config', {
 
 ## 基础使用
 
-minishell 基于 nodejs 的 child_process exec。另外做了一些修改，比如，跨平台的命令转换。在 windows 平台输入 **reboot** 命令，会自动转化为 **restart-computer**，相当于简单统一了 linux 和 windows 的 shell 命令。
+minishell 基于 nodejs 的 child_process exec。另外做了一些修改，比如，跨平台的命令转换。
 
-更多跨平台统一命令持续添加中。
+在 windows 平台输入 **reboot** 命令，会自动转化为 **restart-computer**，相当于将 linux 和 windows 平台的 shell 命令进行了简单的转换。
+更多跨平台自动转化命令添加中...
+
+另外，如果指令中包含 http 链接，将会自动下载后再执行，比如命令:
+
+``` sh
+python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/test.py
+# 通过这种方式可以实现直接执行远程脚本
+# 部分常用网络命令已排除下载，比如: curl/wget/git/start/you-get/youtube-dl 等
+# 更多说明，可参考 06-task.md Shell 指令 部分
+```
 
 *如果在 windows 平台出现乱码，尝试执行命令: CHCP 65001*
 
-## 一些指令
+## 特殊指令
 
 - cls/clear   // 清空屏幕
 - cwd         // 获取当前工作目录
@@ -60,6 +71,7 @@ minishell 基于 nodejs 的 child_process exec。另外做了一些修改，比�
 
 - *minishell 的通信基于 websocket，确保执行任何命令前 websocket 是成功连接的*
 - *单击上方日志输出部分，停止自动滚动。单击下方命令输入部分，开启自动滚动*
+- *minishell 命令执行使用默认的 timeout 60000ms(1 分钟)。如需执行长时间命令，尝试使用下面的 $exec 执行*
 
 # 2. $exec 执行任一程序
 
@@ -69,6 +81,7 @@ minishell 基于 nodejs 的 child_process exec。另外做了一些修改，比�
 // example 1 执行 python 程序
 $exec('python test.py', {
   cwd: './script/Shell',      // 命令执行目录
+  timeout: 5000,              // 设置 timeout。 0: 表示不限制
   cb(data, error){
     if (error) {
       console.error(error)
@@ -112,6 +125,6 @@ $exec 执行效果类似于直接在命令行下的 cwd 目录执行相关指令
 
 IP 以换行符或英文逗号(,)作为分隔，保存实时生效。在黑名单中可用单个星号字符(\*)表示屏蔽所有不在白名单中的 IP，建议在网络部署的环境下使用。
 
-另外，可通过在请求链接中添加 **?token=webhook token** 的参数来绕过黑名单，例如: http://你的服务器地址/?token=a8c259b2-67fe-4c64-8700-7bfdf1f55cb3 (服务器的 webhook token，首次启动后建议修改)
+另外，可通过在请求链接中添加 **?token=webhook token** 的参数来绕过黑名单，例如: http://你的服务器地址/?token=a8c259b2-67fe-4c64-8700-7bfdf1f55cb3 (服务器的 webhook token，首次启动时为随机值)
 
 通过 token 访问后，该 token 会在浏览器本地保存，以免再次访问时需要重新添加。如果想要清空本地保存的 token，使用 /?tokenclear 访问一次即可。

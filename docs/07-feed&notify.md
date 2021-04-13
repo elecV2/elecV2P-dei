@@ -1,6 +1,7 @@
 ```
-最近更新： 2021-03-31
-适用版本： 3.2.8
+最近更新: 2021-04-02
+适用版本: 3.2.9
+文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/07-feed&notify.md
 ```
 
 ## 通知方式
@@ -13,7 +14,7 @@
 ### Feed rss 订阅
 
 地址为网页端口（默认为 80） + /feed
-例如：**http://127.0.0.1/feed**
+例如: **http://127.0.0.1/feed**
 
 然后使用 rss 阅读软件直接订阅即可。
 
@@ -41,7 +42,8 @@ IFTTT - If This Then That, 官方网站为：https://ifttt.com/
 
 #### 测试设置是否成功
 
-在 webUI->JSMANAGE 页面的 JS 编辑框中复制以下代码：
+- 在 webUI->SETTING 通知相关设置点击测试按钮
+- 或者在 webUI->JSMANAGE 页面的 JS 编辑框中复制以下代码：
 
 ``` JS
 // 所有通知测试
@@ -99,6 +101,36 @@ Github 地址：https://github.com/Finb/Bark
 
 - *自定义通知数据最终提交格式，会自动进行判断。如果是 JSON 格式，会自动以 application/json 的方式提交。*
 - *通常 API 都会有字符长度限制，比如 TG bot 的限制长度为 4096，在使用时可能需要注意。*
+- *通知内容尽量使用反引号(\`) 包括*
+
+### 通知触发 JS
+
+具体触发的 JS 可在 webUI->SETTING 通知相关设置中填写。
+可实现的功能:
+  - 过滤通知
+  - 自定义个性化通知
+  - 其他 JS 能做的事
+
+触发的 JS 默认带有三个变量 $title$, $body$, $url$，分别表示通知标题，内容和附带链接。
+
+``` JS
+// 在通知触发的 JS 中可直接获取这三个参数
+console.log('通知触发的 JS，获取到的通知内容', $title$, $body$, $url$)
+
+// 可以在这里过滤通知或自定义其他通知方式
+if (/important/.test($title$)) {
+  mynotify($title$, $body$, $url$)
+}
+
+function mynotify(title, body, url) {
+  // 根据个人需求填写
+  console.log('自定义其他通知方式', '标题:', title, '内容:', body, '附加链接:', url)
+}
+```
+
+*具体写法可参考: https://github.com/elecV2/elecV2P/blob/master/script/JSFile/notify.js*
+
+因为在 JS 中可通过 $feed.push 发送通知，通知又可以触发 JS，为避免循环调用，在通知触发的 JS 中 $feed.push 函数不可用，其他通知函数（$feed.ifttt, $feed.bark, $feed.cust）可正常使用，但不会触发 JS。
 
 ## 默认通知内容
 
