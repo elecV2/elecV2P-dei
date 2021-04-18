@@ -1,6 +1,7 @@
 ```
-最近更新: 2021-03-31
-适用版本: 3.2.8
+最近更新: 2021-04-13
+适用版本: 3.3.0
+文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md
 ```
 
 ![task](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/taskall.png)
@@ -54,6 +55,8 @@ console.log('hello', name)
 if (typeof($cookie) != "undefined") {
   console.log('a cookie from task env', $cookie)
 }
+// 如果变量值包含空格等特殊字符，先使用 encodeURI 进行编码
+// 比如: comman.js -env cmd=pm2%20ls
 ```
 
 **v3.2.8 增加 -local 关键字，用于优先使用本地文件（如果存在），忽略默认更新时间间隔**
@@ -67,7 +70,7 @@ if (typeof($cookie) != "undefined") {
 
 Shell 指令的运行使用了 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 模块
 
-timeout 默认为 60000ms（60秒）
+timeout 默认为 60000ms（60秒）。如果要执行长时间命令，在 JS 中使用 $exec() 执行，timeout 可设置为 0
 cwd 默认目录为 script/Shell
 
 ``` sh 示例命令
@@ -110,12 +113,14 @@ sh https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/hello.sh
 
 # 如果原来的命令中带有 http 链接，需使用 -http 进行转义
 echo -http://127.0.0.1/efss/readme.md
+# 也可以通知添加引号来避免这种问题
+echo 'https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md'
 
 # 假如没有转义，直接使用命令
 echo http://127.0.0.1/efss/readme.md
 # elecV2P 将会尝试先下载 http://127.0.0.1/efss/readme.md 文件到 script/Shell 目录，然后使用下载完成后的文件地址替换远程链接，所以最终输出结果可能是: /xxxx/xxxx/script/Shell/readme.md
 
-# curl/wget/git/start 开头命令已自动排除下载（无需转义）
+# 部分常用网络命令已排除下载，比如: curl/wget/git/start/you-get/youtube-dl 开头命令
 curl https://www.google.com/
 ```
 
@@ -130,7 +135,10 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 ```
 
 - 如果原来的命令中带有 http 链接，需使用 -http 进行转义
-- curl/wget/git/start 开头命令已排除下载（无需转义）
+- 已排除先下载的常用网络相关命令（无需转义，可按原来的命令直接输入执行）
+  - curl/wget/git/start  (v3.2.9)
+  - you-get/youtube-dl   (v3.3.0)
+  - *如果还有其他的常用网络相关命令，欢迎反馈添加*
 
 ## 保存任务列表
 
