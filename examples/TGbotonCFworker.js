@@ -6,10 +6,12 @@
  * 使用方式：
  * 先申请好 TG BOT(https://t.me/botfather)，然后设置好 CONFIG 内容
  * tgbot token: 在 telegram botfather 中找到 api token, 然后填写到相应位置
- * 然后把修改后的整个 JS 内容粘贴到 cloudfalre worker 代码框，保存即可。得到一个类似 https://xx.xxxxx.workders.dev 的网址
- * 接着使用 https://api.telegram.org/bot(你的 tgbot token)/setWebhook?url=https://xx.xxxxx.workders.dev 给 tg bot 添加 webhook，部署完成
+ * 然后把修改后的整个 JS 内容粘贴到 cloudfalre worker 代码框，保存即可。得到一个类似 https://xx.xxxxx.workers.dev 的网址
+ * 接着使用 https://api.telegram.org/bot(你的 tgbot token)/setWebhook?url=https://xx.xxxxx.workers.dev 给 tg bot 添加 webhook，部署完成
  * 最后，打开 tgbot 对话框，输入下面的相关指令，测试 TGbot 是否成功
  *
+ * *假如返回数据有问题，先直接访问 elecV2P webhook 看是否正常。http://你的 elecV2P 服务器地址/webhook?token=你的webhook token&type=status*
+ * 
  * 实现功能及相关指令：
  * 查看服务器资源使用状态
  * status === /status  ;任何包含 status 关键字的指令
@@ -51,11 +53,15 @@ log - get log file
 **/
 
 const CONFIG_EV2P = {
-  url: "https://xxxxx.xxxxxx.com/",          // elecV2P 服务器地址
-  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // elecV2P 服务器 webhook token
+  url: "http://你的 elecV2P 服务器地址/",    // elecV2P 服务器地址(必须是域名，cf worker 不支持 IP 直接访问)
+  wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // elecV2P 服务器 webhook token(在 webUI->SETTING 界面查看)
   token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",     // teleram bot token
-  slice: -800,           // 截取日志最后 800 个字符，以防太长无法传输
+  slice: -800,           // 截取日志最后 800 个字符，以防太长无法传输（可自行调整）
   userid: null           // 只对该 userid 发出的指令进行回应。null：回应所有用户的指令
+}
+
+if (!CONFIG_EV2P.url.endsWith('/')) {
+  CONFIG_EV2P.url = CONFIG_EV2P.url + '/'
 }
 
 function getLogs(s){
