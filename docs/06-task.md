@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-04-13
-适用版本: 3.3.0
+最近更新: 2021-04-21
+适用版本: 3.3.1
 文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md
 ```
 
@@ -56,15 +56,22 @@ if (typeof($cookie) != "undefined") {
   console.log('a cookie from task env', $cookie)
 }
 // 如果变量值包含空格等特殊字符，先使用 encodeURI 进行编码
-// 比如: comman.js -env cmd=pm2%20ls
+// 比如: command.js -env cmd=pm2%20ls
 ```
 
-**v3.2.8 增加 -local 关键字，用于优先使用本地文件（如果存在），忽略默认更新时间间隔**
+- v3.2.8 增加 -local 关键字，用于优先使用本地文件（如果存在），忽略默认更新时间间隔
 
 具体使用:
 | 运行 JS | https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/test.js -local
 
 如果本地存在 test.js 文件，则直接运行，否则，下载远程文件后再运行
+
+- v3.3.1 增加 -rename 关键字，用于重命名文件（支持重命名远程和本地文件）
+
+| 运行 JS | notify.js -rename feed.js
+| 运行 JS | https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/test.js -local -rename t.js
+
+*注意：使用 -rename 参数每次运行都会重新写入文件内容，建议不要在运行频率较高的任务中使用*
 
 ### Shell 指令
 
