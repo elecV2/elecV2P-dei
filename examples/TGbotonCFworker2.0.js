@@ -1,7 +1,7 @@
 /**
  * 功能: 部署在 cloudflare worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
  * 地址: https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
- * 更新: 2021-04-20
+ * 更新: 2021-04-24
  * 
  * 使用方式: 
  * 1. 准备工作
@@ -20,6 +20,7 @@
  * - /task    进入任务操作环境，获取相关任务的 taskid 可暂停/开始定时任务
  * - /shell   进入 shell 执行环境，默认 timeout 为 3000ms（elecV2P v3.2.4 版本后生效）
  * - /log     进入 日志查看模式
+ * - /store   进入 store/cookie 管理模式。默认处于关闭状态，可在 CONFIG_EV2P mode 设置开启
  * - /context 获取当前执行环境，如果没有，则为普通模式
  * 其它模式完善中...
  * 
@@ -64,6 +65,7 @@ runjs - 运行 JS
 task - 开始暂停任务
 status - 内存使用状态
 shell - 执行简单 shell 指令
+store - store/cookie 管理
 end - end context
 tasksave - 保存任务列表
 taskdel - 删除任务
@@ -88,7 +90,7 @@ let CONFIG_EV2P = {
   url: "http://你的 elecV2P 服务器地址/",    // elecV2P 服务器地址(必须是域名，cf worker 不支持 IP 直接访问)
   wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // elecV2P 服务器 webhook token(在 webUI->SETTING 界面查看)
   token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",     // telegram bot api token
-  slice: -1200,          // 截取日志最后 1200 个字符，以防太长无法传输（可自行修改）
+  slice: -1200,          // 截取部分返回结果的最后 1200 个字符，以防太长无法传输（可自行修改）
   userid: [],            // 只对该列表中的 userid 发出的指令进行回应。默认: 回应所有用户的指令
   shell: {
     timeout: 1000*6,     // shell exec 超时时间，单位: ms
@@ -99,6 +101,9 @@ let CONFIG_EV2P = {
     rtest: '/runjs test.js',    // 表示当输入命令 /rtest 或 rtest 时会自动替换成命令 '/runjs test.js' 运行 JS 脚本 test.js
     execls: 'exec ls -al',      // 同上，表示自动将命令 /execls 替换成 exec ls -al。 其他命令可参考自行添加
   },
+  mode: {
+    storemanage: false,         // 是否开启 store/cookie 管理模式。false: 不开启（默认），true: 开启
+  }
 }
 
 /************ 后面部分为主运行代码，若没有特殊情况，无需改动 ****************/
@@ -147,8 +152,8 @@ const context = {
   }
 }
 
-function timeoutPromise(timeout = CONFIG_EV2P.timeout || 5000) {
-  return new Promise(resolve => setTimeout(resolve, timeout, '请求超时 ' + timeout + ' ms，相关请求应该已发送至 elecV2P，这里提前返回结果，以免发送重复请求'))
+function timeoutPromise({ timeout = CONFIG_EV2P.timeout || 5000, fn }) {
+  return new Promise(resolve => setTimeout(resolve, timeout, '请求超时 ' + timeout + ' ms，相关请求应该已发送至 elecV2P，这里提前返回结果，以免发送重复请求' + `${fn ? ('\n\n运行日志: ' + CONFIG_EV2P.url + 'logs/' + fn + '.log') : '' }`))
 }
 
 function getLogs(s){
@@ -238,7 +243,7 @@ function jsRun(fn) {
     }).catch(e=>{
       reject(e)
     })
-  }), timeoutPromise()])
+  }), timeoutPromise({ fn })])
 }
 
 function getJsLists() {
@@ -282,6 +287,51 @@ function shellRun(command) {
       reject(e)
     })
   })
+}
+
+function storeManage(keyvt) {
+  if (!keyvt) {
+    return '请输入要获取的 cookie/store 相关的 key 值'
+  }
+
+  let keys = keyvt.split(' ')
+  if (keys.length === 1) {
+    return new Promise((resolve,reject)=>{
+      fetch(CONFIG_EV2P.url + 'store?token=' + CONFIG_EV2P.wbrtoken + `&key=${keyvt}`).then(res=>res.text()).then(r=>{
+        if (r) {
+          resolve(r.slice(CONFIG_EV2P.slice))
+        } else {
+          resolve(keyvt + ' 暂不存在')
+        }
+      }).catch(e=>{
+        reject(e)
+      })
+    })
+  } else {
+    return new Promise((resolve,reject)=>{
+      fetch({
+        url: CONFIG_EV2P.url + 'store?token=' + CONFIG_EV2P.wbrtoken + `&key=${keyvt}`,
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'save',
+          data: {
+            key: keys[0],
+            value: {
+              value: decodeURI(keys[1]),
+              type: keys[2]
+            }
+          }
+        })
+      }).then(res=>res.text()).then(r=>{
+        resolve(r)
+      }).catch(e=>{
+        reject(e)
+      })
+    })
+  }
 }
 
 async function handlePostRequest(request) {
@@ -329,11 +379,9 @@ async function handlePostRequest(request) {
 /task - 开始暂停任务
 /status - 内存使用状态
 /shell - 执行简单 shell 指令
+/store - store/cookie 管理
 /end - end context
 /tasksave - 保存任务列表
-/taskdel - 删除任务
-/deljs - 删除 JS
-/dellog - 删除日志
 /log - 获取日志
 /context - 查看当前执行模式
 /info - 查看服务器信息
@@ -472,6 +520,22 @@ async function handlePostRequest(request) {
         } else {
           payload.text = await shellRun(bodytext.replace(/^\/?(shell|exec) /, ''))
         }
+      } else if (/^\/?store/.test(bodytext)) {
+        if (CONFIG_EV2P.mode && CONFIG_EV2P.mode.storemanage) {
+          let cont = bodytext.trim().split(' ')
+          if (cont.length === 1) {
+            try {
+              await context.put('u' + payload['chat_id'], 'store')
+              payload.text = '进入 cookie/store 管理模式，输入关键字(key)查看 store 内容，比如 cookieKEY。 \n输入 key value type(可省略) 修改 store 内容。以空格进行分隔，如果 value 中包含空格等其他特殊字符，请先使用 encodeURI 函数进行转换。比如: CookieJD pt_pin=xxx;%20pt_key=app_xxxxxxx;\n\ntype 可省略，也可设定为:\nstring 表示将 value 保存为普通字符(默认)\njson 表示将 value 保存为 json 格式\na 表示在原来的值上新增。（更多说明可参考 https://github.com/elecV2/elecV2P-dei/tree/master/docs/04-JS.md $store 部分）'
+            } catch(e) {
+              payload.text = e.message
+            }
+          } else {
+            payload.text = await storeManage(bodytext.replace(/^\/?store /, ''))
+          }
+        } else {
+          payload.text = 'store/cookie 管理模式处于关闭状态'
+        }
       } else if (/^\/?log/.test(bodytext)) {
         let cont = bodytext.trim().split(' ')
         if (cont.length === 1) {
@@ -525,6 +589,13 @@ async function handlePostRequest(request) {
               payload.text = await shellRun(bodytext)
             }
             break
+          case 'store':
+            if (CONFIG_EV2P.mode && CONFIG_EV2P.mode.storemanage) {
+              payload.text = await storeManage(bodytext)
+            } else {
+              payload.text = 'store/cookie 管理模式处于关闭状态'
+            }
+            break
           default: {
             payload.text = '当前执行环境: ' + userenv.context + ' 无法处理指令: ' + bodytext
           }
@@ -532,10 +603,14 @@ async function handlePostRequest(request) {
         await context.put(uid, userenv.context, bodytext)
       } else {
         payload.text = 'TGbot 部署成功，可以使用相关指令和 elecV2P 服务器进行交互了\nPowered By: https://github.com/elecV2/elecV2P\n\n频道: @elecV2 | 交流群: @elecV2G'
+        if (CONFIG_EV2P.userid.length === 0) {
+          payload.text += '\n（❗️危险⚠️）当前 elecV2P bot 并没有设置 userid，所有人可进行交互'
+        }
         if (bodytext === '/start') {
           let status = ''
           try {
             status = await getStatus()
+            status = '当前 bot 与 elecV2P 连接成功 ' + status
           } catch(e) {
             status = (e.message || e) + '\nelecV2P 服务器没有响应，请检查服务器地址和 webhook token 是否设置正确。'
           }
@@ -557,13 +632,13 @@ async function handlePostRequest(request) {
 }
 
 async function handleRequest(request) {
-  let retBody = `The request was a GET `
+  let retBody = `welcome to elecV2P.\n\nPowered By: https://github.com/elecV2/elecV2P\n\nTG 频道: https://t.me/elecV2 | TG 交流群: @elecV2G`
   return new Response(retBody)
 }
 
 addEventListener('fetch', event => {
   const { request } = event
-  const { url } = request
+  // const { url } = request
   if (request.method === 'POST') {
     return event.respondWith(handlePostRequest(request))
   } else if (request.method === 'GET') {
