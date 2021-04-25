@@ -309,13 +309,13 @@ function storeManage(keyvt) {
     })
   } else {
     return new Promise((resolve,reject)=>{
-      fetch({
-        url: CONFIG_EV2P.url + 'store?token=' + CONFIG_EV2P.wbrtoken + `&key=${keyvt}`,
+      fetch(CONFIG_EV2P.url + 'store', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          token: CONFIG_EV2P.wbrtoken,
           type: 'save',
           data: {
             key: keys[0],
