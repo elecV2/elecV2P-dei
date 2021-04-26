@@ -2,6 +2,7 @@
  * 功能: 部署在 cloudflare worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
  * 地址: https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
  * 更新: 2021-04-24
+ * 说明: 功能实现主要基于 elecV2P 的 webhook（https://github.com/elecV2/elecV2P-dei/tree/master/docs/09-webhook.md）
  * 
  * 使用方式: 
  * 1. 准备工作
@@ -24,7 +25,7 @@
  * - /context 获取当前执行环境，如果没有，则为普通模式
  * 其它模式完善中...
  * 
- * 特殊指令 sudo clear ; 用于清空当前 context 值（以防服务器长时间无返回而卡死的问题）
+ * 特殊指令 sudo clear ; 用于清空当前 context 值（以防出现服务器长时间无返回而卡死的问题）
  *
  * 下面 /command 命令的优先级高于当前执行环境
  *
@@ -334,6 +335,16 @@ function storeManage(keyvt) {
   }
 }
 
+function storeList() {
+  return new Promise((resolve,reject)=>{
+    fetch(CONFIG_EV2P.url + 'store?token=' + CONFIG_EV2P.wbrtoken).then(res=>res.json()).then(r=>{
+      resolve(r)
+    }).catch(e=>{
+      reject(e)
+    })
+  })
+}
+
 async function handlePostRequest(request) {
   if (CONFIG_EV2P.store) {
     let config = await store.get(CONFIG_EV2P.store, 'json')
@@ -479,17 +490,27 @@ async function handlePostRequest(request) {
               one_time_keyboard: true,
               selective: true
             }
-            jslists.forEach((s, ind)=> {
+            let over = ''
+            if (jslists.length >= 200) {
+              over = '\n\n文件数超过 200，以防 reply_keyboard 过长 TG 无返回，剩余 JS 以文字形式返回\n\n'
+            }
+            for (let ind in jslists) {
+              let s = jslists[ind]
+              if (ind >= 200) {
+                over += s + '  '
+                continue
+              }
+
               let row = parseInt(ind/2)
               keyb.keyboard[row]
               ? keyb.keyboard[row].push({
                 text: s.replace(/\.js$/, '')
-              }) 
+              })
               : keyb.keyboard[row] = [{
                 text: s.replace(/\.js$/, '')
               }]
-            })
-            payload.text = '进入 RUNJS 模式，当前 elecV2P 上 JS 文件数: ' + jslists.length + '\n点击运行 JS，也可以直接输入文件名或者远程链接'
+            }
+            payload.text = '进入 RUNJS 模式，当前 elecV2P 上 JS 文件数: ' + jslists.length + '\n点击运行 JS，也可以直接输入文件名或者远程链接' + over
             payload.reply_markup = keyb
           } catch(e) {
             payload.text = e.message
@@ -526,7 +547,35 @@ async function handlePostRequest(request) {
           if (cont.length === 1) {
             try {
               await context.put('u' + payload['chat_id'], 'store')
-              payload.text = '进入 cookie/store 管理模式，输入关键字(key)查看 store 内容，比如 cookieKEY。 \n输入 key value type(可省略) 修改 store 内容。以空格进行分隔，如果 value 中包含空格等其他特殊字符，请先使用 encodeURI 函数进行转换。比如: CookieJD pt_pin=xxx;%20pt_key=app_xxxxxxx;\n\ntype 可省略，也可设定为:\nstring 表示将 value 保存为普通字符(默认)\njson 表示将 value 保存为 json 格式\na 表示在原来的值上新增。（更多说明可参考 https://github.com/elecV2/elecV2P-dei/tree/master/docs/04-JS.md $store 部分）'
+              let storelists = await storeList()
+              let keyb = {
+                keyboard: [],
+                resize_keyboard: false,
+                one_time_keyboard: true,
+                selective: true
+              }
+              let over = ''
+              if (storelists.length >= 200) {
+                over = '\n\nCookie 数超过 200，以防 reply_keyboard 过长 TG 无返回，剩余 Cookie KEY 以文字形式返回\n\n'
+              }
+              for (let ind in storelists) {
+                let s = storelists[ind]
+                if (ind >= 200) {
+                  over += s + '  '
+                  continue
+                }
+
+                let row = parseInt(ind/2)
+                keyb.keyboard[row]
+                ? keyb.keyboard[row].push({
+                  text: s
+                })
+                : keyb.keyboard[row] = [{
+                  text: s
+                }]
+              }
+              payload.reply_markup = keyb
+              payload.text = '进入 cookie/store 管理模式，当前 elecV2P 上 Cookie 数: ' + storelists.length + '\n点击或者直接输入关键字(key)查看 store 内容，比如 cookieKEY。 \n输入 key value type(可省略) 修改 store 内容。以空格进行分隔，如果 value 中包含空格等其他特殊字符，请先使用 encodeURI 函数进行转换。比如:\nCookieJD pt_pin=xxx;%20pt_key=app_xxxxxxx;\ntype 可省略，也可设定为:\nstring 表示将 value 保存为普通字符(默认)\nobject 表示将 value 保存为 json 格式\na 表示在原来的值上新增。（更多说明可参考 https://github.com/elecV2/elecV2P-dei/tree/master/docs/04-JS.md $store 部分）' + over
             } catch(e) {
               payload.text = e.message
             }
