@@ -153,8 +153,20 @@ const context = {
   }
 }
 
+function surlName(url) {
+  if (!url) {
+    return ''
+  }
+  let name = ''
+  let sdurl = url.split(/\/|\?|#/)
+  while (name === '' && sdurl.length) {
+    name = sdurl.pop()
+  }
+  return name
+}
+
 function timeoutPromise({ timeout = CONFIG_EV2P.timeout || 5000, fn }) {
-  return new Promise(resolve => setTimeout(resolve, timeout, '请求超时 ' + timeout + ' ms，相关请求应该已发送至 elecV2P，这里提前返回结果，以免发送重复请求' + `${fn ? ('\n\n运行日志: ' + CONFIG_EV2P.url + 'logs/' + fn + '.log') : '' }`))
+  return new Promise(resolve => setTimeout(resolve, timeout, '请求超时 ' + timeout + ' ms，相关请求应该已发送至 elecV2P，这里提前返回结果，以免发送重复请求' + `${fn ? ('\n\n运行日志: ' + CONFIG_EV2P.url + 'logs/' + surlName(fn) + '.log') : '' }`))
 }
 
 function getLogs(s){
@@ -608,7 +620,7 @@ async function handlePostRequest(request) {
                 url: CONFIG_EV2P.url + 'logs/' + s
               }]
             })
-            payload.text = "进行日志查看模式，当前 elecV2P 上日志文件数: " + map.length + "\n点击查看日志或者直接输入 log 文件名进行查看"
+            payload.text = "开始日志查看模式，当前 elecV2P 上日志文件数: " + map.length + "\n点击查看日志或者直接输入 log 文件名进行查看"
             payload.reply_markup = keyb
           } catch(e) {
             payload.text = e.message

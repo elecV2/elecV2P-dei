@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-04-07
-适用版本: 3.2.9
+最近更新: 2021-04-28
+适用版本: 3.3.3
 文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/09-webhook.md
 ```
 
@@ -14,6 +14,7 @@
 - 添加/保存 定时任务
 - 远程下载文件到 EFSS
 - 执行 shell 指令
+- 查看/修改 store/cookie
 
 ## 使用
 
@@ -65,6 +66,7 @@ fetch('http://192.168.1.102:12521/webhook', {   // 本地服务器可直接用 /
 | shell     | command=ls     | 执行 shell 指令 |  &type=shell&command=node%20-v
 | info      | debug=1  可选  | 查看服务器信息  |  &type=info or &type=info&debug=true
 | jslist    | 无 ---         | 获取 JS 列表    |  &type=jslist
+| store     | key=cookieKEY  | 获取 cookie 信息|  &type=store&key=cookieKEY
 
 - **每次请求注意带上 token**
 - **如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
@@ -73,6 +75,7 @@ fetch('http://192.168.1.102:12521/webhook', {   // 本地服务器可直接用 /
 - **shell 支持附加 cwd 和 timeout 参数**
 - **v3.2.6 版本添加 type info**
 - **v3.2.9 版本添加 type jslist**
+- **v3.3.3 版本添加 type store**
 
 ```
 # 获取内存使用信息
@@ -90,14 +93,21 @@ http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell
 # shell 使用 cwd 和 timeout 参数
 http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell&command=ls&cwd=script/JSFile&timeout=2000
 
-# 获取elecV2P 及服务器相关信息
+# 获取 elecV2P 及服务器相关信息
 http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=info&debug=true
+
+# 查看 store/cookie 信息
+http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=store&op=all          # 获取 cookie 列表
+http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=store&key=cookieKEY   # 获取某个 KEY 对应值
 ```
 
-### 添加定时任务 2.4.6 更新
+## 使用 PUT/POST 方法
 
 ``` JS
-// 在后台管理页面打开调试端口，输入代码，可不输入服务器地址
+// 在 webUI 后台管理页面打开浏览器调试工具，输入以下代码，可不输入服务器地址
+// # 添加定时任务 2.4.6 更新
+// task 格式参考: https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md
+
 fetch('/webhook', {
   method: 'put',     // or post
   headers: {
@@ -117,10 +127,32 @@ fetch('/webhook', {
       running: false        // 是否自动执行添加的任务
     }
   })
-}).then(res=>res.text()).then(s=>console.log(s))
+}).then(res=>res.text()).then(s=>console.log(s)).catch(e=>console.log(e))
+
+// # 增加/修改 store/cookie (v3.3.3)
+fetch('/webhook', {
+  method: 'post',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'c2cbbbff-1043-40f4-a4c4-45fc4badfa05',
+    type: 'store',
+    op: 'put',
+    key: 'acookiehook',
+    value: {
+      hello: 'elecV2P'
+    },
+    options: {            // options 可省略
+      type: 'object',     // 指定 value 保存类型，可省略
+      belong: 'webhook.js',        // 指定该 cookie 归属脚本
+      note: '一个从 webhook 添加测试 cookie',  // 给 cookie 添加简单备注
+    }
+  })
+}).then(res=>console.log(res.data)).catch(e=>console.log(e))
+
+// 假如 elecV2P 可远程访问，可以使用使用其他任意程序发送网络请求进行调用
 ```
 
-task 格式参考: https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md
-
-- webhook 可配合 telegram bot 和 快捷指令使用，方便快速调用 elecV2P 相关功能
+- webhook 可配合 **telegram bot** 或 **快捷指令** 等其他工具使用，方便快速调用 elecV2P 相关功能
 - 通过 webhook 提供的 API，可以自行设计其他 UI 界面，实现与 elecV2P 交互
