@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-04-02
-适用版本: 3.2.9
+最近更新: 2021-05-08
+适用版本: 3.3.5
 文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/07-feed&notify.md
 ```
 
@@ -10,6 +10,7 @@
 - IFTTT WEBHOOK
 - BARK 通知
 - 自定义通知
+- 通知触发 JS
 
 ### Feed rss 订阅
 
@@ -130,13 +131,15 @@ function mynotify(title, body, url) {
 
 *具体写法可参考: https://github.com/elecV2/elecV2P/blob/master/script/JSFile/notify.js*
 
-因为在 JS 中可通过 $feed.push 发送通知，通知又可以触发 JS，为避免循环调用，在通知触发的 JS 中 $feed.push 函数不可用，其他通知函数（$feed.ifttt, $feed.bark, $feed.cust）可正常使用，但不会触发 JS。
+**因为在 JS 中可通过 $feed.push 发送通知，通知又可以触发 JS，为避免循环调用，在通知触发的 JS 中 $feed.push 函数不可用，其他通知函数（$feed.ifttt, $feed.bark, $feed.cust）可正常使用，但不会触发 JS。**
 
 ## 默认通知内容
 
 - 任务开始/暂停/删除
 - 倒计时任务完成
 - JS 运行设定次数（默认 50）
+
+*如果在非手动重启的情况下收到大量默认通知，可能是因为某些脚本的运行导致 elecV2P 重启，请根据 errors.log 和相关脚本的日志，定位并解决问题，避免出现因意外重启而收到大量通知的情况。*
 
 ## 在 JS 调用通知模块
 
