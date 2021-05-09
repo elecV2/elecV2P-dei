@@ -13,7 +13,7 @@
  * 2. 部署代码
  *    - 根据下面代码中 CONFIG_EV2P 的注释，填写好相关内容
  *    - 然后把修改后的整个 JS 内容粘贴到 cloudflare worker 代码框，保存并部署。得到一个类似 https://xx.xxxxx.workers.dev 的网址
- *    - 接着在浏览器中打开链接: https://api.telegram.org/bot(你的 tgbot token)/setWebhook?url=https://xx.xxxxx.workers.dev（连接 TGbot 和 CFworkers）
+ *    - 接着在浏览器中打开链接: https://api.telegram.org/bot(你的 tgbot token)/setWebhook?url=https://xx.xxxxx.workers.dev （连接 TGbot 和 CFworkers）
  *    - 最后，打开 TGbot 对话框，输入下面的相关指令（比如 status），测试 TGbot 是否部署成功
  *
  * 2.0 更新: 添加上下文执行环境
@@ -91,13 +91,13 @@ let CONFIG_EV2P = {
   url: "http://你的 elecV2P 服务器地址/",    // elecV2P 服务器地址(必须是域名，cf worker 不支持 IP 直接访问)
   wbrtoken: 'xxxxxx-xxxxxxxxxxxx-xxxx',      // elecV2P 服务器 webhook token(在 webUI->SETTING 界面查看)
   token: "xxxxxxxx:xxxxxxxxxxxxxxxxxxx",     // telegram bot api token
+  userid: [],            // 只对该列表中的 userid 发出的指令进行回应。默认: 回应所有用户的指令（高风险！）
   slice: -1200,          // 截取部分返回结果的最后 1200 个字符，以防太长无法传输（可自行修改）
-  userid: [],            // 只对该列表中的 userid 发出的指令进行回应。默认: 回应所有用户的指令
   shell: {
     timeout: 1000*6,     // shell exec 超时时间，单位: ms
     contexttimeout: 1000*60*5,               // shell 模式自动退出时间，单位: ms
   },
-  timeout: 5000,         // runjs 请求超时时间，以防请求时间过长，导致反复请求，bot 被卡死
+  timeout: 5000,         // runjs 请求超时时间，以防脚本运行时间过长，无回应导致反复请求，bot 被卡死
   mycommand: {           // 自定义快捷命令，比如 restart: 'exec pm2 restart elecV2P'
     rtest: '/runjs test.js',    // 表示当输入命令 /rtest 或 rtest 时会自动替换成命令 '/runjs test.js' 运行 JS 脚本 test.js
     execls: 'exec ls -al',      // 同上，表示自动将命令 /execls 替换成 exec ls -al。 其他命令可参考自行添加
@@ -261,8 +261,8 @@ function jsRun(fn) {
 
 function getJsLists() {
   return new Promise((resolve,reject)=>{
-    fetch(CONFIG_EV2P.url + 'jsmanage?token=' + CONFIG_EV2P.wbrtoken).then(res=>res.json()).then(r=>{
-      resolve(r.jslists)
+    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=jslist').then(res=>res.json()).then(r=>{
+      resolve(r)
     }).catch(e=>{
       reject(e)
     })
@@ -310,7 +310,7 @@ function storeManage(keyvt) {
   let keys = keyvt.split(' ')
   if (keys.length === 1) {
     return new Promise((resolve,reject)=>{
-      fetch(CONFIG_EV2P.url + 'store?token=' + CONFIG_EV2P.wbrtoken + `&key=${keyvt}`).then(res=>res.text()).then(r=>{
+      fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + `&type=store&key=${keyvt}`).then(res=>res.text()).then(r=>{
         if (r) {
           resolve(r.slice(CONFIG_EV2P.slice))
         } else {
@@ -322,20 +322,19 @@ function storeManage(keyvt) {
     })
   } else {
     return new Promise((resolve,reject)=>{
-      fetch(CONFIG_EV2P.url + 'store', {
+      fetch(CONFIG_EV2P.url + 'webhook', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           token: CONFIG_EV2P.wbrtoken,
-          type: 'save',
-          data: {
-            key: keys[0],
-            value: {
-              value: decodeURI(keys[1]),
-              type: keys[2]
-            }
+          type: 'store',
+          op: 'put',
+          key: keys[0],
+          value: decodeURI(keys[1]),
+          options: {
+            type: keys[2]
           }
         })
       }).then(res=>res.text()).then(r=>{
@@ -349,7 +348,7 @@ function storeManage(keyvt) {
 
 function storeList() {
   return new Promise((resolve,reject)=>{
-    fetch(CONFIG_EV2P.url + 'store?token=' + CONFIG_EV2P.wbrtoken).then(res=>res.json()).then(r=>{
+    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=store&op=all').then(res=>res.json()).then(r=>{
       resolve(r)
     }).catch(e=>{
       reject(e)
