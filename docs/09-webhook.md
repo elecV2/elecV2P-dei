@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-04-28
-适用版本: 3.3.3
+最近更新: 2021-05-11
+适用版本: 3.3.6
 文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/09-webhook.md
 ```
 
@@ -67,6 +67,7 @@ fetch('http://192.168.1.102:12521/webhook', {   // 本地服务器可直接用 /
 | info      | debug=1  可选  | 查看服务器信息  |  &type=info or &type=info&debug=true
 | jslist    | 无 ---         | 获取 JS 列表    |  &type=jslist
 | store     | key=cookieKEY  | 获取 cookie 信息|  &type=store&key=cookieKEY
+| deljs     | fn=webhook.js  | 删除 JS 文件    |  &type=deljs&fn=webhook.js
 
 - **每次请求注意带上 token**
 - **如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
@@ -99,6 +100,7 @@ http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=info&
 # 查看 store/cookie 信息
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=store&op=all          # 获取 cookie 列表
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=store&key=cookieKEY   # 获取某个 KEY 对应值
+http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=store&op=put&key=cookieKEY&value=webhookgetvalue   # 添加一个 cookie
 ```
 
 ## 使用 PUT/POST 方法
@@ -139,12 +141,12 @@ fetch('/webhook', {
     token: 'c2cbbbff-1043-40f4-a4c4-45fc4badfa05',
     type: 'store',
     op: 'put',
-    key: 'acookiehook',
-    value: {
+    key: 'acookiehook',   // cookie key 关键字
+    value: {              // cookie 保存内容。可为 string/number 等其他数据类型
       hello: 'elecV2P'
     },
     options: {            // options 可省略
-      type: 'object',     // 指定 value 保存类型，可省略
+      type: 'object',     // 指定 value 保存类型，可省略（如省略将根据 value 的类型进行自动判断
       belong: 'webhook.js',        // 指定该 cookie 归属脚本
       note: '一个从 webhook 添加测试 cookie',  // 给 cookie 添加简单备注
     }
