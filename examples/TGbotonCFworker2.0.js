@@ -1,7 +1,7 @@
 /**
  * 功能: 部署在 cloudflare worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
  * 地址: https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
- * 更新: 2021-05-11
+ * 更新: 2021-05-13
  * 说明: 功能实现主要基于 elecV2P 的 webhook（https://github.com/elecV2/elecV2P-dei/tree/master/docs/09-webhook.md）
  * 
  * 使用方式: 
@@ -101,6 +101,10 @@ let CONFIG_EV2P = {
   mycommand: {           // 自定义快捷命令，比如 restart: 'exec pm2 restart elecV2P'
     rtest: '/runjs test.js',    // 表示当输入命令 /rtest 或 rtest 时会自动替换成命令 '/runjs test.js' 运行 JS 脚本 test.js
     execls: 'exec ls -al',      // 同上，表示自动将命令 /execls 替换成 exec ls -al。 其他命令可参考自行添加
+    update: {                   // 当为 object 类型时，note 表示备注显示信息， command 表示实际执行命令
+      note: '软更新升级',
+      command: 'runjs https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/softupdate.js'
+    }
   },
   mode: {
     storemanage: false,         // 是否开启 store/cookie 管理模式。false: 不开启（默认），true: 开启
@@ -388,7 +392,7 @@ async function handlePostRequest(request) {
       if (CONFIG_EV2P.mycommand && Object.keys(CONFIG_EV2P.mycommand).length) {
         let tcom = bodytext.replace(/^\//, '')
         if (CONFIG_EV2P.mycommand[tcom]) {
-          bodytext = CONFIG_EV2P.mycommand[tcom]
+          bodytext = CONFIG_EV2P.mycommand[tcom].command || CONFIG_EV2P.mycommand[tcom]
         }
       }
       if (bodytext === 'sudo clear') {
@@ -412,10 +416,10 @@ async function handlePostRequest(request) {
         if (CONFIG_EV2P.mycommand && Object.keys(CONFIG_EV2P.mycommand).length) {
           payload.text += '\n\n自定义快捷命令'
           for (let x in CONFIG_EV2P.mycommand) {
-            payload.text += '\n' + (x.startsWith('/') ? '' : '/') + x + ' - ' + CONFIG_EV2P.mycommand[x]
+            payload.text += '\n' + (x.startsWith('/') ? '' : '/') + x + ' - ' + (CONFIG_EV2P.mycommand[x].note || CONFIG_EV2P.mycommand[x])
           }
         }
-        tgPush(payload)
+        await tgPush(payload)
         return new Response("OK")
       }
       let userenv = await context.get(uid)
