@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-04-21
-适用版本: 3.3.1
+最近更新: 2021-05-22
+适用版本: 3.3.8
 文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md
 ```
 
@@ -77,15 +77,14 @@ if (typeof($cookie) != "undefined") {
 
 Shell 指令的运行使用了 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 模块
 
-timeout 默认为 60000ms（60秒）。如果要执行长时间命令，在 JS 中使用 $exec() 执行，timeout 可设置为 0
+timeout 默认为 60000ms（60秒）。如果要执行长时间命令，在 JS 中使用 $exec() 执行，将 timeout 设置为 0 （表示不设定超过时间），或其他数值。
 cwd 默认目录为 script/Shell
 
 ``` sh 示例命令
 # 单条命令
 ls
 node -v
-start https://github.com/elecV2/elecV2P    # v3.2.8 前命令
-start -https://github.com/elecV2/elecV2P   # v3.2.8 后会自动下载命令中的 http 远程文件，如果不想下载需要在前面加 - 进行转义
+start https://github.com/elecV2/elecV2P
 reboot
 
 # 文件执行(先将相关文件放置到 script/Shell 目录下)
@@ -109,6 +108,7 @@ ls -cwd script/JSFile
 ``` sh
 askinput.py -stdin elecV2P%0Afine,%20thank%20you
 # -stdin 后面的文字如果较复杂，应先使用 encodeURI 函数进行简单编码
+# 默认延时时间为 2000ms (2秒)，即在 2 秒后自动输入 stdin 后面的文字
 ```
 
 **v3.2.8 增加支持运行远程文件**
@@ -138,11 +138,11 @@ curl https://www.google.com/
 
 ``` sh
 python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/test.py -local
-# elecV2P 会检查本地是否存在 test.py 文件，如果没有则下载，然后执行
+# elecV2P 会检查本地 script/Shell 目录是否存在 test.py 文件，如果存在则直接运行，否则下载后再执行
 ```
 
 - 如果原来的命令中带有 http 链接，需使用 -http 进行转义
-- 已排除先下载的常用网络相关命令（无需转义，可按原来的命令直接输入执行）
+- 已排除常用网络相关命令不进行下载（无需转义，可按原来的命令直接输入执行）
   - curl/wget/git/start  (v3.2.9)
   - you-get/youtube-dl   (v3.3.0)
   - *如果还有其他的常用网络相关命令，欢迎反馈添加*
@@ -184,7 +184,8 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 }
 ```
 
-**实际 list 文件为严格的 JSON 格式，不能包含任何注释**
+- **实际 list 文件为严格的 JSON 格式，不包含任何注释**
+- **如非必要，请不要直接修改 list 源文件**
 
 ## 远程订阅（请勿添加不信任的订阅链接）
 
@@ -192,7 +193,8 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 
 ![tasksub](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/tasksub.png)
 
-订阅内容格式为 JSON, 相关参数如下: 
+订阅内容格式为严格的 JSON 格式，不包含任何注释, 相关参数如下: 
+
 ``` JSON
 {
   "name": "elecV2P 定时任务订阅",     // 订阅名称
@@ -258,7 +260,7 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 在 http://127.0.0.1/efss 界面上传订阅文件，然后添加一个本地订阅，例如: http://127.0.0.1/efss/tasksub文件名.json
 或者远程 https://xxx/efss/tasksub.json
 
-*如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现了 Network Error 的错误提醒，可能是浏览器 CORS 导致的问题，尝试直接下载文件，然后上传到 efss 目录，再使用本地订阅*
+*如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现了 Network Error 的错误提醒，可能是浏览器 CORS 导致的问题，尝试直接下载文件，然后上传到 EFSS 目录，再使用本地订阅（比如: efss/tasksub.json）*
 
 - 其他订阅格式转换
 

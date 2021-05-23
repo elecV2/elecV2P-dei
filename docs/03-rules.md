@@ -1,42 +1,33 @@
 ```
-最近更新： 2020-7-16
-适用版本： 2.1.0
+最近更新: 2021-05-23
+适用版本: 3.3.8
+文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/03-rules.md
 ```
+
+## 准备工作
+
+- **再使用 RULES/REWRITE 相关功能前，请确定 ANYPROXY 已打开**
+- 已正确将网络请求代理到 ANYPROXY 端口
+- 匹配 https 请求请先添加 MITM host，普通 http 请求无需添加
 
 ## modify 规则集 格式说明
 
 |   匹配方式   |    匹配内容（正则）   |  修改方式 |       修改内容      |  修改时间
  :-----------: | --------------------- | :-------: | ------------------- | ----------
-| ip           | 192.168.1.1           | 301/302   | https://google.com  |  前(req)
-| url          | ^https://api.b.com/v2 | JS        | file.js             |  后(res)
-| host         | api.bilibili.com      | useragent | iPhone 6s           |  
-| useragent    | neteaseMusic | aliApp | block     | reject|tinyimg
-| reqmethod    | GET|POST|PUT|DELETE   | $HOLD     | 30
-| reqbody      | queryPara|word string |           |
-| resstatus    | 200 | 404 | 301 | ... |           |
-| restype      | text/html | text/json | -----     |
+| url          | ^https://api.b.com/v2 | JS        | file.js             |  前(req)
+| host         | api.bilibili.com      | useragent | iPhone 6s           |  后(res)
+| useragent    | neteaseMusic / aliApp | block     | reject|tinyimg      |
+| reqmethod    | GET/POST/PUT/DELETE   | $HOLD     | 30
+| reqbody      | queryPara/word string |           |
+| resstatus    | 200 / 404 / 301 / ... |           |
+| restype      | text/html / text/json | -----     |
 | resbody      | Keyword(string)       | all - JS  |
 
+- *实际使用中匹配方式和修改方式可以任意搭配*
 
-保存后，根据表格内容自动生成 **default.list**
-
-```
-[elecV2P rules]
-ip,192.168.1.1,301,https://google.com,req
-url,^https://api.b.com/v2,js,file.js,res
-url,httpbin.org/get,hold,0,res
-useragent,neteaseMusic,block,reject
-reqmethod,GET,block,tinyimg
-reqbody,key string,js,other.js
-resstatus,404,js,404.js,res
-restype,text/html,js,file.js
-resbody,key string,301,google.com,res
-```
-
-## 匹配方式
+### 匹配方式
 
 ```
-ip              // 匹配 IP 
 url             // 匹配 url 
 host            // 匹配 url host 部分
 useragent       // 匹配 User-Agent 
@@ -47,24 +38,27 @@ restype         // 匹配 返回的数据类型
 resbody         // 匹配 返回的数据内容
 ```
 
-## 修改方式
+### 修改方式
 
-### JS
+#### JS
 
-通过 JS 脚本修改网络请求数据，对应修改内容为 JS 文件名
+通过 JS 脚本修改网络请求数据，对应修改内容为 JS 文件名或远程 JS 链接。
 
-### 301 重定向
+从该模块运行 JS，默认会添加 $request，$response(**数据返回前**) 两个变量，具体参数如下：
+
+- $request.headers, $request.body, $request.method, $request.hostname, $request.port, $request.path, $request.url
+- $response.headers, $response.body, $response.statusCode
+
+#### 307 重定向
 
 对应修改内容为重定向目标网址
 
-如需使用使用 30x 状态码，请手动在 **runjs/Lists/default.list** 中更改
-
-### 阻止
+#### 阻止
 
 reject: 返回状态码 200, body 为空。 
 tinyimg: 返回状态码为 200, body 为一张 1x1 的图片
 
-### $HOLD
+#### $HOLD
 
 将原网络请求的 header 和 body 发送到前端网页进行修改处理，然后将修改后的数据直接发送给服务器/客户端。
 
@@ -76,23 +70,56 @@ tinyimg: 返回状态码为 200, body 为一张 1x1 的图片
 
 $HOLD request reject - 直接返回当前数据
 
-返回默认状态码： 200
+返回默认状态码: 200
 
-数据包含两部分： header 和 body
+数据包含两部分: header 和 body
 
-
-### User-Agent
+#### User-Agent
 
 修改请求 header 中的 User-Agent。
 
-默认 User-Agent 列表位于： **runjs/Lists/useragent.list** ，可自行根据需求进行修改
+默认 User-Agent 可在 webUI->SETTING->网络请求相关设置进行管理修改
 
-## 修改时间
+### 修改时间
 
-### 网络请求前
+网络请求匹配时间
+
+#### 网络请求前
 
 beforeSendRequest
 
-### 数据返回前
+#### 数据返回前
 
 beforeSendResponse
+
+## 源文件格式
+
+RULES 规则列表保存于 **./script/Lists/default.list**，实际格式为严格的 JSON 类型（不包含任何注释）。
+*（参考: https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Lists/default.list ）*
+
+``` JSON
+{
+  "rules": {
+    "note": "elecV2P RULES 规则列表",  // 
+    "list": [
+      {
+        "mtype": "url",
+        "match": "adtest",
+        "ctype": "block",
+        "target": "reject",
+        "stage": "req"
+      },
+      {
+        "mtype": "url",
+        "match": "httpbin.org/get\\?hold",
+        "ctype": "hold",
+        "target": "0",
+        "stage": "req",     // enable 可省略。仅在 enable 为 false 的时候表示不启用
+        "enable": true
+      }
+    ]
+  }
+}
+```
+
+*如非必要，请不要手动修改 list 源文件*
