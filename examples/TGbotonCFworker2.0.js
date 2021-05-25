@@ -1,7 +1,7 @@
 /**
  * 功能: 部署在 cloudflare worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
  * 地址: https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
- * 更新: 2021-05-13
+ * 更新: 2021-05-25
  * 说明: 功能实现主要基于 elecV2P 的 webhook（https://github.com/elecV2/elecV2P-dei/tree/master/docs/09-webhook.md）
  * 
  * 使用方式: 
@@ -55,6 +55,7 @@
  * 脚本相关
  * /runjs file.js       ;运行脚本
  * /runjs https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/webhook.js
+ * /runjs https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/feed.js anotify.js  ;运行远程脚本同时重命名保存为 anotify.js
  * /deljs file.js       ;删除脚本
  *
  * shell 指令相关
@@ -80,6 +81,8 @@ command - 列出所有指令
  * 更新方式: 
  * - 如果在 CONFIG_EV2P 中设置了 store，直接复制当前整个文件到 cf worker 即可
  * - 如果没有设置 store，则复制除了开头的 CONFIG_EV2P 外其他所有内容到 cf worker
+ *
+ * 适用版本: elecV2P v3.3.6 (低版本下部分指令可能无法正常处理)
 **/
 
 const kvname = elecV2P   // 保存上下文内容的 kv namespace。在 cf 上创建并绑定后自行更改
@@ -217,6 +220,7 @@ function getInfo(debug) {
 }
 
 function getTaskinfo(tid) {
+  tid = tid.replace(/^\//, '')
   return new Promise((resolve,reject)=>{
     fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=taskinfo&tid=' + tid).then(res=>res.text()).then(r=>{
       resolve(r)
@@ -229,6 +233,13 @@ function getTaskinfo(tid) {
 function opTask(tid, op) {
   if (!/start|stop|del|delete/.test(op)) {
     return 'unknow operation' + op
+  }
+  if (/^\//.test(tid)) {
+    if (/^\/stop/.test(tid)) {
+      op = 'stop'
+      tid = tid.replace(/^\/stop/, '')
+    }
+    tid = tid.replace(/^\//, '')
   }
   return new Promise((resolve,reject)=>{
     fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=task' + op + '&tid=' + tid).then(res=>res.text()).then(r=>{
@@ -249,13 +260,19 @@ function saveTask() {
   })
 }
 
-function jsRun(fn) {
-  if (!fn.startsWith('http') && !/\.js$/.test(fn)) {
-    fn += '.js'
+function taskNew(taskinfo) {
+  // 新建任务
+}
+
+function jsRun(fn, rename) {
+  let rfn = fn.split(/ +/)
+  if (rfn.length !== 1) {
+    fn = rfn[0]
+    rename = rfn[1]
   }
 
   return Promise.race([new Promise((resolve,reject)=>{
-    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=runjs&fn=' + fn).then(res=>res.text()).then(r=>{
+    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=runjs&fn=' + fn + (rename ? '&rename=' + rename : '')).then(res=>res.text()).then(r=>{
       resolve(r)
     }).catch(e=>{
       reject(e)
@@ -275,15 +292,7 @@ function getJsLists() {
 
 function deleteJS(name) {
   return new Promise((resolve,reject)=>{
-    fetch(CONFIG_EV2P.url + 'jsfile?token=' + CONFIG_EV2P.wbrtoken, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        jsfn: name
-      })
-    }).then(res=>res.text()).then(r=>{
+    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=deletejs&fn=' + name).then(res=>res.text()).then(r=>{
       resolve(r)
     }).catch(e=>{
       reject(e)
@@ -360,6 +369,20 @@ function storeList() {
   })
 }
 
+function getFile(file_id) {
+  return new Promise((resolve,reject)=>{
+    fetch(`https://api.telegram.org/bot${CONFIG_EV2P.token}/getFile?file_id=${file_id}`).then(res=>res.json()).then(r=>{
+      if (r.ok) {
+        resolve(`https://api.telegram.org/file/bot${CONFIG_EV2P.token}/${r.result.file_path}`)
+      } else {
+        resolve(r.description)
+      }
+    }).catch(e=>{
+      reject(e)
+    })
+  })
+}
+
 async function handlePostRequest(request) {
   if (CONFIG_EV2P.store) {
     let config = await store.get(CONFIG_EV2P.store, 'json')
@@ -384,8 +407,21 @@ async function handlePostRequest(request) {
 
   try {
     let body = JSON.parse(bodyString)
+    if (!body.message) {
+      payload.text = 'elecV2P bot get unknow message:\n' + bodyString
+      await tgPush(payload)
+      return new Response("OK")
+    }
     payload["chat_id"] = body.message.chat.id
-    if (body.message && body.message.text) {
+    if (body.message.document) {
+      let bodydoc = body.message.document
+      payload.text = `文件名称: ${bodydoc.file_name}\n文件类型: ${bodydoc.mime_type}\n文件 id: ${bodydoc.file_id}\n`
+      let fpath = await getFile(bodydoc.file_id)
+      payload.text += `文件地址: ${fpath}\n\n（进一步功能待完成）`
+      await tgPush(payload)
+      return new Response("OK")
+    }
+    if (body.message.text) {
       let bodytext = body.message.text.trim()
       let uid = 'u' + payload['chat_id']
 
@@ -481,12 +517,11 @@ async function handlePostRequest(request) {
             let tlist = JSON.parse(tasklists)
             let tlstr = ''
             for (let tid in tlist.info) {
-              tlstr += `${tlist.info[tid].name}, tid: ${tid}, running: ${tlist.info[tid].running}\n`
+              tlstr += `${tlist.info[tid].running ? '🐢' : '🐰'} ${tlist.info[tid].name} /${tid}  |  /stop${tid}\n`
             }
-            tlstr += `共 ${tlist.total} 个定时任务，运行中的任务 ${tlist.running} 个`
-            tasklists = tlstr
+            tlstr += `共 ${tlist.total} 个定时任务，运行中(🐢)的任务 ${tlist.running} 个`
 
-            payload.text = `当前 elecV2P 任务列表如下:\n${tasklists}\n输入任务对应的 tid 开始任务，输入 stop tid 停止任务`
+            payload.text = `当前 elecV2P 任务列表如下:\n${tlstr}\n点击任务名后面的 /+tid 开始任务，/+stoptid 停止任务\n也可以手动输入对应的 tid 开始任务, stop tid 停止任务\ntaskinfo tid 查看任务信息`
           } catch(e) {
             payload.text = e.message
           }
@@ -494,7 +529,7 @@ async function handlePostRequest(request) {
           payload.text = 'unknow task operation'
         }
       } else if (/^\/?runjs/.test(bodytext)) {
-        let cont = bodytext.trim().split(' ')
+        let cont = bodytext.trim().split(/ +/)
         if (cont.length === 1) {
           try {
             await context.put('u' + payload['chat_id'], 'runjs')
@@ -525,13 +560,13 @@ async function handlePostRequest(request) {
                 text: s.replace(/\.js$/, '')
               }]
             }
-            payload.text = '进入 RUNJS 模式，当前 elecV2P 上 JS 文件数: ' + jslists.length + '\n点击运行 JS，也可以直接输入文件名或者远程链接' + over
+            payload.text = '进入 RUNJS 模式，当前 elecV2P 上 JS 文件数: ' + jslists.length + '\n点击运行 JS，也可以直接输入文件名或者远程链接\n后面可加空格及其他参数重命名运行的文件，比如\nhttps://随便一个远程JS rmyname.js' + over
             payload.reply_markup = keyb
           } catch(e) {
             payload.text = e.message
           }
         } else {
-          payload.text = await jsRun(cont.pop())
+          payload.text = await jsRun(cont[1], cont[2])
         }
       } else if (/^\/?(shell|exec)/.test(bodytext)) {
         let cont = bodytext.trim().split(' ')
@@ -640,7 +675,7 @@ async function handlePostRequest(request) {
             payload.text = await jsRun(bodytext)
             break
           case 'task':
-            payload.text = await opTask(bodytext.split(' ').pop(), /^(🐢|stop)/.test(bodytext) ? 'stop' : 'start')
+            payload.text = await opTask(bodytext.split(' ').pop(), /^(🐢|\/?stop)/.test(bodytext) ? 'stop' : 'start')
             break
           case 'shell':
             if (Date.now() - userenv.active > (CONFIG_EV2P.shell && CONFIG_EV2P.shell.contexttimeout)) {
