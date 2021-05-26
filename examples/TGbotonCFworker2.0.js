@@ -234,12 +234,10 @@ function opTask(tid, op) {
   if (!/start|stop|del|delete/.test(op)) {
     return 'unknow operation' + op
   }
-  if (/^\//.test(tid)) {
-    if (/^\/stop/.test(tid)) {
-      op = 'stop'
-      tid = tid.replace(/^\/stop/, '')
-    }
-    tid = tid.replace(/^\//, '')
+  tid = tid.replace(/^\//, '')
+  if (/^\/?stop/.test(tid)) {
+    op = 'stop'
+    tid = tid.replace(/^\/?stop/, '')
   }
   return new Promise((resolve,reject)=>{
     fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=task' + op + '&tid=' + tid).then(res=>res.text()).then(r=>{
@@ -262,6 +260,40 @@ function saveTask() {
 
 function taskNew(taskinfo) {
   // 新建任务
+  if (!taskinfo) {
+    return '没有任何任务信息'
+  }
+  let finfo = taskinfo.split(/\r|\n/)
+  if (finfo.length < 2) {
+    return '任务信息输入有误 '
+  }
+  taskinfo = {
+    name: finfo[2] || '新的任务' + Math.ceil(Math.random()*100),
+    type: finfo[0].split(' ').length > 4 ? 'cron' : 'schedule',
+    time: finfo[0],
+    job: {
+      type: finfo[3] || 'runjs',
+      target: finfo[1],
+    },
+    running: finfo[4] !== 'false'
+  }
+  return new Promise((resolve,reject)=>{
+    fetch(CONFIG_EV2P.url + 'webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: CONFIG_EV2P.wbrtoken,
+        type: 'taskadd',
+        task: taskinfo
+      })
+    }).then(res=>res.text()).then(r=>{
+      resolve(r)
+    }).catch(e=>{
+      reject(e)
+    })
+  })
 }
 
 function jsRun(fn, rename) {
@@ -522,6 +554,25 @@ async function handlePostRequest(request) {
             tlstr += `共 ${tlist.total} 个定时任务，运行中(🐢)的任务 ${tlist.running} 个`
 
             payload.text = `当前 elecV2P 任务列表如下:\n${tlstr}\n点击任务名后面的 /+tid 开始任务，/+stoptid 停止任务\n也可以手动输入对应的 tid 开始任务, stop tid 停止任务\ntaskinfo tid 查看任务信息`
+            await tgPush(payload)
+
+            payload.text = `按照下面格式多行输入可直接添加新的任务（每行表示一个任务参数）\n
+任务时间(cron 定时，比如: 8 0,8 * * * ，倒计时，比如: 1 10 6)
+任务目标(test.js，node -v, LOlxkcdI(某个任务的 tid)，远程 JS 链接等)
+任务名称(可省略，默认为 新的任务+随机参数)
+任务类型(可省略，默认为 运行 JS，shell: 运行 shell 指令，taskstart：开始其他任务，taskstop：停止其他任务)
+是否执行(可省略，默认为 true，当且仅当该值为 false 时，表示只添加任务信息而不运行)
+
+示例一：添加一个 cron 定时任务
+
+30 20 * * *
+https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/deletelog.js
+删除日志
+
+示例二：添加一个倒计时任务，运行 test.js，每次倒计时 1 秒，执行 3 次
+
+1 3
+test.js`
           } catch(e) {
             payload.text = e.message
           }
@@ -675,7 +726,11 @@ async function handlePostRequest(request) {
             payload.text = await jsRun(bodytext)
             break
           case 'task':
-            payload.text = await opTask(bodytext.split(' ').pop(), /^(🐢|\/?stop)/.test(bodytext) ? 'stop' : 'start')
+            if (bodytext.trim().split(/\r|\n/).length > 1) {
+              payload.text = await taskNew(bodytext)
+            } else {
+              payload.text = await opTask(bodytext.split(' ').pop(), /^(🐢|\/?stop)/.test(bodytext) ? 'stop' : 'start')
+            }
             break
           case 'shell':
             if (Date.now() - userenv.active > (CONFIG_EV2P.shell && CONFIG_EV2P.shell.contexttimeout)) {
