@@ -1,7 +1,7 @@
 /**
  * 功能: 部署在 cloudflare worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
  * 地址: https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
- * 更新: 2021-05-25
+ * 更新: 2021-05-26
  * 说明: 功能实现主要基于 elecV2P 的 webhook（https://github.com/elecV2/elecV2P-dei/tree/master/docs/09-webhook.md）
  * 
  * 使用方式: 
@@ -18,7 +18,7 @@
  *
  * 2.0 更新: 添加上下文执行环境
  * - /runjs   进入脚本执行环境，接下来直接输入文件名或远程链接则可直接运行
- * - /task    进入任务操作环境，获取相关任务的 taskid 可暂停/开始定时任务
+ * - /task    进入任务操作环境，获取相关任务的 taskid 可暂停/开始/添加定时任务
  * - /shell   进入 shell 执行环境，默认 timeout 为 3000ms（elecV2P v3.2.4 版本后生效）
  * - /log     进入 日志查看模式
  * - /store   进入 store/cookie 管理模式。默认处于关闭状态，可在 CONFIG_EV2P mode 设置开启
