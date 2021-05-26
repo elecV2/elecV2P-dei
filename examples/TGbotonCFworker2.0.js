@@ -366,22 +366,28 @@ function storeManage(keyvt) {
       })
     })
   } else {
+    let body = {
+      token: CONFIG_EV2P.wbrtoken,
+      type: 'store'
+    }
+    if (keys[0] === 'delete') {
+      body.op = 'delete'
+      body.key = keys[1]
+    } else {
+      body.op = 'put'
+      body.key = keys[0]
+      body.value = decodeURI(keys[1])
+      body.options = {
+        type: keys[2]
+      }
+    }
     return new Promise((resolve,reject)=>{
       fetch(CONFIG_EV2P.url + 'webhook', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          token: CONFIG_EV2P.wbrtoken,
-          type: 'store',
-          op: 'put',
-          key: keys[0],
-          value: decodeURI(keys[1]),
-          options: {
-            type: keys[2]
-          }
-        })
+        body: JSON.stringify(body)
       }).then(res=>res.text()).then(r=>{
         resolve(r)
       }).catch(e=>{
@@ -676,7 +682,7 @@ test.js`
                 }]
               }
               payload.reply_markup = keyb
-              payload.text = '进入 cookie/store 管理模式，当前 elecV2P 上 Cookie 数: ' + storelists.length + '\n点击或者直接输入关键字(key)查看 store 内容，比如 cookieKEY。 \n输入 key value type(可省略) 修改 store 内容。以空格进行分隔，如果 value 中包含空格等其他特殊字符，请先使用 encodeURI 函数进行转换。比如:\nCookieJD pt_pin=xxx;%20pt_key=app_xxxxxxx;\ntype 可省略，也可设定为:\nstring 表示将 value 保存为普通字符(默认)\nobject 表示将 value 保存为 json 格式\na 表示在原来的值上新增。（更多说明可参考 https://github.com/elecV2/elecV2P-dei/tree/master/docs/04-JS.md $store 部分）' + over
+              payload.text = '进入 cookie/store 管理模式，当前 elecV2P 上 Cookie 数: ' + storelists.length + '\n\n点击或者直接输入关键字(key)查看 store 内容，比如 cookieKEY\n\n输入 delete key 删除某个 Cookie。比如: delete cookieKEY\n\n输入 key value type(可省略) 修改 store 内容(以空格进行分隔)。如果 value 中包含空格等其他特殊字符，请先使用 encodeURI 函数进行转换。比如:\n\nCookieJD pt_pin=xxx;%20pt_key=app_xxxxxxx;\n\ntype 可省略，也可设定为:\nstring 表示将 value 保存为普通字符(默认)\nobject 表示将 value 保存为 json 格式\na 表示在原来的值上新增。（更多说明可参考 https://github.com/elecV2/elecV2P-dei/tree/master/docs/04-JS.md $store 部分）' + over
             } catch(e) {
               payload.text = e.message
             }
