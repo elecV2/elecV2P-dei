@@ -97,6 +97,9 @@ http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell
 # 获取 elecV2P 及服务器相关信息
 http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=info&debug=true
 
+# 通过 webhook 添加定时任务订阅。运行前下载并根据具体情况修改exam-tasksub.js中 suburl 和 webhook 里面的内容 https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/JSTEST/exam-tasksub.js
+http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=runjs&fn=exam-tasksub.js
+
 # 查看 store/cookie 信息
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=store&op=all          # 获取 cookie 列表
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=store&key=cookieKEY   # 获取某个 KEY 对应值
