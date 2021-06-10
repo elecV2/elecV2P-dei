@@ -64,17 +64,14 @@
  * 
  * bot commands 2.0
 runjs - 运行 JS
-task - 开始暂停任务
+task - 任务管理模式
 status - 内存使用状态
-shell - 执行简单 shell 指令
+shell - shell 命令执行模式
 store - store/cookie 管理
-end - 退出当前执行环境
 tasksave - 保存任务列表
-taskdel - 删除任务
-deljs - 删除 JS
-dellog - 删除日志
-log - 获取日志
-context - 查看当前执行模式
+log - 查看日志文件
+context - 查看当前执行环境
+end - 退出当前执行环境
 info - 查看服务器信息
 command - 列出所有指令
 
@@ -476,14 +473,17 @@ async function handlePostRequest(request) {
         return new Response("OK")
       } else if (bodytext === '/command') {
         payload.text = `/runjs - 运行 JS
-/task - 开始暂停任务
+/task - 任务管理模式
 /status - 内存使用状态
-/shell - 执行简单 shell 指令
+/shell - shell 指令执行模式
 /store - store/cookie 管理
-/end - end context
 /tasksave - 保存任务列表
+/taskdel + tid - 删除任务
+/deljs + JS 文件名 - 删除 JS
 /log - 获取日志
-/context - 查看当前执行模式
+/dellog + 日志名 - 删除日志
+/context - 查看当前执行环境
+/end - 退出当前执行环境
 /info - 查看服务器信息
 /command - 列出所有指令`
 
