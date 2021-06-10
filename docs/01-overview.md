@@ -39,6 +39,7 @@ yarn start
 
 # 如果要使用基础方式启动，执行命令
 node index.js
+# node.js 版本大于 12.0.0 (node -v)
 # 假如提示 80 端口不可用，尝试命令
 # PORT=8000 node index.js
 
@@ -106,6 +107,10 @@ docker pull elecv2/elecv2p     # 再下载新的镜像。镜像名注意要和�
 ``` sh
 mkdir /elecv2p && cd /elecv2p
 curl -sL https://git.io/JLw7s > docker-compose.yaml
+# arm32
+# curl -sL https://git.io/JOuQB > docker-compose.yaml
+# arm64
+# curl -sL https://git.io/JOuQo > docker-compose.yaml
 docker-compose up -d
 
 # 注意：默认的 docker-compose.yaml 文件使用的是基础镜像，如果是 ARM 平台请使用下面的文件手动进行修改。
@@ -114,6 +119,7 @@ docker-compose up -d
 ```
 
 或者将以下内容手动保存为 docker-compose.yaml 文件。
+
 ``` yaml
 version: '3.7'
 services:
@@ -162,6 +168,8 @@ docker logs elecv2p -f
 - 80：    webUI 后台管理界面。添加规则/JS 文件管理/定时任务管理/MITM 证书 等
 - 8001：  ANYPROXY HTTP代理端口。（*代理端口不是网页，不能通过浏览器直接访问*）
 - 8002：  ANYPROXY 代理请求查看端口
+
+**v3.3.5 版本后 ANYPROXY 端口默认关闭。在 webUI 首页双击 ANYPROXY 可临时开启，在 webUI->SETTING->初始化相关设置 中可选择启动时自动开启。**
 
 *80 端口可使用环境变量 **PORT** 进行修改(比如: PORT=8000 node index.js)，也可以在 script/Lists/config.json 文件中更改其他所有端口。*
 *如果是使用 Docker 相关的安装方式，修改对应的映射端口即可。*

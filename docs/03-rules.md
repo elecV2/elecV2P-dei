@@ -9,6 +9,7 @@
 - **再使用 RULES/REWRITE 相关功能前，请确定 ANYPROXY 已打开**
 - 已正确将网络请求代理到 ANYPROXY 端口
 - 匹配 https 请求请先添加 MITM host，普通 http 请求无需添加
+- *首次命中 https 请求时，系统需要生成中间证书，可能会稍长一点时间返回结果*
 
 ## modify 规则集 格式说明
 

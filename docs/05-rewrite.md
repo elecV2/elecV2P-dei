@@ -101,4 +101,5 @@ REWRITE 规则列表保存于 **./script/Lists/rewrite.list**，实际格式为�
 - *REWRITE 列表的优先级高于 RULES 规则列表。*
 - *规则订阅对其他软件的订阅格式有一定的兼容性，但并不保证完全适配。*
 - *在使用其他软件的兼容规则时，如果规则中包含 request 项，表示重写发生在**网络请求前**，请在 RULES 中添加。*
+- *首次命中 https 请求时，系统会自动签发一张中间证书，可能需要稍长一点点时间。*
 - *推荐文章: [elecV2P 进阶使用之抓包及 COOKIE 获取](https://elecv2.github.io/#elecV2P%20%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E4%B9%8B%E6%8A%93%E5%8C%85%E5%8F%8A%20COOKIE%20%E8%8E%B7%E5%8F%96)*
