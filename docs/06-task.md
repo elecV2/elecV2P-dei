@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-05-22
-适用版本: 3.3.8
+最近更新: 2021-06-19
+适用版本: 3.4.0
 文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md
 ```
 
@@ -198,10 +198,10 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 ``` JSON
 {
   "name": "elecV2P 定时任务订阅",     // 订阅名称
-  "author": "https://t.me/elecV2",    // 订阅制作者，可省略
-  "date": "2021-02-26 23:32:04",      // 订阅生成时间，可省略
-  "surl": "https://raw.githubusercontent.com/elecV2/elecV2P/master/efss/tasksub.json",  // 原始订阅链接，可省略
   "desc": "订阅描述，可省略。该订阅仅可用于 elecV2P, 与其他软件并不兼容。",
+  "date": "2021-02-26 23:32:04",      // 订阅生成时间，可省略
+  "author": "https://t.me/elecV2",    // 订阅制作者，可省略
+  "resource": "https://raw.githubusercontent.com/elecV2/elecV2P/master/efss/tasksub.json",  // 原始订阅链接，可省略
   "list": [                           // 任务列表。任务格式参考上面的 task.list 部分
     {
       "name": "软更新",
@@ -257,7 +257,8 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 
 - 本地订阅文件导入
 
-在 http://127.0.0.1/efss 界面上传订阅文件，然后添加一个本地订阅，例如: http://127.0.0.1/efss/tasksub文件名.json
+在 TASK 界面直接选择 **导入本地文件**。
+或者在 EFSS 界面上传订阅文件，然后添加一个本地订阅，例如: efss/tasksub文件名.json
 或者远程 https://xxx/efss/tasksub.json
 
 *如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现了 Network Error 的错误提醒，可能是浏览器 CORS 导致的问题，尝试直接下载文件，然后上传到 EFSS 目录，再使用本地订阅（比如: efss/tasksub.json）*

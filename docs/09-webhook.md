@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-05-11
-适用版本: 3.3.6
+最近更新: 2021-06-18
+适用版本: 3.4.0
 文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/09-webhook.md
 ```
 
@@ -14,7 +14,9 @@
 - 添加/保存 定时任务
 - 远程下载文件到 EFSS
 - 执行 shell 指令
-- 查看/修改 store/cookie
+- 查看/修改 store/cookie(v3.3.3)
+- JS 文件获取/新增(v3.4.0)
+- IP 限制 黑白名单更新(v3.4.0)
 
 ## 使用
 
@@ -68,6 +70,8 @@ fetch('http://192.168.1.102:12521/webhook', {   // 本地服务器可直接用 /
 | jslist    | 无 ---         | 获取 JS 列表    |  &type=jslist
 | store     | key=cookieKEY  | 获取 cookie 信息|  &type=store&key=cookieKEY
 | deljs     | fn=webhook.js  | 删除 JS 文件    |  &type=deljs&fn=webhook.js
+| jsfile    | fn=test.js     | 获取 JS 内容    |  &type=jsfile&fn=test.js
+| security  | op=put&enable. | 后台 IP 限制修改|  &type=security
 
 - **每次请求注意带上 token**
 - **如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
@@ -77,6 +81,10 @@ fetch('http://192.168.1.102:12521/webhook', {   // 本地服务器可直接用 /
 - **v3.2.6 版本添加 type info**
 - **v3.2.9 版本添加 type jslist**
 - **v3.3.3 版本添加 type store**
+- **v3.4.0 版本添加 type jsfile**
+- **v3.4.0 版本添加 type security**
+
+## 直接 GET 请求
 
 ```
 # 获取内存使用信息
@@ -88,10 +96,13 @@ http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=taski
 # 远程离线下载文件到 EFSS 虚拟目录
 http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=download&url=https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/overview.png
 
+## 自定义下载文件保存目录和名称(v3.4.0)
+http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=download&url=https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/JSTEST/evui-dou.js&folder=script/JSFile&name=edou.js
+
 # 列出 script/Shell 目录下的文件
 http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell&command=ls%20-c%20script/Shell
 
-# shell 使用 cwd 和 timeout 参数
+## shell 使用 cwd 和 timeout 参数
 http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell&command=ls&cwd=script/JSFile&timeout=2000
 
 # 获取 elecV2P 及服务器相关信息
@@ -101,6 +112,11 @@ http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=info&
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=store&op=all          # 获取 cookie 列表
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=store&key=cookieKEY   # 获取某个 KEY 对应值
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=store&op=put&key=cookieKEY&value=webhookgetvalue   # 添加一个 cookie
+
+# 后台 IP 限制查看/修改
+http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=security              # 查看当前 SECURITY 设置
+## 修改后台 IP 限制。关键参数 op=put，其他修改参数 enable, blacklist, whitelist 可只设置一项，list 中多个数据用逗号(,)分开。
+http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=security&op=put&enable=true&blacklist=*&whitelist=127.0.0.1,192.168.1.1
 ```
 
 ## 使用 PUT/POST 方法
@@ -138,7 +154,7 @@ fetch('/webhook', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    token: 'c2cbbbff-1043-40f4-a4c4-45fc4badfa05',
+    token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
     type: 'store',
     op: 'put',
     key: 'acookiehook',   // cookie key 关键字
@@ -151,7 +167,40 @@ fetch('/webhook', {
       note: '一个从 webhook 添加测试 cookie',  // 给 cookie 添加简单备注
     }
   })
-}).then(res=>console.log(res.data)).catch(e=>console.log(e))
+}).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
+
+// 新增一个 JS 文件(v3.4.0)
+fetch('http://192.168.1.3/webhook', {
+  method: 'post',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
+    type: 'jsfile',
+    op: 'put',
+    fn: 'awbnew.js',      // JS 文件名
+    rawcode: `// JS 文件内容
+console.log('一个通过 webhook 新添加的文件')`
+  })
+}).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
+
+// 更改可访问后台管理页面的 IP
+// enable, blacklist, whitelist 可只设置其他一项，其他项会自动保持原有参数
+fetch('http://172.20.10.1/webhook', {
+  method: 'post',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
+    type: 'security',
+    op: 'put',
+    enable: false,
+    blacklist: ['*'],
+    whitelist: ['127.0.0.1', '172.20.10.1']
+  })
+}).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
 
 // 假如 elecV2P 可远程访问，可以使用使用其他任意程序发送网络请求进行调用
 ```

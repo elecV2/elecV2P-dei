@@ -1,17 +1,18 @@
 /**
- * 先使用 https://t.me/BotFather 创建一个机器人 bot
- * 然后把 bot token 填写到下面对应位置。 然后打开一下 bot，才能接收信息
- * 自己的 chatid 可使用 https://t.me/elecV2Fun_bot ，发送关键字 id 获取
- * 如果要给别人发信息，需要知道对方 chatid，并且对方已开启了你的 bot
+ * 功能：使用TG bot 给频道或他人发信息
+ * 使用方法：
+ * 先使用 https://t.me/BotFather 创建一个机器人，获取 bot token
+ * 然后获取目标用户的 chatid，填写到下面对应位置。 然后start bot
  *
- * cron  8 8 8 * * * tgbotmessage.js
- * 
+ * 如果要发送到频道，先将机器人拉到频道并给予管理员权限
+ *
+ * cron  8 8 8 * * * https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/JSTEST/tgbotmessage.js
  */
 
 
 const CONFIG = {
-  chatid: '8xxxxx',      // 接受信息的用户 id. 
-  token: '8161xxx-xxxxxxxxxxxxxxxx'     // tg bot took
+  chatid: '8xxxxxxxxxx',      // 接受信息的用户 id
+  token: '8161xxx-xxxxxx'     // tg bot took
 }
 
 // message 可根据自己的需求进行修改，支持 markdown 语法
