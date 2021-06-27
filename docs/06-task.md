@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-06-19
-适用版本: 3.4.0
+最近更新: 2021-06-27
+适用版本: 3.4.1
 文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md
 ```
 
@@ -40,7 +40,8 @@
 本地 JS 文件位于 script/JSFile 目录，可在 webUI->JSMANAGE 中查看。设置定时任务时，直接复制文件名到任务栏对应框即可。
 
 如使用远程 JS，则直接在任务栏对应框内输入以 **http 或 https** 开头的网络地址。远程 JS 默认更新时间为 86400 秒（一天），可在 webUI->SETTING 界面修改。超过此时间，则会先下载最新的 JS 文件，然后再执行。如果下载失败，会继续尝试执行本地 JS 文件。
-所以在执行需要特别准时的任务时，不建议使用远程 JS。或者提前手动更新一下，也可以设置一个稍微提前一点的定时任务提前下载好最新的 JS 文件，避免执行任务时先下载文件带来的延迟。
+
+*所以在执行需要特别准时的任务时，不建议使用远程 JS。或者提前手动更新一下，也可以设置一个稍微提前一点的定时任务提前下载好最新的 JS 文件，避免执行任务时先下载文件带来的延迟。*
 
 定时任务运行 JS 还支持附带 env 变量, 使用 **-env** 关键字进行声明，然后在 JS 文件中使用 **$变量名** 的方式进行读取。例如: **exam-js-env.js -env name=一个名字 cookie=acookiestring**
 
@@ -71,14 +72,19 @@ if (typeof($cookie) != "undefined") {
 | 运行 JS | notify.js -rename feed.js
 | 运行 JS | https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/test.js -local -rename t.js
 
-*注意：使用 -rename 参数每次运行都会重新写入文件内容，建议不要在运行频率较高的任务中使用*
+**注意：**
+- 使用 -rename 参数每次运行都会重新写入文件内容，建议不要在运行频率较高的任务中使用
+- 此模式下运行的脚本使用的是增加了部分默认参数的 vm 虚拟环境，如果想要以原生的 nodejs 环境运行脚本，请选择 **shell 指令** 模式，然后填写 node xxx.js
 
 ### Shell 指令
 
 Shell 指令的运行使用了 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 模块
 
 timeout 默认为 60000ms（60秒）。如果要执行长时间命令，在 JS 中使用 $exec() 执行，将 timeout 设置为 0 （表示不设定超过时间），或其他数值。
+**v3.4.1 更新: 可使用 -timeout=xx 参数来设置 timeout 时间。xx 为数字，单位 ms(省略不写)。比如: ls -timeout=2**
+
 cwd 默认目录为 script/Shell
+**v3.4.1 更新: 当使用 node 命令并且没有指定 cwd 时，默认 cwd 为 script/JSFile**
 
 ``` sh 示例命令
 # 单条命令
@@ -100,7 +106,14 @@ binaryfile
 
 ``` sh
 sh hello.sh -env name=Polo
+# 如果要传递比较复杂的环境变量，比如带有空格=-%*等特殊符合，建议在 JS 使用 $exec 函数来完成。具体参考说明文档 04-JS.md $exec 相关部分
+
 ls -cwd script/JSFile
+
+# 当使用 node 命令，且没有设置 cwd 时，默认 cwd 为 script/JSFile (v3.4.1)
+node requirex.js
+# 注意: 使用 node 命令执行的 JS，必须为原生 JS，即不包含 elecV2P 附加的 $axios/$feed/$store 等函数变量。
+# 如果既想使用 node 命令执行 JS，又想使用 $feed/$store 等函数，可在 JS 中使用 $exec('node xxxx.js') 来执行。具体参考说明文档 04-JS.md $exec 相关部分
 ```
 
 **v3.2.7 增加 -stdin 变量，用于延迟输入交互指令**
