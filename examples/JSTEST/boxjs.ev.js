@@ -1,13 +1,14 @@
-// elecV2P v3.2.3 版本后，可直接使用 chavyleung 的 boxjs (https://raw.githubusercontent.com/chavyleung/scripts/master/box/chavy.boxjs.js)。本脚本不再维护
+// elecV2P v3.2.3 版本后，可直接使用 chavyleung 的原版 boxjs。本脚本不再维护
 // 
 // BoxJs elecV2P 兼容版。修改自：https://github.com/chavyleung/scripts/tree/master/box
 // 简易修改，测试使用，不保证原 BoxJs 的所有功能能正常工作。
 // 使用方法：
 // - 在 webUI -> JSMANAGE 中上传该文件 (远程链接：https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/JSTEST/boxjs.ev.js)
+//   - 建议使用原版: https://raw.githubusercontent.com/chavyleung/scripts/master/box/chavy.boxjs.js
 // - 在 RULES 中添加规则: host  boxjs.com  JS  boxjs.ev.js  网络请求前
-// - 然后将 boxjs.com 代理分流到 anyproxy 端口（默认为 127.0.0.1:8001）
+// - 然后将 boxjs.com 这个域名代理到 anyproxy 端口（确保端口已打开，默认为 127.0.0.1:8001）
 // （如果使用 chrome 浏览器推荐使用 SwitchyOmega 插件来进行分流设置，也可以直接使用系统代理）
-// - 最后浏览器打开 http://boxjs.com
+// - 最后浏览器打开 http://boxjs.com (http 访问无需安装证书，如果是 https 访问，在 MITM 页面下载安装证书)
 // 
 // 说明事项：
 // - boxjs.com 可替换为任一域名，比如 e.com
@@ -108,11 +109,9 @@ $.ver = 'https://cdn.jsdelivr.net/gh/chavyleung/scripts@${$.version}/box/release
     $.type = 'api'
     await handleApi()
   }
-  doneBox()
-  return $result
 })()
   .catch((e) => $.logErr(e))
-  // .finally(() => doneBox())
+  .finally(() => doneBox())
 
 /**
  * http://boxjs.com/ => `http://boxjs.com`
