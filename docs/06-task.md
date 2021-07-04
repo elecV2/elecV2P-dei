@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-06-27
-适用版本: 3.4.1
+最近更新: 2021-07-01
+适用版本: 3.4.2
 文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md
 ```
 
@@ -78,7 +78,7 @@ if (typeof($cookie) != "undefined") {
 
 ### Shell 指令
 
-Shell 指令的运行使用了 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 模块
+*Shell 指令的运行基于 nodejs 的 [child_process_exec](https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback) 模块*
 
 timeout 默认为 60000ms（60秒）。如果要执行长时间命令，在 JS 中使用 $exec() 执行，将 timeout 设置为 0 （表示不设定超过时间），或其他数值。
 **v3.4.1 更新: 可使用 -timeout=xx 参数来设置 timeout 时间。xx 为数字，单位 ms(省略不写)。比如: ls -timeout=2**
@@ -139,12 +139,13 @@ echo 'https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md'
 # 假如没有转义，直接使用命令
 echo http://127.0.0.1/efss/readme.md
 # elecV2P 将会尝试先下载 http://127.0.0.1/efss/readme.md 文件到 script/Shell 目录，然后使用下载完成后的文件地址替换远程链接，所以最终输出结果可能是: /xxxx/xxxx/script/Shell/readme.md
+# (v3.4.2 echo 无需转义，按原样输出)
 
 # 部分常用网络命令已排除下载，比如: curl/wget/git/start/you-get/youtube-dl 开头命令
 curl https://www.google.com/
 ```
 
-- shell 远程执行文件下载存储目录为 **script/Shell**
+- 远程文件默认下载目录为 **script/Shell**
 - 远程文件执行时默认每次都会重新下载
 - 如果远程文件下载失败将会尝试运行本地文件
 - 可使用 \-local 关键字优先使用本地文件
@@ -155,9 +156,10 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 ```
 
 - 如果原来的命令中带有 http 链接，需使用 -http 进行转义
-- 已排除常用网络相关命令不进行下载（无需转义，可按原来的命令直接输入执行）
+- 以下常用命令已排除自动下载（即无需转义，可按原来的命令直接输入执行）
   - curl/wget/git/start  (v3.2.9)
   - you-get/youtube-dl   (v3.3.0)
+  - aria2c/http/npm/yarn/ping/openssl/telnet/nc/echo    (v3.4.2)
   - *如果还有其他的常用网络相关命令，欢迎反馈添加*
 
 ## 保存任务列表
