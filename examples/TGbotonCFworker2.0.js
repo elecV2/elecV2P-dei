@@ -1,7 +1,7 @@
 /**
  * 功能: 部署在 cloudflare worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
  * 地址: https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
- * 更新: 2021-06-16
+ * 更新: 2021-07-06
  * 说明: 功能实现主要基于 elecV2P 的 webhook（https://github.com/elecV2/elecV2P-dei/tree/master/docs/09-webhook.md）
  * 
  * 使用方式: 
@@ -148,9 +148,6 @@ const context = {
     }
     ctx.active = Date.now()
     await store.put(uid, JSON.stringify(ctx))
-  },
-  run: async (uid, target) => {
-    const ctx = await context.get(uid)
   },
   end: async (uid) => {
     await store.put(uid, JSON.stringify({}))
@@ -472,7 +469,7 @@ async function handlePostRequest(request) {
       if (bodytext === 'sudo clear') {
         await store.delete(uid)
         payload.text = 'current context is cleared.'
-        tgPush(payload)
+        await tgPush(payload)
         return new Response("OK")
       } else if (bodytext === '/command') {
         payload.text = `/runjs - 运行 JS
@@ -503,7 +500,7 @@ async function handlePostRequest(request) {
       
       if (CONFIG_EV2P.userid && CONFIG_EV2P.userid.length && CONFIG_EV2P.userid.indexOf(body.message.chat.id) === -1) {
         payload.text = "这是 " + CONFIG_EV2P.name + " 私人 bot，不接受其他人的指令。\n如果有兴趣可以自己搭建一个: https://github.com/elecV2/elecV2P-dei\n\n频道: @elecV2 | 交流群: @elecV2G"
-        tgPush({
+        await tgPush({
           ...payload,
           "chat_id": CONFIG_EV2P.userid[0],
           "text": `用户: ${body.message.chat.username}，ID: ${body.message.chat.id} 正在连接 elecV2P bot，发出指令为: ${bodytext}`
@@ -612,6 +609,11 @@ test.js`
               let s = jslists[ind]
               if (ind >= 200) {
                 over += s + '  '
+                if (over.length > -CONFIG_EV2P.slice) {
+                  payload.text = over.trim()
+                  tgPush(payload)
+                  over = '\n\n文件数超过 200，以防 reply_keyboard 过长 TG 无返回，剩余 JS 以文字形式返回\n\n'
+                }
                 continue
               }
 
@@ -624,7 +626,7 @@ test.js`
                 text: s.replace(/\.js$/, '')
               }]
             }
-            payload.text = '进入 RUNJS 模式，当前 elecV2P 上 JS 文件数: ' + jslists.length + '\n点击运行 JS，也可以直接输入文件名或者远程链接\n后面可加空格及其他参数重命名运行的文件，比如\nhttps://随便一个远程JS rmyname.js' + over
+            payload.text = '进入 RUNJS 模式，当前 elecV2P 上 JS 文件数: ' + jslists.length + '\n点击运行 JS，也可以直接输入文件名或者远程链接\n后面可加空格及其他参数重命名运行的文件，比如\nhttps://随便一个远程JS rmyname.js' + over.trimRight()
             payload.reply_markup = keyb
           } catch(e) {
             payload.text = e.message
@@ -793,7 +795,7 @@ test.js`
     })
   } catch(e) {
     payload.text = e.message || e
-    tgPush(payload)
+    await tgPush(payload)
     return new Response("OK")
   }
 }
