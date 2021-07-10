@@ -1,7 +1,7 @@
 ```
-最近更新: 2021-07-01
+最近更新: 2021-07-08
 适用版本: 3.4.2
-文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/06-task.md
+文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/06-task.md
 ```
 
 ![task](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/taskall.png)
@@ -99,6 +99,12 @@ python3 -u test.py
 binaryfile
 # 以上文件会通过系统默认程序打开，请先安装好对应执行环境，以及注意文件的执行权限
 # 文件可通过 EFSS 界面上传至相关目录
+
+# 其他一些指令，仅供参考，谨慎使用(设置倒计时为 0，在需要时运行一次即可)
+echo {} > task.list -cwd script/Lists  # 清空任务列表，重启后生效
+pm2 restart elecV2P    # 重启 elecV2P
+apk add git            # 使用 apk 安装一些常用包
+git clone https://github.com/xxxx/xxxx -cwd script/JSFile    # 使用 git 命令 clone 远程库到 script/JSFile 目录
 ```
 
 **v3.2.6 更新增加 -env/-cwd 变量** (*v2.3.4 版本到 v3.2.5版本，使用关键字是 -e/-c，为避免和其他命令冲突，v3.2.6 修改为 **-env/-cwd***)

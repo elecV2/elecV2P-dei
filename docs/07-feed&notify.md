@@ -1,7 +1,7 @@
 ```
 最近更新: 2021-05-08
 适用版本: 3.3.5
-文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/07-feed&notify.md
+文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/07-feed&notify.md
 ```
 
 ## 通知方式

@@ -1,7 +1,7 @@
 ```
-最近更新: 2021-06-18
-适用版本: 3.4.0
-文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/09-webhook.md
+最近更新: 2021-07-10
+适用版本: 3.4.2
+文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/09-webhook.md
 ```
 
 ## 功能
@@ -62,8 +62,9 @@ fetch('http://192.168.1.102:12521/webhook', {   // 本地服务器可直接用 /
 | taskinfo  | tid=all or tid | 获取任务信息    |  &type=taskinfo&tid=all
 | taskstart | tid=xxtid      | 开始定时任务    |  &type=taskstart&tid=xxxowoxx
 | taskstop  | tid=xxtid      | 暂停定时任务    |  &type=taskstop&tid=xxxowoxx
+| getlog    | fn=xxxxxxx.log | 查看日志文件    |  &type=getlog&fn=xxxxxxx.log
 | deletelog | fn=file.js.log | 删除日志文件    |  &type=deletelog&fn=file.js.log
-| taskadd   | task: {}       | 添加定时任务    |  { type: 'taskadd', task: {} }
+| taskadd   | task: {}       | 添加定时任务    |  { type: 'taskadd', task: {}, options: {} }
 | download  | url=http://xxx | 下载文件到EFSS  |  &type=download&url=https://rawxxxx
 | shell     | command=ls     | 执行 shell 指令 |  &type=shell&command=node%20-v
 | info      | debug=1  可选  | 查看服务器信息  |  &type=info or &type=info&debug=true
@@ -83,6 +84,11 @@ fetch('http://192.168.1.102:12521/webhook', {   // 本地服务器可直接用 /
 - **v3.3.3 版本添加 type store**
 - **v3.4.0 版本添加 type jsfile**
 - **v3.4.0 版本添加 type security**
+
+- v3.4.2 type taskstart/taskstop/taskadd 增加支持批量操作
+- v3.4.2 type deljs 增加支持批量操作
+- v3.4.2 type deljs 增加操作 op=clear，用于删除默认 JS 文件夹下的所有非 JS 文件
+- (以上操作的具体使用方法，参考下面的相关示例)
 
 ## 直接 GET 请求
 
@@ -115,8 +121,12 @@ http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=store&op=put&ke
 
 # 后台 IP 限制查看/修改
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=security              # 查看当前 SECURITY 设置
+
 ## 修改后台 IP 限制。关键参数 op=put，其他修改参数 enable, blacklist, whitelist 可只设置一项，list 中多个数据用逗号(,)分开。
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=security&op=put&enable=true&blacklist=*&whitelist=127.0.0.1,192.168.1.1
+
+# 删除默认 JS 文件夹下的所有非 JS 文件(v3.4.2)
+http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=deljs&op=clear
 ```
 
 ## 使用 PUT/POST 方法
@@ -147,6 +157,55 @@ fetch('/webhook', {
   })
 }).then(res=>res.text()).then(s=>console.log(s)).catch(e=>console.log(e))
 
+// v3.4.2 增加支持批量添加，及 options 参数
+fetch('/webhook', {
+  method: 'post',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
+    type: 'taskadd',
+    task: [         // 以数组的格式批量添加任务
+      {
+        name: '新的任务-exam',
+        type: 'cron',
+        job: {
+          type: 'runjs',
+          target: 'https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/webhook.js',
+        },
+        time: '10 8 8 * * *'
+      },
+      {
+        name: 'apk安装命令',
+        type: 'schedule',
+        time: '0',
+        running: false,
+        job: {
+          type: 'exec',
+          target: 'apk add git'
+        }
+      }
+    ],
+    options: {              // v3.4.2 增加。可省略
+      type: 'replace',      // 当任务列表中存在同名任务时的更新方式。replace: 替换原有任务，skip: 跳过添加新任务，addition: 新增任务
+    }
+  })
+}).then(res=>res.text()).then(s=>console.log(s)).catch(e=>console.log(e))
+
+// v3.4.2 同时添加 taskstart/taskstop 的批量处理
+fetch('/webhook', {
+  method: 'post',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'c2cbbbff-1043-40f4-a4c4-45fc4badfa05',
+    type: 'taskstart',   // taskstart: 开始任务 taskstop: 停止任务
+    tid: ['Wnj8rMaj', 'nPfq5Td3', 'cKUq3ViR'],     // 对应任务的 id
+  })
+}).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
+
 // # 增加/修改 store/cookie (v3.3.3)
 fetch('/webhook', {
   method: 'post',
@@ -169,7 +228,7 @@ fetch('/webhook', {
   })
 }).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
 
-// 新增一个 JS 文件(v3.4.0)
+// 在服务器中新增一个 JS 文件(v3.4.0)
 fetch('http://192.168.1.3/webhook', {
   method: 'post',
   headers: {
@@ -185,7 +244,7 @@ console.log('一个通过 webhook 新添加的文件')`
   })
 }).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
 
-// 更改可访问后台管理页面的 IP
+// 更改可访问后台管理页面的 IP(v3.4.0)
 // enable, blacklist, whitelist 可只设置其他一项，其他项会自动保持原有参数
 fetch('http://172.20.10.1/webhook', {
   method: 'post',
@@ -199,6 +258,20 @@ fetch('http://172.20.10.1/webhook', {
     enable: false,
     blacklist: ['*'],
     whitelist: ['127.0.0.1', '172.20.10.1']
+  })
+}).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
+
+// 批量删除 JS (v3.4.2)
+fetch('/webhook', {
+  method: 'post',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'c2cbbbff-1043-40f4-a4c4-45fc4badfa05',
+    type: 'deletejs',   // 同等于: deljs === jsdel === jsdelete
+    // op: 'clear',     // 启用此项，表示删除默认 JS 文件夹下的所有非 JS 文件
+    fn: ['test/starturl.js', 'test/restart.js', '0body.js', 'test.js']   // 使用数组表示多个要删除的 JS 文件
   })
 }).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
 

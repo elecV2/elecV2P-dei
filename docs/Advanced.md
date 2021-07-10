@@ -1,12 +1,10 @@
 ```
-最近更新: 2021-04-08
-适用版本: 3.2.9
+最近更新: 2021-07-02
+适用版本: 3.4.2
 文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/Advanced.md
 ```
 
 ## elecV2P 进阶使用篇
-
-*新手慎用*
 
 # 1. minishell
 
@@ -112,6 +110,8 @@ $exec 会调用系统默认程序执行相关文件，所以需提前安装好�
 比如，执行 **test.py**，需安装好 Python，并将 test.py 文件放置到 **cwd** 对应目录。
 
 $exec 执行效果类似于直接在命令行下的 cwd 目录执行相关指令。如果出现问题，使用系统自带命令行工具在对应目录下，测试命令是否可行。
+
+更多说明参考: [04-JS.md](https://github.com/elecV2/elecV2P-dei/tree/master/docs/04-JS.md) $exec 部分
 
 # 3. 限制 IP 访问后台管理界面
 

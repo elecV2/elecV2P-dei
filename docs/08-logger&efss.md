@@ -1,6 +1,7 @@
 ```
-最近更新： 2021-04-03
-适用版本： 3.2.9
+最近更新: 2021-07-08
+适用版本: 3.4.2
+文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/08-logger&efss.md
 ```
 
 ## LOG 日志
@@ -13,10 +14,13 @@
 - shell 命令执行日志 funcExec.log
 - 其他未处理类日志 elecV2Proc.log
 - JAVASCRIPT 运行日志 xxx.js.log
-- 定时任务 shell 指令日志 任务名.log
+- 定时任务 shell 指令日志 任务名.task.log
 
-v3.2.9 增加支持二级目录，二级目录访问时在 url 中目录以两个下线(\_\_) 开始和结束。 比如在当前 logs 文件夹下有一个二级目录 backup, backup 文件夹中有一个日志文件 test.js.log，那么要在浏览器中查看该文件时 url 应该为: http://127.0.0.1/logs/__backup__test.js.log （实际访问时不用手动输入，从首页开始直接点就可以了）。
-另外这里会导致的一个问题就是：如果原 JS 文件名是以两个下划线开始，且后面还有两个下划线，在读取该 JS 的运行日志时会出错，所以尽量不要用这种方式命名 JS 文件。如果必须要这样命名，或者想查看更多级的目录日志，可以在 EFSS 页面设置目录为 ./logs
+v3.4.2 增加支持多级目录。 比如在当前 logs 文件夹下有一个目录 backup, backup 下有一个日志文件 test.js.log，那么对应查看 url 为: http://127.0.0.1/logs/backup/test.js.log。 如果直接访问 http://127.0.0.1/logs/backup，将出列出该文件夹下的所有日志文件。
+注意事项：
+- 最多只显示 1000 个日志文件
+- 未显示文件可以直接通过文件名访问。比如: http://127.0.0.1/logs/具体的日志名称.log
+- 多级 JS 运行并不会生成多级日志。比如 test/123/45.js 脚本对应的日志名为 test-123-45.js.log (\_\_name.replace(/\/|\\\\/g, '-'))
 
 ### errors.log
 
@@ -26,16 +30,16 @@ v3.2.9 增加支持二级目录，二级目录访问时在 url 中目录以两�
 
 所有执行过的 Shell 指令及日志。
 
-*shell 指令功能比较强大，可以对系统造成不可挽回的破坏，请谨慎使用。*
+*shell 指令功能比较强大，请谨慎使用。*
 
 ### 其他脚本日志
 
-JS 脚本中 console 函数输出的内容。每个脚本单独一个文件，命名格式为：filename.js.log。
-子目录中的 JS 日志文件名为，目录-文件名.js.log，比如：test-a.js.log
+JS 脚本中 console 函数输出的内容。每个脚本单独一个文件，命名格式为: filename.js.log。
+子目录中的 JS 日志文件名为，目录-文件名.js.log，比如: test-a.js.log
 
-在 JSMANAGE 界面进行测试运行的脚本，日志命名格式为：filename-test.js.log。
+在 JSMANAGE 界面进行测试运行的脚本，日志命名格式为: filename-test.js.log。
 
-*如果有太多日志文件，可直接手动删除，并不影响使用。默认有一个 deletelog.js 文件，可设置一个定时任务进行自动清除。*
+*如果有太多日志文件，可直接手动删除，并不影响使用。默认 JS 文件中包含 deletelog.js，可设置一个定时任务进行自动清除。*
 
 ### 清空日志
 
@@ -87,3 +91,51 @@ elecV2P 文件管理系统
 
 * 如果目录中包含大量文件，例如直接设置为根目录 **/**，在引用时会使用大量资源（CPU/内存）去建立索引，请合理设置 efss 目录*
 * 默认限制最大读取文件数为 600 （2021-02-20 更新添加）
+
+## EFSS favend (v3.4.2 添加)
+
+EFSS favorite&backend，用于快速打开/查看某个目录的文件，以及将 JS 作为 backend 返回执行结果。
+
+![favend](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/favend.png)
+
+其中关键字表示 favedn 访问路径，比如: **http://127.0.0.1/efss/test**, **http://127.0.0.1/efss/cloudbk**
+
+**favend 的优先级高于 EFSS 目录中的文件**
+
+比如: 假如 EFSS 默认目录中有一个文件 **mytest**, 如果没有设置 favend，当访问 /efss/mytest 的时候，直接返回 mytest 文件内容。但如果存在某个 favend 的关键字同样为 **mytest**，那么会返回 favend 中的对应结果。
+
+### favend - favorite 收藏目录
+
+返回某个文件夹下的所有文件列表。
+
+默认最大返回文件数 **1000**，可在 url 中使用 max 参数来进行更改，比如: **http://127.0.0.1/efss/logs?max=8**
+默认是否显示 dot(.) 开头文件共用 EFSS 中相关设置，也可以在 url 中使用参数 dotfiles 来设置，比如: **http://127.0.0.1/efss/logs?dotfiles=allow** (除 dotfiles=deny 外，其他任意值都表示 allow 允许)
+
+### favend - backend 运行 JS
+
+作为 backend 运行的 JS 默认 timeout 为 5000ms，也可以在 url 中使用参数 timeout 来修改，比如: **http://127.0.0.1/efss/body?timeout=20000**
+
+该模式下的 JS 包含 **$request** 默认变量，且应该返回如下 object:
+
+``` JS
+console.log($request)   // 查看默认变量 $request 内容。（该模式下的 console.log 内容前端不可见，只能在后台看到
+// $request.method, $request.protocol, $request.url, $request.hostname, $request.path, $request.headers, $request.body
+// bakend 特有属性 $request.key 表示访问该 backend 的关键字
+console.log(__version, 'cookieKEY:', $store.get('cookieKEY'))   // 其他默认变量/函数也可直接调用
+
+// 最终网页返回结果
+$done({
+  statusCode: 200,    // 网页状态码，其他状态码也可以。比如: 404, 301, 502 等。可省略，默认为: 200
+  headers: {          // 网页 response.headers 相关信息。可省略，默认为: {'Content-Type': 'text/html;charset=utf-8'}
+    'Content-Type': 'application/json;charset=utf-8'
+  },
+  body: {             // 网页内容
+    elecV2P: 'hello favend',
+    request: $request,   // 这里面的内容会直接显示到网页中
+  }
+})
+
+// === $done({ response: { statusCode, headers, body } })
+```
+
+当返回结果不是以上 $done 中的格式时，将会把最终结果作为 body 输出，其他项使用默认参数。
