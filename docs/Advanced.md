@@ -1,7 +1,7 @@
 ```
 最近更新: 2021-07-02
 适用版本: 3.4.2
-文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/Advanced.md
+文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/Advanced.md
 ```
 
 ## elecV2P 进阶使用篇
