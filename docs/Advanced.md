@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-07-02
-适用版本: 3.4.2
+最近更新: 2021-07-30
+适用版本: 3.4.4
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/Advanced.md
 ```
 
@@ -13,6 +13,19 @@
 ![minishell](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/minishell.png)
 
 ## 开启方式
+
+- v3.4.4 增加使用 webhook 快速开启关闭的方式
+
+```
+// 查看当前 minishell 状态
+http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug&get=minishell
+
+// 打开
+http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug&get=minishell&op=open
+
+// 关闭
+http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug&get=minishell&op=close
+```
 
 方法一: 在 script/list/config.json 中添加下面的参数，然后重启服务。
 
@@ -126,5 +139,3 @@ $exec 执行效果类似于直接在命令行下的 cwd 目录执行相关指令
 IP 以换行符或英文逗号(,)作为分隔，保存实时生效。在黑名单中可用单个星号字符(\*)表示屏蔽所有不在白名单中的 IP，建议在网络部署的环境下使用。
 
 另外，可通过在请求链接中添加 **?token=webhook token** 的参数来绕过黑名单，例如: http://你的服务器地址/?token=a8c259b2-67fe-4c64-8700-7bfdf1f55cb3 (服务器的 webhook token，首次启动时为随机值)
-
-通过 token 访问后，该 token 会在浏览器本地保存，以免再次访问时需要重新添加。如果想要清空本地保存的 token，使用 /?tokenclear 访问一次即可。
