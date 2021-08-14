@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-07-08
-适用版本: 3.4.2
+最近更新: 2021-08-05
+适用版本: 3.4.5
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/06-task.md
 ```
 
@@ -43,18 +43,22 @@
 
 *所以在执行需要特别准时的任务时，不建议使用远程 JS。或者提前手动更新一下，也可以设置一个稍微提前一点的定时任务提前下载好最新的 JS 文件，避免执行任务时先下载文件带来的延迟。*
 
-定时任务运行 JS 还支持附带 env 变量, 使用 **-env** 关键字进行声明，然后在 JS 文件中使用 **$变量名** 的方式进行读取。例如: **exam-js-env.js -env name=一个名字 cookie=acookiestring**
+*此模式下的脚本运行在 vm 虚拟环境中，如果想要以原生的 nodejs 环境运行脚本，请选择 **shell 指令** 模式，然后填写 node xxx.js。（关于两者的区别，参考 [04-JS.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md) 相关部分）*
+
+定时任务运行 JS 还支持附带 env 临时变量, 使用 **-env** 关键字进行声明，然后在 JS 文件中使用 **$env[变量名]** 的方式进行读取。例如: **exam-js-env.js -env name=一个名字 cookie=acookiestring**
 
 ``` JS exam-js-env.js
 // exam-js-env.js 文件内容
-let name = 'elecV2P'
-if (typeof($name) != "undefined") {
-  name = $name
-}
+let name = $env.name || 'elecV2P'
+// v3.4.5 更改为使用 $env 来获取临时变量
+// if (typeof($name) != "undefined") {  // 此方式已失效
+//   name = $name
+// }
+
 console.log('hello', name)
 
-if (typeof($cookie) != "undefined") {
-  console.log('a cookie from task env', $cookie)
+if ($env.cookie) {
+  console.log('a cookie from task env', $env.cookie)
 }
 // 如果变量值包含空格等特殊字符，先使用 encodeURI 进行编码
 // 比如: command.js -env cmd=pm2%20ls
@@ -70,11 +74,19 @@ if (typeof($cookie) != "undefined") {
 - v3.3.1 增加 -rename 关键字，用于重命名文件（支持重命名远程和本地文件）
 
 | 运行 JS | notify.js -rename feed.js
-| 运行 JS | https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/test.js -local -rename t.js
+| 运行 JS | https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/test.js -local -rename=t.js
 
-**注意：**
-- 使用 -rename 参数每次运行都会重新写入文件内容，建议不要在运行频率较高的任务中使用
-- 此模式下运行的脚本使用的是增加了部分默认参数的 vm 虚拟环境，如果想要以原生的 nodejs 环境运行脚本，请选择 **shell 指令** 模式，然后填写 node xxx.js
+*使用 -rename 参数运行每次都会重新写入文件内容，建议不要在运行频率较高的任务中使用*
+
+- v3.4.5 增加 -grant 关键字，用于指定脚本增强功能。
+
+可设置值 require/nodejs/quiet/sudo 等，多个值用英文竖线符(|)隔开。比如:
+
+| 运行 JS | requirex.js -grant=nodejs
+| 运行 JS | test.js -grant require|sudo
+
+*grant 后面接一个等号(=)或空格( )*
+*关于 grant 的功能，参考 [04-JS.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md) @grant 相关部分*
 
 ### Shell 指令
 
@@ -128,6 +140,7 @@ node requirex.js
 askinput.py -stdin elecV2P%0Afine,%20thank%20you
 # -stdin 后面的文字如果较复杂，应先使用 encodeURI 函数进行简单编码
 # 默认延时时间为 2000ms (2秒)，即在 2 秒后自动输入 stdin 后面的文字
+# 更多说明参考: 04-JS.md $exec 相关部分
 ```
 
 **v3.2.8 增加支持运行远程文件**

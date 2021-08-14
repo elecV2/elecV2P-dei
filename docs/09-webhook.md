@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-07-10
-适用版本: 3.4.2
+最近更新: 2021-08-10
+适用版本: 3.4.5
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/09-webhook.md
 ```
 
@@ -35,7 +35,7 @@ GET 方式通过 url 传递相关参数，比如运行 JS，触发的请求链�
 PUT 或者 POST 以 JSON 的方式传递相关参数, 以在浏览器在使用 fetch 函数为例
 
 ``` JS webhook
-fetch('http://192.168.1.102:12521/webhook', {   // 本地服务器可直接用 /webhook
+fetch('http://192.168.1.102:12521/webhook', {
   method: 'put',     // or post
   headers: {
     'Content-Type': 'application/json'
@@ -43,7 +43,24 @@ fetch('http://192.168.1.102:12521/webhook', {   // 本地服务器可直接用 /
   body: JSON.stringify({
     token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
     type: 'runjs',
-    fn: 'webhook.js'        // 支持远程 JS, 比如：https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/webhook.js
+    fn: 'webhook.js'
+  })
+}).then(res=>res.text()).then(s=>console.log(s))
+
+fetch('/webhook', {   // 本地服务器可直接用 /webhook
+  method: 'post',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
+    type: 'runjs',
+    fn: 'https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/exam-js-env.js',        // 支持远程 JS
+    env: {   // (v3.4.5 支持添加临时环境变量)
+      name: 'webhook',
+      cookie: '来自 webhook 的临时环境变量'
+    },
+    grant: 'nodejs',   // (v3.4.5 增加支持 grant，多个 grant 用英文竖线符(|)隔开。具体功能参考 04-JS.md @grant 相关部分)
   })
 }).then(res=>res.text()).then(s=>console.log(s))
 ```

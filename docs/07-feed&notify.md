@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-05-08
-适用版本: 3.3.5
+最近更新: 2021-08-10
+适用版本: 3.4.5
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/07-feed&notify.md
 ```
 
@@ -54,7 +54,7 @@ $feed.push('elecV2P notification', '这是一条来自 elecV2P 的通知', 'http
 $feed.ifttt('IFTTT notification', '来自 elecV2P', 'https://github.com/elecV2/elecV2P')
 ```
 
-然后点击测试运行（快捷键 ctrl+enter），如果能收到通知，表示设置成功。如果没有收到，看程序的运行日志，对照上面的步骤检查设置是否正确。
+然后点击测试运行，如果能收到通知，表示设置成功。如果没有收到，请查看程序的运行日志，对照上面的步骤检查设置是否正确。
 
 ### BARK 通知
 
@@ -114,11 +114,25 @@ Github 地址：https://github.com/Finb/Bark
 
 触发的 JS 默认带有三个变量 $title$, $body$, $url$，分别表示通知标题，内容和附带链接。
 
+v3.4.5 更改:
+  - 通知触发的 JS 默认以 nodejs 兼容模式运行
+  - 增加临时环境变量 $env.title/body/url
+
 ``` JS
 // 在通知触发的 JS 中可直接获取这三个参数
 console.log('通知触发的 JS，获取到的通知内容', $title$, $body$, $url$)
 
-// 可以在这里过滤通知或自定义其他通知方式
+// v3.4.5 增加临时环境变量 $env
+console.log('title:', $env.title, 'body:', $env.body, 'url:', $env.url)
+
+if ($env.title) {
+  // 相比于之前使用 $title$ 等的优势: 
+  // - 如果不是通知触发的 JS，结果是 undefined，但不会报错
+  // 推荐使用此种方式来获取通知内容
+  console.log('通知触发的 JS', $env.title)
+}
+
+// 可以过滤通知或自定义其他通知方式
 if (/important/.test($title$)) {
   mynotify($title$, $body$, $url$)
 }
@@ -139,7 +153,7 @@ function mynotify(title, body, url) {
 - 倒计时任务完成
 - JS 运行设定次数（默认 50）
 
-*如果在非手动重启的情况下收到大量默认通知，可能是因为某些脚本的运行导致 elecV2P 重启，请根据 errors.log 和相关脚本的日志，定位并解决问题，避免出现因意外重启而收到大量通知的情况。*
+*如果在非手动重启的情况下收到大量默认通知，可能是因为某些脚本的运行导致 elecV2P 重启，请尝试根据 errors.log 和相关脚本的日志，定位并解决问题*
 
 ## 在 JS 调用通知模块
 
