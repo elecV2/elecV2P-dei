@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-04-19
-适用版本: 3.3.0
+最近更新: 2021-08-19
+适用版本: 3.4.5
 文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/02-Docker.md
 ```
 
@@ -12,6 +12,8 @@ Docker 地址：https://hub.docker.com/r/elecv2/elecv2p
 - ARM镜像：（适用于 N1/OPENWRT/树莓派等 ARM 架构的系统）
   - elecv2/elecv2p:arm64
   - elecv2/elecv2p:arm32
+
+**v3.4.5 之后 所有平台都可以直接使用基础镜像**
 
 ## docker 及 docker-compose 的安装
 
@@ -31,18 +33,7 @@ curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compo
 # 基础启动命令（重建后数据会丢失）
 docker run --restart=always -d --name elecv2p -e TZ=Asia/Shanghai -p 80:80 -p 8001:8001 -p 8002:8002 elecv2/elecv2p
 
-# 宿主机保留 JS 文件/规则/任务/复写等列表/Store 文件等
-# 使用 ARM 镜像，并调整时区以及持久化存储
-docker run --restart=always \
-  -d --name elecv2p \
-  -e TZ=Asia/Shanghai \
-  -p 8100:80 -p 8101:8001 -p 8102:8002 \
-  -v /elecv2p/JSFile:/usr/local/app/script/JSFile \
-  -v /elecv2p/Lists:/usr/local/app/script/Lists \
-  -v /elecv2p/Store:/usr/local/app/script/Store \
-  elecv2/elecv2p:arm64
-
-# 最终推荐使用命令（最后镜像根据使用平台进行调整）
+# 推荐使用命令
 docker run --restart=always \
   -d --name elecv2p \
   -e TZ=Asia/Shanghai \
@@ -90,13 +81,15 @@ docker pull elecv2/elecv2p
 ``` sh
 mkdir /elecv2p && cd /elecv2p
 curl -sL https://git.io/JLw7s > docker-compose.yaml
+# v3.4.5 之后 所有平台都可以直接使用上面的命令
 # arm32
 # curl -sL https://git.io/JOuQB > docker-compose.yaml
 # arm64
 # curl -sL https://git.io/JOuQo > docker-compose.yaml
 docker-compose up -d
 
-# 注意：默认的 docker-compose.yaml 文件使用的是基础镜像，如果是 ARM 平台请修改注释行，或者使用下面的文件手动进行修改。
+# 注意：默认的 docker-compose.yaml 文件使用的是基础镜像。
+# 如果是 ARM 平台请使用注释中的对应命令，或者使用下面的文件手动进行修改。（v3.4.3 之前版本）
 # 另外，默认把 80/8001/8002 端口分别映射成了 8100/8101/8102，以防出现端口占用的情况，访问时注意。
 # 如果需要调整为其他端口，可以自行修改下面的内容然后手动保存。
 ```
@@ -125,8 +118,8 @@ services:
 ```
 
 - *具体使用的镜像 image、端口映射和 volumes 目录，根据个人情况进行调整。*
-
 - *部分用户反映，在某些设备上需要调整 version 的版本才能启动。如果启动出现问题，可以尝试把 docker-compose.yaml 文件开头的 version: '3.7' 更改为 version: '3.3'。*
+- *arm32 平台如果出错，参考 [issues #78](https://github.com/elecV2/elecV2P/issues/78)*
 
 然后在 docker-compose.yaml 同目录执行命令 **docker-compose up -d** ，启动程序。
 
@@ -137,10 +130,13 @@ services:
 docker-compose pull elecv2p && docker-compose up -d
 
 # 拉取特定版本的镜像文件。可用版本以 https://hub.docker.com/r/elecv2/elecv2p 的 tag 为准
-docker pull elecv2/elecv2p:3.0
+docker pull elecv2/elecv2p:3.4.5
 docker pull elecv2/elecv2p:arm64-3.0    # 在使用这些特定版本的镜像时，docker run 后面的镜像名也要记得调整
 
 docker image prune       # 清除没有挂载的镜像文件
+
+# 查看运行日志
+docker logs elecv2p -f
 ```
 
 ### 一些说明

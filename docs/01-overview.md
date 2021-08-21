@@ -1,6 +1,6 @@
 ```
-最近更新： 2021-07-08
-适用版本： 3.4.2
+最近更新： 2021-08-19
+适用版本： 3.4.5
 ```
 
 ## 简介
@@ -19,7 +19,7 @@ elecV2P - customize personal network.
 
 ## 安装/INSTALL
 
-**程序开放权限极大，建议局域网使用。网络部署，风险自负**
+***程序开放权限极大，建议局域网使用。网络部署，风险自负***
 
 ### 方法一：直接 NODEJS 运行
 
@@ -34,12 +34,12 @@ yarn
 # pm2 安装方式:
 # - 添加目录 elecV2P所在目录/node_modules/.bin 到系统环境变量 PATH 中
 # - 或者直接执行 yarn global add pm2
-# 安装完成后，就可以直接启动 elecV2P 了
+# 然后执行命令
 yarn start
 
 # 如果要使用基础方式启动，执行命令
 node index.js
-# node.js 版本大于 14.0.0 (node -v)
+# nodejs 版本需大于 14.0.0 (node -v)
 # 假如提示 80 端口不可用，尝试命令
 # PORT=8000 node index.js
 
@@ -51,7 +51,7 @@ yarn dev
 # - 然后再从 Github 拉取最新的代码进行覆盖升级 git pull
 # - 最后再把备份好的文件复制还原到之前的位置
 # 
-# *【3.1.8 版本后，推荐使用自带的 [softupdate.js](https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/softupdate.js) 脚本进行软更新升级】*
+# *【3.1.8 版本后，推荐使用自带的 softupdate.js 进行软更新升级】*
 ```
 
 其他 PM2 相关指令
@@ -59,7 +59,7 @@ yarn dev
 pm2 stop elecV2P  # 停止 elecV2P
 pm2 stop all      # 停止所有程序
 
-pm2 restart all   # 重启所有程序
+pm2 restart elecV2P   # 重启 elecV2P
 
 pm2 ls      # 查看运行状态
 pm2 logs    # 查看运行日志
@@ -76,16 +76,13 @@ pm2 -h      # 查看 PM2 帮助列表
   - elecv2/elecv2p:arm64
   - elecv2/elecv2p:arm32
 
+**v3.4.5 之后 所有平台直接使用基础镜像**
+
 ``` sh
 # 基础使用命令
 docker run --restart=always -d --name elecv2p -e TZ=Asia/Shanghai -p 80:80 -p 8001:8001 -p 8002:8002 elecv2/elecv2p
 
-# 使用 ARM 镜像及持久化存储
-docker run --restart=always -d --name elecv2p -e TZ=Asia/Shanghai -p 8100:80 -p 8101:8001 -p 8102:8002 -v /elecv2p/JSFile:/usr/local/app/script/JSFile -v /elecv2p/Store:/usr/local/app/script/Store -v /elecv2p/Lists:/usr/local/app/script/Lists elecv2/elecv2p:arm64
-
-# 以上命令仅供参考，根据实际情况更改映射端口/时区/镜像等参数。
-
-# 最终推荐使用命令（最后一行的镜像名称根据使用平台进行调整）
+# 推荐使用命令
 docker run --restart=always \
   -d --name elecv2p \
   -e TZ=Asia/Shanghai \
@@ -100,8 +97,8 @@ docker run --restart=always \
 
 # 升级 Docker 镜像。（如果没有使用持久化存储，升级后所有个人数据会丢失，请提前备份）
 docker rm -f elecv2p           # 先删除旧的容器
-docker pull elecv2/elecv2p     # 再下载新的镜像。镜像名注意要和之前使用的相对应
-# 再使用之前的 docker run xxxx 命令重新启动一下
+docker pull elecv2/elecv2p     # 再下载新的镜像。注意镜像名要和之前使用的相对应
+# 再使用前面的 docker run xxxx 命令重新启动一下
 ```
 
 ### 方法三：DOCKER-COMPOSE （推荐）
@@ -109,13 +106,15 @@ docker pull elecv2/elecv2p     # 再下载新的镜像。镜像名注意要和�
 ``` sh
 mkdir /elecv2p && cd /elecv2p
 curl -sL https://git.io/JLw7s > docker-compose.yaml
+# v3.4.5 之后 所有平台都可以直接使用上面的命令
 # arm32
 # curl -sL https://git.io/JOuQB > docker-compose.yaml
 # arm64
 # curl -sL https://git.io/JOuQo > docker-compose.yaml
 docker-compose up -d
 
-# 注意：默认的 docker-compose.yaml 文件使用的是基础镜像，如果是 ARM 平台请使用注释中的对应命令，或者使用下面的文件手动进行修改。
+# 注意：默认的 docker-compose.yaml 文件使用的是基础镜像。
+# 如果是 ARM 平台请使用注释中的对应命令，或者使用下面的文件手动进行修改。（v3.4.3 之前版本）
 # 另外，默认把 80/8001/8002 端口分别映射成了 8100/8101/8102，以防出现端口占用的情况，访问时注意。
 # 如果需要调整为其他端口，可以自行修改下面的内容然后手动保存。
 ```
@@ -148,7 +147,7 @@ services:
 - *部分用户反映，在某些设备上需要调整 version 的版本才能启动。如果启动出现问题，可以尝试把文件开头的 version: '3.7' 更改为 version: '3.3'*
 - *arm32 平台如果出错，参考 [issues #78](https://github.com/elecV2/elecV2P/issues/78)*
 
-然后在 docker-compose.yaml 同目录下执行以下任一命令
+文件保存后，在 docker-compose.yaml 同目录下执行以下任一命令
 ``` sh
 # 直接启动。（首次启动命令）
 docker-compose up -d
@@ -177,11 +176,11 @@ docker logs elecv2p -f
 *80 端口可使用环境变量 **PORT** 进行修改(比如: PORT=8000 node index.js)，也可以在 script/Lists/config.json 文件中更改其他所有端口。*
 *如果是使用 Docker 相关的安装方式，修改对应的映射端口即可。*
 
-*v3.3.0 版本后，所有端口可在 webUI->SETTING 界面进行修改（非必要情况不建议随意更改）*
+*v3.3.0 版本后，所有端口可在 webUI->SETTING->初始化相关设置 中进行修改（非必要情况不建议随意更改）*
 
 ## 根证书相关 - HTTPS 解密
 
-- *如果不使用 RULES/REWRITE 相关功能，此步骤可跳过。*
+- *如果不使用 RULES/REWRITE 等 MITM 相关功能，此步骤可跳过。*
 - *升级启动后，如果不是使用之前的证书，需要重新下载安装信任根证书。*
 - *根证书包含两个文件 rootCA.crt/rootCA.key，文件名不可修改。*
 
@@ -270,7 +269,11 @@ IFTTT/BARK/自定义通知等相关设置参考: [07-feed&notify](https://github
 
 TG 交流群: https://t.me/elecV2G (主要为方便用户使用交流，开发者24小时不在线，也不负责解答任何问题。)
 
-如果遇到问题或 Bug 可以开一个 [issue](https://github.com/elecV2/elecV2P/issues)。说明使用平台，版本，以及附上相关的错误日志（提供的信息越详细，越有助于解决问题）。
+如果遇到问题或 Bug 欢迎 [open a issue](https://github.com/elecV2/elecV2P/issues)。说明使用平台，版本，以及附上相关的错误日志（提供的信息越详细，越有助于解决问题）。
+
+## 更新日志
+
+查看: https://github.com/elecV2/elecV2P/blob/master/logs/update.log
 
 ## 贡献参考
 
