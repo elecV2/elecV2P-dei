@@ -8,6 +8,7 @@
 
 ![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/res/boxjs-test.png)
 
+- [github-subdownload.js](https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/github-subdownload.js) \- github 子目录文件下载
 - [exam-rss.js](https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/exam-rss.js) \- 使用 cheerio 解析 rss 实现限免软件推送
 - [exam-tasksub.js](https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/exam-tasksub.js) \- 通过 webhook 批量添加定时任务
 - [reboot.js](https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/reboot.js) \- 通过 JS 重启服务器
@@ -33,6 +34,7 @@
 - 开始/暂停 定时任务
 - 删除/保存 定时任务
 - 执行 shell 指令
+- store/cookie 常量管理
 
 前提: elecV2P 服务器可通过外网访问
 
