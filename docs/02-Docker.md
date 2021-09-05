@@ -1,24 +1,18 @@
 ```
-最近更新: 2021-08-19
+最近更新: 2021-09-05
 适用版本: 3.4.5
-文档地址: https://github.com/elecV2/elecV2P-dei/tree/master/docs/02-Docker.md
+文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/02-Docker.md
 ```
 
 ## 简介
 
-Docker 地址：https://hub.docker.com/r/elecv2/elecv2p
-
-- 基础镜像：elecv2/elecv2p
-- ARM镜像：（适用于 N1/OPENWRT/树莓派等 ARM 架构的系统）
-  - elecv2/elecv2p:arm64
-  - elecv2/elecv2p:arm32
-
-**v3.4.5 之后 所有平台都可以直接使用基础镜像**
+Docker 镜像名称: elecv2/elecv2p
+Docker 镜像地址: https://hub.docker.com/r/elecv2/elecv2p
 
 ## docker 及 docker-compose 的安装
 
 ``` sh
-# 不同平台的安装方式不一样，仅供参考
+# 不同平台的安装方式可能不一样，仅供参考
 # docker 安装
 wget -qO- https://get.docker.com/ | sh
 
@@ -81,20 +75,15 @@ docker pull elecv2/elecv2p
 ``` sh
 mkdir /elecv2p && cd /elecv2p
 curl -sL https://git.io/JLw7s > docker-compose.yaml
-# v3.4.5 之后 所有平台都可以直接使用上面的命令
-# arm32
-# curl -sL https://git.io/JOuQB > docker-compose.yaml
-# arm64
-# curl -sL https://git.io/JOuQo > docker-compose.yaml
+
 docker-compose up -d
 
-# 注意：默认的 docker-compose.yaml 文件使用的是基础镜像。
-# 如果是 ARM 平台请使用注释中的对应命令，或者使用下面的文件手动进行修改。（v3.4.3 之前版本）
-# 另外，默认把 80/8001/8002 端口分别映射成了 8100/8101/8102，以防出现端口占用的情况，访问时注意。
-# 如果需要调整为其他端口，可以自行修改下面的内容然后手动保存。
+# 默认把 80/8001/8002 端口分别映射成了 8100/8101/8102，以防出现端口占用的情况，访问时注意
+# 如果需要设置为其他端口，可以自行修改下面的内容然后手动保存
 ```
 
 或者将以下内容手动保存为 docker-compose.yaml 文件。
+
 ``` yaml
 version: '3.7'
 services:
@@ -117,9 +106,8 @@ services:
       - "/elecv2p/efss:/usr/local/app/efss"
 ```
 
-- *具体使用的镜像 image、端口映射和 volumes 目录，根据个人情况进行调整。*
-- *部分用户反映，在某些设备上需要调整 version 的版本才能启动。如果启动出现问题，可以尝试把 docker-compose.yaml 文件开头的 version: '3.7' 更改为 version: '3.3'。*
-- *arm32 平台如果出错，参考 [issues #78](https://github.com/elecV2/elecV2P/issues/78)*
+- *具体使用的映射端口和 volumes 目录，根据个人情况进行调整*
+- *如果在某些设备上无法启动，尝试把文件开头的 version: '3.7' 更改为 version: '3.3'*
 
 然后在 docker-compose.yaml 同目录执行命令 **docker-compose up -d** ，启动程序。
 
@@ -141,4 +129,5 @@ docker logs elecv2p -f
 
 ### 一些说明
 
-- 使用国内的一些 docker 源，因为缓存问题，更新之后可能不是最新的版本，需要手动更换一下 docker 源。（具体步骤谷歌）
+- 当使用国内的一些 docker 源，因为缓存问题，更新之后可能不是最新的版本，需要手动更换一下 docker 源。（具体步骤谷歌）
+- arm32 平台如果出错，参考 [issues #78](https://github.com/elecV2/elecV2P/issues/78)
