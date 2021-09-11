@@ -27,7 +27,7 @@ http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug
 http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug&get=minishell&op=close
 ```
 
-方法一: 在 script/list/config.json 中添加下面的参数，然后重启服务。
+方法一: 在 script/Lists/config.json 中添加下面的参数，然后重启服务。
 
 ``` JSON
 {
@@ -139,3 +139,15 @@ $exec 执行效果类似于直接在命令行下的 cwd 目录执行相关指令
 IP 以换行符或英文逗号(,)作为分隔，保存实时生效。在黑名单中可用单个星号字符(\*)表示屏蔽所有不在白名单中的 IP，建议在网络部署的环境下使用。
 
 另外，可通过在请求链接中添加 **?token=webhook token** 的参数来绕过黑名单，例如: http://你的服务器地址/?token=a8c259b2-67fe-4c64-8700-7bfdf1f55cb3 (服务器的 webhook token，首次启动时为随机值)
+
+## 其他一些操作
+
+开启 anyproxy 代理 websocket 请求: 在 script/Lists/config.json 中 anyproxy 部分添加
+
+``` JSON
+{
+  "anyproxy": {
+    // ... 前面保存不变,
+    "wsIntercept": true
+  }
+}
