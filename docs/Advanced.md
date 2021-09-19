@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-07-30
-适用版本: 3.4.4
+最近更新: 2021-09-17
+适用版本: 3.4.7
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/Advanced.md
 ```
 
@@ -26,6 +26,8 @@ http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug
 // 关闭
 http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug&get=minishell&op=close
 ```
+
+- v3.4.4 之前打开方式
 
 方法一: 在 script/Lists/config.json 中添加下面的参数，然后重启服务。
 
@@ -77,6 +79,7 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 - cls/clear   // 清空屏幕
 - cwd         // 获取当前工作目录
 - cd xxx      // 更改当前工作目录到xxx
+- docs        // 打开此 Github 说明页面(v3.4.7)
 
 ### 其他说明
 

@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-08-05
-适用版本: 3.4.5
+最近更新: 2021-09-16
+适用版本: 3.4.7
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/06-task.md
 ```
 
@@ -29,10 +29,10 @@
 
 ## 可执行任务类型
 
-- 运行 JS  : runjs
-- 开始任务 : taskstart
-- 停止任务 : taskstop
+- 运行 JS: runjs
 - Shell 指令: exec
+- 开始任务: taskstart
+- 停止任务: taskstop
 
 ### 运行 JS
 
@@ -50,11 +50,6 @@
 ``` JS exam-js-env.js
 // exam-js-env.js 文件内容
 let name = $env.name || 'elecV2P'
-// v3.4.5 更改为使用 $env 来获取临时变量
-// if (typeof($name) != "undefined") {  // 此方式已失效
-//   name = $name
-// }
-
 console.log('hello', name)
 
 if ($env.cookie) {
@@ -67,6 +62,7 @@ if ($env.cookie) {
 - v3.2.8 增加 -local 关键字，用于优先使用本地文件（如果存在），忽略默认更新时间间隔
 
 具体使用:
+
 | 运行 JS | https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/test.js -local
 
 如果本地存在 test.js 文件，则直接运行，否则，下载远程文件后再运行
@@ -187,7 +183,7 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 
 ``` JSON task.list
 {
-  "taskuuid": {
+  "taskuuid": {                     // 定时任务 id, 在添加时会随机生成
     "name": "任务名称",
     "type": "schedule",             // 定时方式: cron 定时 / schedule 倒计时
     "time": "30 999 2 3",           // 定时时间，具体格式见上文说明
@@ -223,8 +219,6 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 
 ## 远程订阅（请勿添加不信任的订阅链接）
 
-*v3.2.1 添加功能，更新后前往 webUI->TASK 界面查看。（不兼容其他软件的订阅格式）*
-
 ![tasksub](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/tasksub.png)
 
 订阅内容格式为严格的 JSON 格式，不包含任何注释, 相关参数如下: 
@@ -232,7 +226,7 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 ``` JSON
 {
   "name": "elecV2P 定时任务订阅",     // 订阅名称
-  "desc": "订阅描述，可省略。该订阅仅可用于 elecV2P, 与其他软件并不兼容。",
+  "note": "订阅描述，可省略。该订阅仅可用于 elecV2P, 与其他软件并不兼容。",
   "date": "2021-02-26 23:32:04",      // 订阅生成时间，可省略
   "author": "https://t.me/elecV2",    // 订阅制作者，可省略
   "resource": "https://raw.githubusercontent.com/elecV2/elecV2P/master/efss/tasksub.json",  // 原始订阅链接，可省略
@@ -241,13 +235,12 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
       "name": "软更新",
       "type": "cron",
       "time": "30 18 23 * * *",
-      "running": true,                // running 状态可省略。仅当 running 值为 false 时，表示只添加该任务而不运行
+      "running": true,                // running 状态值可省略。仅当 running 值为 false 时，表示只添加该任务而不运行
       "job": {
-        "type": "runjs",              // 远程订阅的任务类型只支持 runjs(运行 JS) 和 exec(执行 Shell 指令)
+        "type": "runjs",
         "target": "https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/softupdate.js"
       }
-    },
-    {
+    }, {
       "name": "清空日志",            // 当 running 值省略时，添加任务也会自动执行
       "type": "cron",
       "time": "30 58 23 * * *",
@@ -255,8 +248,7 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
         "type": "runjs",
         "target": "https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/deletelog.js"
       }
-    },
-    {
+    }, {
       "name": "Python 安装(Docker下)",
       "type": "schedule",
       "time": "0",
@@ -265,8 +257,7 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
         "type": "runjs",
         "target": "https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/python-install.js"
       }
-    },
-    {
+    }, {
       "name": "Shell任务(执行)",
       "type": "schedule",
       "time": "10",
@@ -274,30 +265,38 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
         "type": "exec",              // 如果把 target 命令修改为 rm -f *，可删除服务器上的所有文件，所以请谨慎添加订阅。
         "target": "node -v"
       }
-    },
-    {
-      "name": "Shell任务(不执行)",
-      "type": "cron",
+    }, {
+      "id": "aUidxxxx",              // 3.4.7 增加可添加默认 id。添加默认 id 后将无视同名任务更新规则
+      "name": "Shell任务(不执行)",   // 如果任务列表中已存在同 id 任务，将会替换原任务，否则将会新增
+      "type": "cron",                // 请谨慎设置任务 id，避免覆盖掉其他任务（非必要情况不建议手动设置
       "time": "10 0 * * *",
       "running": false,
       "job": {
         "type": "exec",
         "target": "python -V"
       }
+    }, {
+      "name": "开始Shell定时任务",
+      "type": "schedule",
+      "time": "10",
+      "job": {
+        "type": "taskstart",        // 任务类型：开始其他任务。也支持使用 taskstop 暂停其他任务
+        "target": "aUidxxxx",       // 其他任务的 id
+      }
     }
   ]
 }
 ```
 
-- 本地订阅文件导入
+*如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现 **Network Error** 的错误提醒，可能是浏览器 CORS 导致的问题，尝试直接下载文件，然后上传到 EFSS 目录，再使用本地订阅导入*
 
-在 TASK 界面直接选择 **导入本地文件**。
-或者在 EFSS 界面上传订阅文件，然后添加一个本地订阅，例如: efss/tasksub文件名.json
-或者远程 https://xxx/efss/tasksub.json
+### 本地订阅文件导入
 
-*如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现了 Network Error 的错误提醒，可能是浏览器 CORS 导致的问题，尝试直接下载文件，然后上传到 EFSS 目录，再使用本地订阅（比如: efss/tasksub.json）*
+- 在 TASK 界面直接选择 **导入本地文件**。
+- 或者在 EFSS 界面上传订阅文件，然后添加一个本地订阅，例如: efss/tasksub文件名.json
+- 或者直接使用当前服务器地址 http://127.0.0.1/efss/tasksub.json
 
-- 其他订阅格式转换
+### 其他订阅格式转换
 
 参考脚本 https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/exam-tasksub.js
 
