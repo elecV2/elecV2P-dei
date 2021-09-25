@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-08-10
-适用版本: 3.4.5
+最近更新: 2021-09-25
+适用版本: 3.4.8
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/09-webhook.md
 ```
 
@@ -17,6 +17,7 @@
 - 查看/修改 store/cookie(v3.3.3)
 - JS 文件获取/新增(v3.4.0)
 - IP 限制 黑白名单更新(v3.4.0)
+- 打开/关闭代理端口(v3.4.8)
 
 ## 使用
 
@@ -90,6 +91,7 @@ fetch('/webhook', {   // 本地服务器可直接用 /webhook
 | deljs     | fn=webhook.js  | 删除 JS 文件    |  &type=deljs&fn=webhook.js
 | jsfile    | fn=test.js     | 获取 JS 内容    |  &type=jsfile&fn=test.js
 | security  | op=put&enable. | 后台 IP 限制修改|  &type=security
+| proxyport | op=open|close  | 打开/关闭代理   |  &type=proxyport&op=open
 
 - **每次请求注意带上 token**
 - **如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
@@ -101,6 +103,7 @@ fetch('/webhook', {   // 本地服务器可直接用 /webhook
 - **v3.3.3 版本添加 type store**
 - **v3.4.0 版本添加 type jsfile**
 - **v3.4.0 版本添加 type security**
+- **v3.4.8 版本添加 type proxyport**
 
 - v3.4.2 type taskstart/taskstop/taskadd 增加支持批量操作
 - v3.4.2 type deljs 增加支持批量操作
@@ -292,8 +295,22 @@ fetch('/webhook', {
   })
 }).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
 
-// 假如 elecV2P 可远程访问，可以使用使用其他任意程序发送网络请求进行调用
+// 打开代理端口（默认为 8001
+fetch('/webhook', {
+  method: 'post',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
+    type: 'proxyport',
+    op: 'open',     // 仅当该值为 open 时，表示打开。
+  })
+}).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
+
+// v3.4.8 增加了头部返回信息 {'Access-Control-Allow-Origin': '\*'}，避免 CORS 问题
 ```
 
+- 假如 elecV2P 可远程访问，可以使用使用其他任意程序发送网络请求进行调用
 - webhook 可配合 **telegram bot** 或 **快捷指令** 等其他工具使用，方便快速调用 elecV2P 相关功能
 - 通过 webhook 提供的 API，可以自行设计其他 UI 界面，实现与 elecV2P 交互

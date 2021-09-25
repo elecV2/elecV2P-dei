@@ -170,8 +170,9 @@ console.log('临时环境变量', $env.param, 'favend key', $env.key, 'favend na
 console.log('request body:', $request.body.env)
 
 $done({
-  'param': `通过 ${ $request.method } 获取到的 param: ${ $env.param }`,
-  'nobody': '没有 statusCode, headers, body，于是这里都是 body',
-  'request': $request
+  body: {
+    'param': `通过 ${ $request.method } 获取到的 param: ${ $env.param }`,
+    'request': $request
+  }
 })
 ```
