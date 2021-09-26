@@ -611,7 +611,7 @@ test.js`
                 over += s + '  '
                 if (over.length > -CONFIG_EV2P.slice) {
                   payload.text = over.trim()
-                  tgPush(payload)
+                  await tgPush(payload)
                   over = '\n\n文件数超过 200，以防 reply_keyboard 过长 TG 无返回，剩余 JS 以文字形式返回\n\n'
                 }
                 continue
@@ -626,7 +626,7 @@ test.js`
                 text: s.replace(/\.js$/, '')
               }]
             }
-            payload.text = '进入 RUNJS 模式，当前 elecV2P 上 JS 文件数: ' + jslists.length + '\n点击运行 JS，也可以直接输入文件名或者远程链接\n后面可加空格及其他参数重命名运行的文件，比如\nhttps://随便一个远程JS rmyname.js' + over.trimRight()
+            payload.text = '进入 RUNJS 模式，当前 elecV2P 上 JS 文件数: ' + jslists.length + '\n点击运行 JS，也可以直接输入文件名或者远程链接\n后面可加空格及其他参数重命名运行的文件，比如\nhttps://随便一个远程JSname.js' + over.trimRight()
             payload.reply_markup = keyb
           } catch(e) {
             payload.text = e.message
@@ -794,6 +794,8 @@ test.js`
       headers: { 'content-type': 'application/json' },
     })
   } catch(e) {
+    console.error(e)
+    console.log('payload', payload)
     payload.text = e.message || e
     await tgPush(payload)
     return new Response("OK")
@@ -851,11 +853,24 @@ async function tgPush(payload) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=UTF-8'
-    },
-    body: JSON.stringify(payload)
+    }
   };
-
-  let myRequest = new Request(`https://api.telegram.org/bot${CONFIG_EV2P.token}/`, myInit)
-
-  await fetch(myRequest)
+  let maxbLength = 1200;
+  if (payload.text && payload.text.length > maxbLength) {
+    let reply_text = payload.text
+    let pieces = Math.ceil(reply_text.length / maxbLength);
+    for (let i=0; i<pieces; i++) {
+      payload.text = reply_text.slice(i*maxbLength, (i+1)*maxbLength);
+      myInit.body = JSON.stringify(payload)
+      let myRequest = new Request(`https://api.telegram.org/bot${CONFIG_EV2P.token}/`, myInit);
+      await fetch(myRequest);
+      if (payload.reply_markup) {
+        delete payload.reply_markup
+      }
+    }
+  } else {
+    myInit.body = JSON.stringify(payload);
+    let myRequest = new Request(`https://api.telegram.org/bot${CONFIG_EV2P.token}/`, myInit);
+    await fetch(myRequest);
+  }
 }
