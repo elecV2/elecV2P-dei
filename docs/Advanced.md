@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-10-16
-适用版本: 3.5.0
+最近更新: 2021-10-23
+适用版本: 3.5.1
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/Advanced.md
 ```
 
@@ -18,7 +18,11 @@
 IP 以换行符或英文逗号(,)作为分隔，保存实时生效。
 在黑名单中可用单个星号字符(\*)表示屏蔽所有不在白名单中的 IP，建议在网络部署的环境下使用。
 
-IP 屏蔽后，可通过在请求链接中添加 **?token=webhook token** 的参数来绕过屏蔽，例如: http://你的服务器地址/?token=a8c259b2-67fe-4c64-8700-7bfdf1f55cb3 (服务器的 webhook token，首次启动时为随机值)
+IP 屏蔽后，可通过在请求链接中添加 **?token=webhook token** 的参数来绕过屏蔽，例如: http://你的服务器地址/?token=a8c259b2-67fe-4c64-8700-7bfdf1f55cb3 (服务器的 WEBHOOK TOKEN，首次启动时为随机值)
+
+- 首次通过 token 访问后会在浏览器端保存一个 cookie，之后访问时不再需要 token（v3.5.1）
+- cookie 默认有效期 7 天，在后面添加 ?token=xxx&cookie=long，可延长到 365 天
+- 如果不想留下 cookie，请使用无痕模式（在使用他人或公共设备时
 
 # minishell
 

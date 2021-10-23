@@ -35,3 +35,26 @@
 oAuth2.0 不可取，太 heavy 了。要设计另外的 token 模式，基本形式基于 uuid(比如: fcef12cf-6694-48bb-8568-63bd025cf5ad), 然后按位设计权限，部分使用 主 token 进行加密认证。比如 0x01 表示拥有访问路径的权限，0x02 表示限制访问时间，同时权限则为 0x03，依此类推。然后取 01/02/03 或加密后的两位于 uuid 固定位置中。
 
 关于 uuid 的权限加密及具体协议待进一步仔细设计。
+
+## Cookie 授权登录 2021-10-23 18:18
+
+新增 cookie 授权验证。cookie 生成及验证方式:
+
+``` JS
+// 生成
+btoa((wbtoken + wbtoken ).substr(iRandom(wbtoken.length), 8))
+
+// 验证
+let cookies = cookie.parse(req.headers.cookie || '')
+(wbtoken + wbtoken).indexOf(atob(cookies.token)) !== -1
+```
+
+优点:
+
+- 和 token 相关联(部分)，切换 token 后 cookie 失效
+- 计算简单，可快速检测 cookie 是否有效
+
+缺点:
+
+- 不够优雅？
+- 如果原来的 token 太简单的话，可能会被碰撞出结果
