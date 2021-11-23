@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-09-16
-适用版本: 3.4.7
+最近更新: 2021-11-21
+适用版本: 3.5.3
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/06-task.md
 ```
 
@@ -201,15 +201,22 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
     "job": {
       "type": "exec",
       "target": "ls"
-    }
+    },
+    "group": "XjTmn1un"
   },
   "V2vw4B5D": {
     "name": "定时任务订阅",
-    "type": "sub",                  // v3.2.1 增加定时任务订阅功能。以 type = sub 表示
+    "type": "sub",                  // v3.2.1 增加订阅功能。以 type = sub 表示
     "job": {
       "type": "skip",               // 当订阅中存在同名任务时，选择合并方式: skip 跳过，replace: 替换, addition: 新增
       "target": "https://raw.githubusercontent.com/elecV2/elecV2P/master/efss/tasksub.json",   // 远程订阅链接
     }
+  },
+  "XjTmn1un": {
+    "name": "elecV2P 任务分组",
+    "type": "group",                // v3.5.3 增加分组功能。以 type = group 表示
+    "note": "定时任务默认分组",
+    "collapse": false
   }
 }
 ```
@@ -292,12 +299,11 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 
 ### 本地订阅文件导入
 
-- 在 TASK 界面直接选择 **导入本地文件**。
-- 或者在 EFSS 界面上传订阅文件，然后添加一个本地订阅，例如: efss/tasksub文件名.json
+- 在 EFSS 界面上传订阅文件，然后订阅链接直接填写: efss/tasksub文件名.json
 - 或者直接使用当前服务器地址 http://127.0.0.1/efss/tasksub.json
 
 ### 其他订阅格式转换
 
 参考脚本 https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/exam-tasksub.js
 
-**当订阅任务中包含类似 rm -f * 的 Shell 指令时，可能会删除服务器上的所有文件，所以请勿必清楚具体订阅任务后再进行添加，不要添加不信任的来源订阅**
+**当订阅任务中包含类似 rm -f * 的 Shell 指令时，可能会删除服务器上的所有文件，请勿必清楚订阅任务后再进行添加，不要添加不信任的来源订阅**
