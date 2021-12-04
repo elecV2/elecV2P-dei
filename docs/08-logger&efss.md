@@ -1,13 +1,13 @@
 ```
-最近更新: 2021-09-07
-适用版本: 3.4.6
+最近更新: 2021-12-04
+适用版本: 3.5.4
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/08-logger&efss.md
 ```
 
 ## LOG 日志
 
 物理存储位置：项目目录/logs。 ./logs
-网络访问地址：webUI端口/logs。 比如: http://127.0.0.1/logs
+网络访问地址：webUI 端口/logs。 比如: http://127.0.0.1/logs
 
 日志分类：
 - 错误日志 errors.log
@@ -64,7 +64,7 @@ rm -f 日志文件名
 
 清空日志 | cron定时 | 59 23 * * * | 运行 JS | https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/deletelog.js
 
-## efss - elecV2P file storage system
+## EFSS - elecV2P file storage system
 
 elecV2P 文件管理系统
 
@@ -122,9 +122,10 @@ EFSS favorite&backend，用于快速打开/查看某个目录的文件，以及�
 该模式下的 JS 包含 **$request** 默认变量，且应该返回如下 object:
 
 ``` JS
-console.log($request)   // 查看默认变量 $request 内容。（该模式下的 console.log 内容前端不可见，只能在后台看到
-// $request.method, $request.protocol, $request.url, $request.hostname, $request.path, $request.headers, $request.body
-// bakend 特有属性 $env.key 表示访问该 backend 的关键字，$env.name 表示该 backend 名称
+console.log($request)   // 查看默认变量 $request 内容（该模式下的 console.log 内容前端不可见，只能在后台看到
+// $request.method, $request.protocol, $request.url, $request.hostname, $request.path
+// $request.headers<object>, $request.body<string>
+// backend 特有属性 $env.key 表示访问该 backend 的关键字，$env.name 表示该 backend 名称
 console.log(__version, 'cookieKEY:', $store.get('cookieKEY'))   // 其他默认变量/函数也可直接调用
 
 // 最终网页返回结果
@@ -135,6 +136,7 @@ $done({
   },
   body: {             // 网页内容。这里面的内容会直接显示到网页中
     elecV2P: 'hello favend',
+    cookieKEY: $store.get('cookieKEY'),
     request: $request,
   }
 })
@@ -166,8 +168,8 @@ fetch('http://127.0.0.1/efss/envtest', {
 // envtest 对应运行的 JS 如下:
 console.log('临时环境变量', $env.param, 'favend key', $env.key, 'favend name', $env.name)
 
-// 当然也可以直接使用 $request.body.env 获取到相关值
-console.log('request body:', $request.body.env)
+// 注意: $request.body 为字符串类型，$env 为 object 类型
+console.log('request body type:', typeof $request.body, '$env type', typeof $env)
 
 $done({
   body: {
@@ -176,3 +178,73 @@ $done({
   }
 })
 ```
+
+### elecV2P favend html(.efh)  (v3.5.4 新增文件格式)
+
+一个同时包含前后端运行代码的 html 扩展格式，也可以说是一个文件协议或标准。基础结构如下：
+
+``` xml
+<div>原来的 html 格式/标签/内容</div>
+<script type="text/javascript">
+  console.log('原 html 页面中的 script 标签')
+</script>
+<!-- 上面为原 html 页面，下面为扩展部分 -->
+<script type="text/javascript" runon="elecV2P">
+  console.log('efh 文件的扩展部分')
+</script>
+```
+
+执行过程/基本原理:
+- 首次执行 .efh 文件时，先使用 cheerio 模块将 efh 文件分离为**前端和后端**，并进行缓存
+- 然后当使用 get 请求主页时，直接返回**前端**代码
+- 当收到其他请求时，执行**后端**代码并返回执行结果
+
+优点:
+- 前后端代码同一页面，方便开发者统一管理
+- 结构更清晰，标签高亮（最初要解决的问题
+- 沿用 html 语法，没有额外的学习成本
+
+缺点:
+- 前后端数据传输不够简洁
+
+#### efh 实战测试
+
+一个简单的测试文件: https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/elecV2P.efh
+
+favend 当前只支持运行本地 efh 文件，在 favend 中**类型**选择 **运行 JS**, 目标填写 **elecV2P.efh**（*efh 文件可在 JSMANAGE 界面推送/上传/编辑*）
+
+``` XML
+<h3>一个简单的 efh 格式示例文件</h3>
+<div><label>请求后台数据测试</label><button onclick="dataFetch()">获取</button></div>
+
+<script type="text/javascript">
+  console.log('前端 JS')
+  // 前端部分可使用多个 script 标签引入远程 axios/vue/react 等文件
+  async function dataFetch() {
+    let data = await fetch('?data=json').then(res=>res.text()).catch(e=>console.error(e))
+    console.log(data)
+    alert(data)
+  }
+</script>
+
+<script type="text/javascript" runon="elecV2P" src="favend.js">
+  // 使用 runon="elecV2P" 属性来表示此部分是运行在后台的代码
+  // 使用 src 属性表示使用服务器上的 JS 作为后台代码
+  // 当有 src 属性时下面的代码无效（建议测试时去掉
+  console.log('后台 JS')
+
+  $done({
+    body: {
+      hello: 'elecV2P favend',
+      data: $store.get('cookieKEY'),
+      reqbody: $request.body
+    }
+  })
+</script>
+```
+
+待优化：
+- 远程 efh 文件下载运行
+- 前后台更好/优雅的传输数据($fend
+- 前后台数据的持续交互
+- 缓存清理
