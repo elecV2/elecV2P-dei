@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-09-25
-适用版本: 3.4.8
+最近更新: 2021-11-30
+适用版本: 3.5.4
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/09-webhook.md
 ```
 
@@ -18,6 +18,7 @@
 - JS 文件获取/新增(v3.4.0)
 - IP 限制 黑白名单更新(v3.4.0)
 - 打开/关闭代理端口(v3.4.8)
+- 全局 CORS 设置(v3.5.4)
 
 ## 使用
 
@@ -91,7 +92,8 @@ fetch('/webhook', {   // 本地服务器可直接用 /webhook
 | deljs     | fn=webhook.js  | 删除 JS 文件    |  &type=deljs&fn=webhook.js
 | jsfile    | fn=test.js     | 获取 JS 内容    |  &type=jsfile&fn=test.js
 | security  | op=put&enable. | 后台 IP 限制修改|  &type=security
-| proxyport | op=open|close  | 打开/关闭代理   |  &type=proxyport&op=open
+| proxyport | op=open/close  | 打开/关闭代理   |  &type=proxyport&op=open
+| cors      | enable/origin  | 设置全局 cors   |  &type=cors&enable=true&origin=http://xxx
 
 - **每次请求注意带上 token**
 - **如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
@@ -147,6 +149,11 @@ http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=security&op=put
 
 # 删除默认 JS 文件夹下的所有非 JS 文件(v3.4.2)
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=deljs&op=clear
+
+# 全局 CORS 设置(v3.5.4)
+http://127.0.0.1/webhook?token=c2cbbbff-1043-40f4-a4c4-45fc4badfa05&type=cors&enable=1&origin=http://127.0.0.1
+# - enable 使用 0 或 false 表示关闭
+# - origin 使用 * 表示允许所有域名
 ```
 
 ## 使用 PUT/POST 方法
@@ -308,9 +315,22 @@ fetch('/webhook', {
   })
 }).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
 
-// v3.4.8 增加了头部返回信息 {'Access-Control-Allow-Origin': '\*'}，避免 CORS 问题
+// 全局 CORS 设置（v3.5.4）
+fetch('/webhook', {
+  method: 'post',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
+    type: 'cors',
+    enable: true,
+    origin: '*',       // 设置全局 Access-Control-Allow-Origin 值
+  })
+}).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
 ```
 
 - 假如 elecV2P 可远程访问，可以使用使用其他任意程序发送网络请求进行调用
 - webhook 可配合 **telegram bot** 或 **快捷指令** 等其他工具使用，方便快速调用 elecV2P 相关功能
 - 通过 webhook 提供的 API，可以自行设计其他 UI 界面，实现与 elecV2P 交互
+- v3.4.8 webhook 增加头部返回信息 {'Access-Control-Allow-Origin': '\*'}，避免 CORS 问题
