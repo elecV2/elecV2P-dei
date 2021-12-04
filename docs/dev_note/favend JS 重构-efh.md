@@ -88,3 +88,79 @@ backend: {
 当然这种方式可能只适用于一些小的项目，但这就是原本的设计场景。一个小的 div 包含自身的 css/js，可与后台进行交互。
 
 2021-10-19 19:33  未完待续
+
+### elecV2P favend html(.efh) 2021-12-01 21:17
+
+经过一段时间的思考，得到一个初步可能可行的方案（等优化完善。
+
+以最初 html 页面为基础，增加标签 <script type="text/javascript" runon="elecV2P">此部分为后台代码(run on elecV2P)</script>
+
+``` xml default.efh
+<div>
+  基础 html 部分
+</div>
+<script type="text/javascript">
+  console.log('前端 JS')
+  <!-- 从后台获取数据 同页面自定义 API -->
+  fetch('?data=json').then(res=>res.json()).then(console.log)
+
+  <!-- 假如引入 $fend(待完成) -->
+  async function main() {
+    let data = await $fend.get('json')
+    console.log(data)
+  }
+</script>
+
+<script type="text/javascript" runon="elecV2P">
+  <!-- 可使用 src 属性引入本地或远程 JS -->
+  console.log('后台 JS')
+
+  if (JSON.parse($request.body).data === 'json')) {
+    $done({
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'X-Powered-By': 'elecV2P'
+      },
+      body: {
+        'hello': 'elecV2P favend',
+        'note': '这是由 elecV2P favend 返回的 JSON 数据',
+        'docs': 'https://github.com/elecV2/elecV2P/blob/master/efss/readme.md',
+        'request': $request
+      }
+    })
+  } else {
+    $done('get method ' + $request.method)
+  }
+
+  <!-- 假如引入 $fend(还没写) -->
+  $fend.set('json', { hello: 'from elecV2P $fend' })
+</script>
+```
+
+执行过程/基本原理:
+- 首次执行 .efh 文件时，先使用 cheerio 模块将 efh 文件分离为**前端和后端**，并进行缓存
+- 然后当使用 get 请求主页时，直接返回**前端**代码
+- 当前端使用 fetch 或 $fend 请求后台 API/数据时，执行**后端**代码并返回执行结果
+
+
+优点:
+- 前后端代码同一页面，方便开发者进行管理
+- 标签高亮（最初要解决的问题
+- 沿用 html 语法，没有额外的学习成本
+
+缺点:
+- 需要一个后台“引擎”对代码进行分离（开发者不需考虑
+
+待优化部分:
+- 前端 fetch，后台 $request 判断，不够简单/优雅。可引入变量进行统一，比如 $fend, 使用 $fend.get('key') 获取，使用 $fend.set('key', 'data') 绑定赋值
+- 长连接/持续数据传输，关闭后自动清理缓存
+
+问题:
+- 和最初的 PHP/PYHTON 等后台生成前端页面有什么区别？
+
+这是在 html(前端) 插入后台运行的代码
+
+#### efh 细节实现
+
+- $fend
