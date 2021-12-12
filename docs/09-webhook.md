@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-11-30
-适用版本: 3.5.4
+最近更新: 2021-12-09
+适用版本: 3.5.5
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/09-webhook.md
 ```
 
@@ -94,6 +94,7 @@ fetch('/webhook', {   // 本地服务器可直接用 /webhook
 | security  | op=put&enable. | 后台 IP 限制修改|  &type=security
 | proxyport | op=open/close  | 打开/关闭代理   |  &type=proxyport&op=open
 | cors      | enable/origin  | 设置全局 cors   |  &type=cors&enable=true&origin=http://xxx
+| blackreset| 无 ---         | 重置非法IP 记录 |  &type=blackreset
 
 - **每次请求注意带上 token**
 - **如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
@@ -154,6 +155,9 @@ http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=deljs&op=clear
 http://127.0.0.1/webhook?token=c2cbbbff-1043-40f4-a4c4-45fc4badfa05&type=cors&enable=1&origin=http://127.0.0.1
 # - enable 使用 0 或 false 表示关闭
 # - origin 使用 * 表示允许所有域名
+
+# 重置非法访问的 IP 记录(v3.5.5)
+http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=blackreset
 ```
 
 ## 使用 PUT/POST 方法
