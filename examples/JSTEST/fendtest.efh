@@ -1,0 +1,51 @@
+<title>efh fend 测试</title>
+<h3>efh - elecV2P favend html, 一个同时包含前后端运行代码的 html 扩展格式。</h3>
+<p>目前仅可运行于 elecV2P favend, 相关说明参考：<a href="https://github.com/elecV2/elecV2P-dei/blob/master/docs/08-logger&efss.md" target="_blank">elecV2P-dei/efss.md</a> 相关部分</p>
+<div>
+  <label>请求后台数据测试</label>
+  <input type="text" name="test" class="fend">
+  <button onclick="dataFetch()">获取</button>
+</div>
+<p>
+  <label>该 efh 文件地址: </label>
+  <a href='https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/elecV2P.efh' target='_blank'>https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/elecV2P.efh</a>
+</p>
+
+<script type="text/javascript">
+  // 前端部分可使用多个 script 标签引入远程 axios/vue/react 等文件
+  // 总之这部分完全和之前的 html 一样
+  async function dataFetch() {
+    let data = await $fend('newone').then(res=>res.text()).catch(e=>console.error(e))
+    console.log(data)
+    // alert(data)
+    let sd = document.querySelector('.fend').value;
+    console.log('send data to eo', sd);
+    $fend('eo', sd).then(res=>res.text()).then(console.log);
+  }
+</script>
+
+<script type="text/javascript" runon="elecV2P" srcd="favend.js">
+  // 使用 runon="elecV2P" 属性来表示此部分是运行在后台的代码
+  // 使用 src 属性表示使用服务器上的 JS 作为后台代码（支持远程
+  // 当有 src 属性时下面的代码无效（建议测试时去掉
+  $fend('newone', {
+    body: {
+      hello: 'elecV2P favend',
+      data: 'wowo',
+      reqbody: $request.body
+    }
+  })
+
+  $fend('eo', d=>{
+    console.log('收到前台传输数据:', d);
+
+    return {
+      // statusCode: 404,
+      // header: {},
+      // body: ''
+      ok: true,
+      data: d,
+      message: '后台返回数据，可以是 string 或 object'
+    }
+  })
+</script>

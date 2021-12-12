@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-12-04
-适用版本: 3.5.4
+最近更新: 2021-12-09
+适用版本: 3.5.5
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/08-logger&efss.md
 ```
 
@@ -54,7 +54,7 @@ rm -f *  (该指令会删除当前目录下所有文件，请不在其他目录�
 清除单个日志文件：
 rm -f 日志文件名
 
-或者在 JS 脚本中使用 **console.clear()** 函数，清空该脚本的所有日志。
+或者在脚本中使用 **console.clear()** 函数，清空该脚本的相关日志。
 
 自动删除：
 使用自带的 deletelog.js 配合定时任务进行删除。
@@ -114,6 +114,12 @@ EFSS favorite&backend，用于快速打开/查看某个目录的文件，以及�
 
 默认最大返回文件数 **1000**，可在 url 中使用 max 参数来进行更改，比如: **http://127.0.0.1/efss/logs?max=8**
 默认是否显示 dot(.) 开头文件共用 EFSS 中相关设置，也可以在 url 中使用参数 dotfiles 来设置，比如: **http://127.0.0.1/efss/logs?dotfiles=allow** (除 dotfiles=deny 外，其他任意值都表示 allow 允许)
+
+作用：
+
+- 搭建临时静态网站
+- 小型网盘资源分享
+- 记录常用目录
 
 ### favend - backend 运行 JS
 
@@ -195,9 +201,10 @@ $done({
 ```
 
 执行过程/基本原理:
-- 首次执行 .efh 文件时，先使用 cheerio 模块将 efh 文件分离为**前端和后端**，并进行缓存
-- 然后当使用 get 请求主页时，直接返回**前端**代码
+- 首次执行 .efh 文件时，使用 cheerio 模块将 efh 文件分离为**前端和后端**，并进行缓存
+- 然后当使用 Get 请求主页时，直接返回**前端**代码
 - 当收到其他请求时，执行**后端**代码并返回执行结果
+- v3.5.5 增加默认 $fend 函数用于前后端数据交互（具体参考 [04-JS.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md) 相关部分
 
 优点:
 - 前后端代码同一页面，方便开发者统一管理
@@ -205,46 +212,61 @@ $done({
 - 沿用 html 语法，没有额外的学习成本
 
 缺点:
-- 前后端数据传输不够简洁
+- 前后端数据传输不够简洁（引入 $fend(v3.5.5)
 
 #### efh 实战测试
 
-一个简单的测试文件: https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/elecV2P.efh
+测试文件: https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/elecV2P.efh
+适用版本: v3.5.5
 
-favend 当前只支持运行本地 efh 文件，在 favend 中**类型**选择 **运行 JS**, 目标填写 **elecV2P.efh**（*efh 文件可在 JSMANAGE 界面推送/上传/编辑*）
+在 EFFSS 页面，favend 中**类型**选择 **运行脚本**, 目标填写 efh 文件远程或本地地址（*本地文件可在 JSMANAGE 界面推送/上传/编辑*）
 
 ``` XML
 <h3>一个简单的 efh 格式示例文件</h3>
 <div><label>请求后台数据测试</label><button onclick="dataFetch()">获取</button></div>
 
 <script type="text/javascript">
-  console.log('前端 JS')
-  // 前端部分可使用多个 script 标签引入远程 axios/vue/react 等文件
-  async function dataFetch() {
-    let data = await fetch('?data=json').then(res=>res.text()).catch(e=>console.error(e))
-    console.log(data)
-    alert(data)
+  // 前端部分可使用多个 script 标签引入远程 axios/vue/UI 框架等文件
+  // $fend 默认函数用于前后端数据交互（本质为一个 fetch 的 post 请求
+  function dataFetch() {
+    $fend('data').then(res=>res.text())
+    .then(res=>{
+      console.log(res)
+      alert(res)
+    })
+    .catch(e=>{
+      console.error(e)
+      alert('error: ' + e.message)
+    })
   }
 </script>
 
-<script type="text/javascript" runon="elecV2P" src="favend.js">
+<script type="text/javascript" runon="elecV2P" srcf="favend.js">
   // 使用 runon="elecV2P" 属性来表示此部分是运行在后台的代码
-  // 使用 src 属性表示使用服务器上的 JS 作为后台代码
+  // 使用 src 属性表示使用服务器上的 JS 作为后台代码（支持远程
   // 当有 src 属性时下面的代码无效（建议测试时去掉
-  console.log('后台 JS')
-
-  $done({
-    body: {
-      hello: 'elecV2P favend',
-      data: $store.get('cookieKEY'),
-      reqbody: $request.body
-    }
+  // 后台 $fend 第一参数需与前端对应，第二参数为返回数据
+  $fend('data', {
+    hello: 'elecV2P favend',
+    data: $store.get('cookieKEY'),
+    reqbody: $request.body
   })
+  $done('no $fend match');
 </script>
 ```
 
-待优化：
-- 远程 efh 文件下载运行
-- 前后台更好/优雅的传输数据($fend
-- 前后台数据的持续交互
-- 缓存清理
+其他说明：
+- 无后台代码时直接返回前端内容
+- efh 文件支持后接 -local/-rename 等参数
+- 远程 efh 更新间隔和远程 JS 更新间隔同步
+- 如果 $done 提前执行，$fend 无效
+
+待优化项：
+- 其他类型数据 arrayBuffer/stream 等
+- $fend 后台无匹配时返回结果
+- $fend key/路由 配对优化
+- 前后台数据的持续交互(?)
+
+优化完成：
+- 前后台更好/优雅的传输数据($fend（done
+- 缓存清理(done) $fend.clear();

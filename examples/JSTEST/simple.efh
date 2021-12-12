@@ -1,0 +1,32 @@
+<h3>一个简单的 efh 格式示例文件</h3>
+<div><label>请求后台数据测试</label><button onclick="dataFetch()">获取</button></div>
+
+<script type="text/javascript">
+  // 前端部分可使用多个 script 标签引入远程 axios/vue/UI 框架等文件
+  // $fend 默认函数用于前后端数据交互（本质为一个 fetch 的 post 请求
+  function dataFetch() {
+    $fend('data').then(res=>res.text())
+    .then(res=>{
+      console.log(res);
+      alert(res);
+    })
+    .catch(e=>{
+      console.error(e);
+      alert('error: ' + e.message);
+    })
+  }
+</script>
+
+<script type="text/javascript" runon="elecV2P" srcf="favend.js">
+  // 使用 runon="elecV2P" 属性来表示此部分是运行在后台的代码
+  // 使用 src 属性表示使用服务器上的 JS 作为后台代码（支持远程
+  // 当有 src 属性时下面的代码无效（建议测试时去掉
+  // 后台 $fend 第一参数需与前端对应，第二参数为返回数据
+  $fend('data', {
+    hello: 'elecV2P favend',
+    data: $store.get('cookieKEY'),
+    reqbody: $request.body
+  })
+  $done('no $fend match');
+  $fend('no', '$done 后面的 $fend 无任何意义，因为 $done 会提前返回结果，这部分数据永远不会传输给前端。');
+</script>

@@ -1,5 +1,5 @@
 ```
-2021-09-20 14:56
+近期更新: 2021-12-09 22:10
 ```
 
 ### 原因
@@ -161,6 +161,89 @@ backend: {
 
 这是在 html(前端) 插入后台运行的代码
 
-#### efh 细节实现
+#### efh 细节实现 2021-12-06 20:23
 
 - $fend
+
+前端：$fend(key/attr/arg/params<string>, data<string\|object>)<promise>
+后台：$fend(key, data<any>)
+
+简单说明：
+- key 可以看成是一个路由，或者是要从后台获取的关键值/API 等，前后端应该配对出现。
+- 前端 $fend 第二参数 data 表示要传输给后台的值，可省略。
+- 后台 $fend 第二个参数为 key 对应的返回值，可以是一个函数。当为函数时，此函数接收的第一项参数为前端传输过来的 data。
+
+使用示例：
+
+``` JS
+// 前端部分
+$fend('newone').then(res=>res.text()).then(console.log);
+
+$fend('skey', '传输给后台的数据').then(res=>res.text()).then(alert).catch(e=>console.error(e));
+
+// 后台部分
+$fend('newone', $store.get('newone'));
+
+$fend('skey', d=>{
+  console.log('收到前台传输数据:', d);
+
+  return {
+    ok: true,
+    data: d,
+    message: '后台返回数据，可以是 string 或 object'
+  }
+})
+```
+
+*通常情况建议只使用一对 $fend 来交互数据，使用第二个参数 data 来确定数据内容。*
+
+底层实现：（这部分由平台开发者完成，在编写 efh 时直接使用上面的示例形式调用即可）
+
+前端 $fend 为封装了 fetch 的函数，后台 $fend 在 context 中实现。
+
+``` JS
+// 前端部分
+function $fend(key, data) {
+  return fetch('', {
+    method: 'post',
+    body: JSON.stringify({
+      key, data
+    })
+  })
+}
+
+// 后台部分
+CONTEXT.final.$fend = async function (key, fn) {
+  // 有 bind this, 勿改写为 arrow function
+  if (typeof this.$request === 'undefined') {
+    return this.$done('$request is expect');
+  }
+
+  let body = this.$request.body;
+  if (!key || !body) {
+    return this.$done('$fend key and body is expect');
+  }
+  try {
+    body = JSON.parse(body);
+  } catch(e) {
+    return this.$done('a object string of $request.body is expect');
+  }
+  if (body.key === key) {
+    if (typeof fn === 'function') {
+      try {
+        fn = await fn(body.data);
+      } catch(e) {
+        fn = '$fend ' + key + ' error: ' + e.message;
+        console.error('$fend', key, 'error', e);
+      }
+    }
+    return this.$done(fn);
+  }
+}.bind(CONTEXT.final);
+```
+
+待优化：
+
+- 其他类型数据 arrayBuffer/stream 等
+- $fend 后台无匹配时返回结果
+- $fend key/路由 配对优化
