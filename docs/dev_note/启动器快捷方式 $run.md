@@ -9,7 +9,7 @@
 - 关键字: 对应功能
 
 具体任务类
-- runjs: 运行 JS
+- script: 运行脚本
 - shell: 执行 shell 指令
 - task:  开始/暂停任务
 - download:  下载文件（可能增加可选择下载方式 type git/wget/aria2c 等
@@ -23,7 +23,7 @@
 - for:   for 循环逻辑
 - while: while 循环逻辑
 
-## 格式
+## 格式 2021-12-16 18:06
 
 （研究中，非最终版本
 
@@ -35,11 +35,11 @@
   "logo": "https://xxx.com/xxx.png",        // 对应图标
   "author": "作者 elecV2",
   "resouce": "https://xxxxxx/xxxx.json",    // 远程更新地址
-  "run": [     // 等执行的任务
+  "actions": [     // 待执行的系列动作
     {
       "name": "任务一",
-      "id": "taskone",          // 使用 id 方便跳转
-      "type": "runjs",          // 可以使用远程脚本
+      "id": "taskone",           // 使用 id 方便跳转
+      "type": "script",          // 可以使用远程脚本
       "args": ["test.js", "-grant", "nodejs"],
     }, {
       "name": "任务二",
@@ -48,7 +48,7 @@
     }, {
       "name": "停止任务",
       "type": "task",
-      "next": "anot",          // 使用 next 进行跳转
+      "next": "anot",          // 使用 next + id 进行跳转
       "args": ["stop", "taskid"]
     }, {
       "name": "下载文件一",
@@ -69,9 +69,9 @@
 
 mixif: 
 使用某个脚本对每次执行的任务结果进行判断。传入如下几个参数:
-- 任务结果  $env.runres
-- 任务 id/或顺序  $env.runid
-- 任务名称  $env.runname
+- 任务结果  $env.acres
+- 任务 id/或顺序  $env.acid
+- 任务名称  $env.acname
 
 返回执行结果
 - 不作任何处理
