@@ -1,5 +1,13 @@
 ### runJSFile 函数逻辑
 
+执行的脚本类型
+
+- 本地文件
+- 远程文件
+- rawcode
+
+命名
+
 runJSFile(filename, addContext={})
 
 ```
