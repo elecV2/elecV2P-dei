@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-12-19
-适用版本: 3.5.6
+最近更新: 2021-12-26
+适用版本: 3.5.7
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/08-logger&efss.md
 ```
 
@@ -207,6 +207,7 @@ $done({
 - 然后当使用 Get 请求主页时，直接返回**前端**代码
 - 当收到其他请求时，执行**后端**代码并返回执行结果
 - v3.5.5 增加默认 $fend 函数用于前后端数据交互（具体参考 [04-JS.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md) 相关部分
+- v3.5.7 增加限制: Get 请求返回前端页面，Post 请求执行后台代码（数据交互
 
 优点:
 - 前后端代码同一页面，方便开发者统一管理
@@ -259,10 +260,9 @@ $done({
 
 其他说明：
 - 无后台代码时直接返回前端内容
-- efh 文件支持后接 -local/-rename 等参数
 - 远程 efh 更新间隔和远程 JS 更新间隔同步
 - 如果 $done 提前执行，$fend 无效
-- efh 脚本暂时无法应用到 rule/rewrite 等规则中
+- 直接运行 efh 脚本时，返回前端内容
 - efh 前端暂时无法使用本地 JS/CSS 等（只能内嵌或远程
 
 待优化项：
@@ -273,5 +273,6 @@ $done({
 - efh 前端调用本地 JS/CSS/图片 等
 
 优化完成：
+- runJS 直接运行 efh 文件
 - 前后台更好/优雅的传输数据($fend（done
 - 缓存清理(done) $fend.clear();

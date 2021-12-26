@@ -12,16 +12,17 @@
 
 ![limitip](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/limitip.png)
 
-默认处于关闭状态，所有 IP 可访问。
+- 默认处于关闭状态，所有 IP 可访问
+- 该限制仅针对 webUI 端口（默认 80），对 8001/8002 对应端口无效
 
 打开后，白名单的优先级高于黑名单。比如，当同个 IP 同时出现在白名单和黑名单中时，以白名单为准，即: 可访问。
 IP 以换行符或英文逗号(,)作为分隔，保存实时生效。
-在黑名单中可用单个星号字符(\*)表示屏蔽所有不在白名单中的 IP，建议在网络部署的环境下使用。
+在黑名单中可用单个星号字符(\*)表示屏蔽所有不在白名单中的 IP，建议在公网部署的情况下使用。
 
 IP 屏蔽后，可通过在请求链接中添加 **?token=webhook token** 的参数来绕过屏蔽，例如: http://你的服务器地址/?token=a8c259b2-67fe-4c64-8700-7bfdf1f55cb3 (服务器的 WEBHOOK TOKEN，首次启动时为随机值)
 
-- 首次通过 token 访问后会在浏览器端保存一个 cookie，之后访问时不再需要 token（v3.5.1）
-- cookie 默认有效期 7 天，在后面添加 ?token=xxx&cookie=long，可延长到 365 天
+- 首次通过 token 访问时会在浏览器端生成一个 cookie，之后访问时不再需要 token（v3.5.1）
+- cookie 默认有效期 7 天，在后面添加 ?token=xxx&cookie=long，有效期为 365 天
 - 如果不想留下 cookie，请使用无痕模式（在使用他人或公共设备时
 
 # minishell
