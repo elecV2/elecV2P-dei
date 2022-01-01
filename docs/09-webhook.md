@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-12-09
-适用版本: 3.5.5
+最近更新: 2022-01-01
+适用版本: 3.5.8
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/09-webhook.md
 ```
 
@@ -19,6 +19,7 @@
 - IP 限制 黑白名单更新(v3.4.0)
 - 打开/关闭代理端口(v3.4.8)
 - 全局 CORS 设置(v3.5.4)
+- 使用根证书签发任意域名证书(v3.5.8)
 
 ## 使用
 
@@ -95,23 +96,14 @@ fetch('/webhook', {   // 本地服务器可直接用 /webhook
 | proxyport | op=open/close  | 打开/关闭代理   |  &type=proxyport&op=open
 | cors      | enable/origin  | 设置全局 cors   |  &type=cors&enable=true&origin=http://xxx
 | blackreset| 无 ---         | 重置非法IP 记录 |  &type=blackreset
+| newcrt    | hostname=xx.xx | 签发域名证书    |  &type=newcrt&hostname=myhost.com
 
-- **每次请求注意带上 token**
-- **如果使用 PUT/POST 方式，转换为对应的 JSON 格式**
-- **command 指令应该先使用 encodeURI 进行编码**
+- **每次请求时注意带上 token**
+- **如果使用 PUT/POST 方式，body 应为对应的 JSON 格式**
+- **command 指令需先使用 encodeURI 进行编码**
 - **shell 执行默认 timeout 为 5000ms（以防出现服务器长时间无响应的问题）**
-- **shell 支持附加 cwd 和 timeout 参数**
-- **v3.2.6 版本添加 type info**
-- **v3.2.9 版本添加 type jslist**
-- **v3.3.3 版本添加 type store**
-- **v3.4.0 版本添加 type jsfile**
-- **v3.4.0 版本添加 type security**
-- **v3.4.8 版本添加 type proxyport**
 
-- v3.4.2 type taskstart/taskstop/taskadd 增加支持批量操作
-- v3.4.2 type deljs 增加支持批量操作
-- v3.4.2 type deljs 增加操作 op=clear，用于删除默认 JS 文件夹下的所有非 JS 文件
-- (以上操作的具体使用方法，参考下面的相关示例)
+- (具体使用方法，参考下面的相关示例)
 
 ## 直接 GET 请求
 
@@ -129,7 +121,7 @@ http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=downl
 http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=download&url=https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/JSTEST/evui-dou.js&folder=script/JSFile&name=edou.js
 
 # 列出 script/Shell 目录下的文件
-http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell&command=ls%20-c%20script/Shell
+http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell&command=ls%20-cwd%20script/Shell
 
 ## shell 使用 cwd 和 timeout 参数
 http://192.168.1.102:12521/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=shell&command=ls&cwd=script/JSFile&timeout=2000
@@ -158,6 +150,10 @@ http://127.0.0.1/webhook?token=c2cbbbff-1043-40f4-a4c4-45fc4badfa05&type=cors&en
 
 # 重置非法访问的 IP 记录(v3.5.5)
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=blackreset
+
+# 使用根证书签发任意域名证书(v3.5.8)
+# 生成的域名证书位于 当前项目/rootCA 目录下
+http://127.0.0.1/webhook?token=c2cbbbff-1043-40f4-a4c4-45fc4badfa05&type=newcrt&hostname=v2host.io
 ```
 
 ## 使用 PUT/POST 方法
@@ -338,3 +334,4 @@ fetch('/webhook', {
 - webhook 可配合 **telegram bot** 或 **快捷指令** 等其他工具使用，方便快速调用 elecV2P 相关功能
 - 通过 webhook 提供的 API，可以自行设计其他 UI 界面，实现与 elecV2P 交互
 - v3.4.8 webhook 增加头部返回信息 {'Access-Control-Allow-Origin': '\*'}，避免 CORS 问题
+- v3.5.8 增加可在脚本中使用 $webhook(type, options) 触发，详见 https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md 相关说明
