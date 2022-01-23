@@ -5,6 +5,7 @@
 - 查看对应脚本的日志文件
 - 查看后台运行日志(docker logs elecv2p)
 - webUI->SETTING->日志等级调整为 debug
+- 在 Google/百度/搜狗 等搜索引擎上输入错误信息
 
 - 重启/重装 elecV2P
 

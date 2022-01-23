@@ -1,23 +1,22 @@
 ```
-最近更新: 2021-10-23
-适用版本: 3.5.1
+最近更新: 2022-01-21
+适用版本: 3.5.9
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/Advanced.md
 ```
 
 ## elecV2P 进阶使用篇
 
-# 限制 IP 访问后台管理界面
+# 限制 IP 访问
 
 设置位于 webUI->SETTING 页面
 
 ![limitip](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/limitip.png)
 
 - 默认处于关闭状态，所有 IP 可访问
-- 该限制仅针对 webUI 端口（默认 80），对 8001/8002 对应端口无效
-
-打开后，白名单的优先级高于黑名单。比如，当同个 IP 同时出现在白名单和黑名单中时，以白名单为准，即: 可访问。
-IP 以换行符或英文逗号(,)作为分隔，保存实时生效。
-在黑名单中可用单个星号字符(\*)表示屏蔽所有不在白名单中的 IP，建议在公网部署的情况下使用。
+- 该限制仅对 webUI 端口（默认 80）有效，对 8001/8002 对应端口无效
+- 白名单的优先级高于黑名单。比如，当同个 IP 同时出现在白名单和黑名单中时，以白名单为准，即: 可访问
+- IP 以换行符或英文逗号(,)作为分隔，保存实时生效
+- 在黑名单中可用单个星号字符(\*)表示屏蔽所有不在白名单中的 IP，建议在公网部署的情况下使用
 
 IP 屏蔽后，可通过在请求链接中添加 **?token=webhook token** 的参数来绕过屏蔽，例如: http://你的服务器地址/?token=a8c259b2-67fe-4c64-8700-7bfdf1f55cb3 (服务器的 WEBHOOK TOKEN，首次启动时为随机值)
 
@@ -57,7 +56,7 @@ http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug
 }
 ```
 
-方法二: 在 webUI 页面，打开浏览器开发者工具，在 Console 中执行以下代码，然后刷新一下页面。
+方法二: 在 webUI 页面，打开浏览器开发者工具，在 Console 中执行以下代码，然后刷新页面。
 ``` JS
 fetch('/config', {
   method: 'put',
@@ -77,10 +76,12 @@ fetch('/config', {
 
 ## 基础使用
 
-minishell 基于 nodejs 的 child_process exec。另外做了一些修改，比如，跨平台的命令转换。
+- minishell 的通信基于 websocket，确保执行任何命令前 websocket 是成功连接的
+- minishell 的执行基于 nodejs 的 **[child_process exec](https://nodejs.org/api/child_process.html)**
+- minishell 命令执行默认 timeout 为 60000ms(1 分钟)。可在结尾增加 -timeout=0 进行调整
 
-在 windows 平台输入 **reboot** 命令，会自动转化为 **restart-computer**，相当于将 linux 和 windows 平台的 shell 命令进行了简单的同化统一。
-更多跨平台命令同化转换中...
+elecV2P 对一些简单的命令会自动进行跨平台转换。比如，在 windows 平台输入 **ls** 命令，会自动转化为 **dir**, **reboot** 自动转化为 **restart-computer** 等。
+更多跨平台命令自动转换持续添加中，欢迎反馈。
 
 另外，如果指令中包含 http 链接，将会自动下载后再执行，比如命令:
 
@@ -95,18 +96,21 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 
 ## 特殊指令
 
-- cls/clear   // 清空屏幕
+- cls/clear   // 清空屏幕日志
 - cwd         // 获取当前工作目录
 - cd xxx      // 更改当前工作目录到xxx
-- docs        // 打开此 Github 说明页面(v3.4.7)
+- docs        // 打开此 minishell 说明页面(v3.4.7)
+- exit        // 最小化 minishell 界面（在子进程交互中输入时表示结束子进程
 
 ### 其他说明
 
-- *minishell 的通信基于 websocket，确保执行任何命令前 websocket 是成功连接的*
-- *单击上方日志输出部分，停止自动滚动。单击下方命令输入部分，开启自动滚动*
-- *minishell 命令执行使用默认的 timeout 60000ms(1 分钟)。如需执行长时间命令，尝试使用下面的 $exec 执行*
+- esc         // 清空当前输入命令
+- ctrl + l    // 清空屏幕日志
+- up/down     // 上下查找历史执行命令
+- shift + tab // 移动光标到子进程交互输入框（如果存在的话
+- 单击上方日志输出部分，停止自动滚动。单击下方命令输入部分，开启自动滚动
 
-## 使用 $exec 执行任一程序
+# 使用 $exec 执行任一程序
 
 在 JS 中使用 $exec 执行 shell 命令，通过此方式可以在 JS 中调用其他任意语言的程序，比如运行 python 或 .sh 文件等，例如:
 
@@ -139,7 +143,7 @@ $exec('./hello.sh', {
 $exec('start https://github.com/elecV2/elecV2P')
 ```
 
-### 相关说明
+## 相关说明
 
 $exec 会调用系统默认程序执行相关文件，所以需提前安装好相关执行环境。
 比如，执行 **test.py**，需安装好 Python，并将 test.py 文件放置到 **cwd** 对应目录。
@@ -148,7 +152,7 @@ $exec 执行效果类似于直接在命令行下的 cwd 目录执行相关指令
 
 更多说明参考: [04-JS.md](https://github.com/elecV2/elecV2P-dei/tree/master/docs/04-JS.md) $exec 部分
 
-## 其他一些操作
+# 其他一些操作
 
 - 开启 anyproxy 代理 websocket 请求: 在 script/Lists/config.json 中 anyproxy 部分添加
 
