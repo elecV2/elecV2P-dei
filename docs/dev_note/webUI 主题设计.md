@@ -27,6 +27,7 @@
 
 ### 具体实现
 
+```
 :root[theme="themename"] {
   --main-bk: #003153;
   --main-fc: #FBFBFF;
@@ -37,3 +38,7 @@
   --blue-bk: #1890FFB8;
   ...
 }
+
+<html theme="themename">
+document.documentElement.setAttribute('theme', 'themename')
+```

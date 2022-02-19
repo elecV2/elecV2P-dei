@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-11-21
-适用版本: 3.5.3
+最近更新: 2022-02-08
+适用版本: 3.6.0
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/06-task.md
 ```
 
@@ -237,6 +237,8 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
   "date": "2021-02-26 23:32:04",      // 订阅生成时间，可省略
   "author": "https://t.me/elecV2",    // 订阅制作者，可省略
   "resource": "https://raw.githubusercontent.com/elecV2/elecV2P/master/efss/tasksub.json",  // 原始订阅链接，可省略
+  "type": "none",                     // 订阅自动更新类型。可选参数 none-不自动更新, cron/schedule 定时。v3.6.0 新增
+  "time": "2 3 5 * * *",              // 订阅自动更新时间。v3.6.0 新增自动订阅更新
   "list": [                           // 任务列表。任务格式参考上面的 task.list 部分
     {
       "name": "软更新",
@@ -295,15 +297,15 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 }
 ```
 
-*如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现 **Network Error** 的错误提醒，可能是浏览器 CORS 导致的问题，尝试直接下载文件，然后上传到 EFSS 目录，再使用本地订阅导入*
+- 如果在确认网络通畅的情况下（订阅链接可以直接通过浏览器访问），但在获取订阅内容时出现 **Network Error** 的错误提醒，可能是浏览器 CORS 导致的问题，请尝试直接下载订阅文件，然后上传到 EFSS 目录，或使用本地订阅导入
+- **当订阅任务中包含类似 rm -f * 的 Shell 指令时，可能会删除服务器上的所有文件，请勿必清楚订阅任务后再进行添加，不要添加不信任的来源订阅**
+- v3.6.0 新增订阅自动更新。自动更新时间以用户手动设置时间为准
 
 ### 本地订阅文件导入
 
 - 在 EFSS 界面上传订阅文件，然后订阅链接直接填写: efss/tasksub文件名.json
-- 或者直接使用当前服务器地址 http://127.0.0.1/efss/tasksub.json
+- 或者直接使用当前服务器地址，例如: http://127.0.0.1/efss/tasksub.json
 
 ### 其他订阅格式转换
 
 参考脚本 https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/exam-tasksub.js
-
-**当订阅任务中包含类似 rm -f * 的 Shell 指令时，可能会删除服务器上的所有文件，请勿必清楚订阅任务后再进行添加，不要添加不信任的来源订阅**

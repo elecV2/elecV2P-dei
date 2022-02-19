@@ -15,6 +15,7 @@
 - download:  下载文件（可能增加可选择下载方式 type git/wget/aria2c 等
 - notify: 发送通知
 - open:  直接打开一个 url 或 文件
+- efh: 打开 efh 文件
 
 执行逻辑类
 - if:    如果逻辑 （每个任务执行后判断？
@@ -40,7 +41,7 @@
       "name": "任务一",
       "id": "taskone",           // 使用 id 方便跳转
       "type": "script",          // 可以使用远程脚本
-      "args": ["test.js", "-grant", "nodejs"],
+      "args": ["test.js", {"grant": "nodejs"}],
     }, {
       "name": "任务二",
       "type": "shell",
@@ -54,6 +55,10 @@
       "name": "下载文件一",
       "type": "download",
       "args": ["https://resouce.url", "path/to/save", "type|wget|..."]
+    }, {
+      "name": "efh 测试",
+      "type": "efh",
+      "args": ["path/to/router", "type|wget|..."]
     }, {
       "id": "anot",
       "name": "发送通知",
