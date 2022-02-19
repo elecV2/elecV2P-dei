@@ -212,6 +212,9 @@ function surlName(url) {
 }
 
 function timeoutPromise({ timeout = CONFIG_EV2P.timeout || 5000, fn }) {
+  if (!/\.js$/.test(fn)) {
+    fn += '.js'
+  }
   return new Promise(resolve => setTimeout(resolve, timeout, '请求超时 ' + timeout + ' ms，相关请求应该已发送至 elecV2P，这里提前返回结果，以免发送重复请求' + `${fn ? ('\n\n运行日志: ' + CONFIG_EV2P.url + 'logs/' + surlName(fn) + '.log') : '' }`))
 }
 
@@ -305,24 +308,25 @@ function taskNew(taskinfo) {
     }).then(res=>res.text())
 }
 
-function jsRun(fn, rename) {
-  let rfn = fn.split(/ +/)
-  if (rfn.length !== 1) {
-    fn = rfn[0]
-    rename = rfn[1]
-  }
-  if (!(/^https?:\/\/\S{4}/.test(fn) || /\.js$/.test(fn))) {
-    fn += '.js'
-  }
-
-  return Promise.race([
-    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=runjs&fn=' + fn + (rename ? '&rename=' + rename : '')).then(res=>res.text()),
-    timeoutPromise({ fn })
-  ])
+function jsRun(fn) {
+  // 支持参数运行，参考说明文档 06-task.md 运行 JS 相关部分（elecV2P 需大于 v3.6.0
+  return Promise.race([new Promise((resolve,reject)=>{
+    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=runjs&fn=' + encodeURI(fn)).then(res=>res.text()).then(r=>{
+      resolve(r)
+    }).catch(e=>{
+      reject(e)
+    })
+  }), timeoutPromise({ fn })])
 }
 
 function getJsLists() {
-  return fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=jslist').then(res=>res.json())
+  return new Promise((resolve,reject)=>{
+    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=jslist').then(res=>res.json()).then(r=>{
+      resolve(r.rescode === 0 ? r.resdata : r)
+    }).catch(e=>{
+      reject(e)
+    })
+  })
 }
 
 function deleteJS(name) {
@@ -383,7 +387,13 @@ function storeManage(keyvt) {
 }
 
 function storeList() {
-  return fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=store&op=all').then(res=>res.json())
+  return new Promise((resolve,reject)=>{
+    fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=store&op=all').then(res=>res.json()).then(r=>{
+      resolve(r.rescode === 0 ? r.resdata : r)
+    }).catch(e=>{
+      reject(e)
+    })
+  })
 }
 
 function getFile(file_id) {
@@ -592,11 +602,6 @@ test.js`
               let s = jslists[ind]
               if (ind >= 200) {
                 over += s + '  '
-                if (over.length > -CONFIG_EV2P.slice) {
-                  payload.text = over.trim()
-                  tgPush(payload)
-                  over = '\n\n文件数超过 200，以防 reply_keyboard 过长 TG 无返回，剩余 JS 以文字形式返回\n\n'
-                }
                 continue
               }
 
@@ -609,13 +614,13 @@ test.js`
                 text: s.replace(/\.js$/, '')
               }]
             }
-            payload.text = '进入 RUNJS 模式，当前 elecV2P 上 JS 文件数: ' + jslists.length + '\n点击运行 JS，也可以直接输入文件名或者远程链接\n后面可加空格及其他参数重命名运行的文件，比如\nhttps://随便一个远程JS rmyname.js' + over.trimRight()
+            payload.text = '进入 RUNJS 模式，当前 elecV2P 上 JS 文件数: ' + jslists.length + '\n点击交互键盘可直接运行 JS，也可以输入文件名或者远程链接运行其他脚本\n后面可附带 -env/-rename 等参数(v3.6.0)，比如\nhttps://远程JSname.js -rename=t.js' + over.trimRight()
             payload.reply_markup = keyb
           } catch(e) {
             payload.text = e.message
           }
         } else {
-          payload.text = await jsRun(cont[1], cont[2])
+          payload.text = await jsRun(bodytext.replace(/^\/?runjs /, ''))
         }
       } else if (/^\/?(shell|exec)/.test(bodytext)) {
         let cont = bodytext.trim().split(' ')
