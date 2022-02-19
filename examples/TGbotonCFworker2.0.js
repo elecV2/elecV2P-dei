@@ -698,6 +698,9 @@ test.js`
             await context.put('u' + payload['chat_id'], 'log')
             let res = await getLogs('all')
             let map = JSON.parse(res)
+            if (map.rescode === 0) {
+              map = map.resdata
+            }
             let keyb = {
                   inline_keyboard: [ ],
                 }
