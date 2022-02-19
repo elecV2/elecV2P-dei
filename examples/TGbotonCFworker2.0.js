@@ -397,7 +397,7 @@ function storeManage(keyvt) {
 function storeList() {
   return new Promise((resolve,reject)=>{
     fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=store&op=all').then(res=>res.json()).then(r=>{
-      resolve(r)
+      resolve(r.rescode === 0 ? r.resdata : r)
     }).catch(e=>{
       reject(e)
     })
