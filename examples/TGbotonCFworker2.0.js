@@ -1,7 +1,7 @@
 /**
  * 功能: 部署在 cloudflare worker 的 TGbot 后台代码，用于通过 telegram 查看/控制 elecV2P
  * 地址: https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
- * 更新: 2021-07-08
+ * 更新: 2022-02-19
  * 说明: 功能实现主要基于 elecV2P 的 webhook（https://github.com/elecV2/elecV2P-dei/tree/master/docs/09-webhook.md）
  * 
  * 使用方式: 
@@ -312,7 +312,7 @@ function jsRun(fn, rename) {
 function getJsLists() {
   return new Promise((resolve,reject)=>{
     fetch(CONFIG_EV2P.url + 'webhook?token=' + CONFIG_EV2P.wbrtoken + '&type=jslist').then(res=>res.json()).then(r=>{
-      resolve(r)
+      resolve(r.rescode === 0 ? r.resdata : r)
     }).catch(e=>{
       reject(e)
     })
