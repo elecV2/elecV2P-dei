@@ -19,6 +19,12 @@
 
 *如果有其他比较好玩或有用的脚本，欢迎 Pull Request*
 
+### efh 实际应用系列
+
+关于 efh 格式文件的说明，参考说明文档 [08-logger&efss.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/08-logger&efss.md) 中的相关部分。
+
+- [markdown.efh](https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/markdown.efh) \- 一个简单的 markdown 阅读器
+
 ### [TGbotonCFworker.js](https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker.js) - 通过 TG bot 控制 elecV2P
 
 2.0 版本(新增上下文执行环境): https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js
