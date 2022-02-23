@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cloud Notepad</title>
+  <style type="text/css">
+    body {
+      background: #eee;
+      box-sizing: border-box;
+    }
+    .main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .note {
+      width: 98%;
+      height: 90vh;
+      margin-bottom: 1em;
+      min-height: 680px;
+      border-radius: 8px;
+      padding: 3px 5px;
+      font-size: 18px;
+    }
+    .notebtn {
+      width: 120px;
+      padding: 3px;
+      font-size: 20px;
+      border: none;
+      border-radius: 6px;
+      color: #eee;
+      background: #2f50c6;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <textarea class="note"></textarea>
+    <div>
+      <button class="notebtn" onclick="save()">保存</button>
+      <button class="notebtn" onclick="init()">刷新</button>
+    </div>
+  </div>
+  <script type="text/javascript">
+    let note = document.querySelector('.note')
+    init()
+    function init(){
+      $fend('init').then(res=>res.text()).then(data=>{
+        note.value = data
+      })
+    }
+    function save() {
+      $fend('save', note.value).then(res=>res.text()).then(res=>{
+        alert(res)
+      })
+    }
+  </script>
+</body>
+</html>
+
+<script type="text/javascript" runon="elecV2P">
+  $fend('init', ()=>{
+    return $store.get('cloud_notepad')
+  })
+  // add 部分可配合捷径等工具实现分享上传
+  // http.post({ body: { key: "add", data: "some string", token: "xxxx-xx" }})
+  $fend('add', (data)=>{
+    if ($store.put(data, 'cloud_notepad', { type: 'a' })) {
+      return 'success add new data to note'
+    }
+    return 'fail to add new data to note'
+  })
+  $fend('save', (data)=>{
+    if ($store.put(data, 'cloud_notepad')) {
+      return 'success saved'
+    }
+    return 'fail to save'
+  })
+</script>
