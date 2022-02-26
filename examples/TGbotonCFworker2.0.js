@@ -98,13 +98,17 @@ let CONFIG_EV2P = {
     contexttimeout: 1000*60*5,               // shell 模式自动退出时间，单位: ms
   },
   timeout: 5000,         // runjs 请求超时时间，以防脚本运行时间过长，无回应导致反复请求，bot 被卡死
-  mycommand: {           // 自定义快捷命令，比如 restart: 'exec pm2 restart elecV2P'
+  mycommand: {           // 自定义快捷命令，比如 restart: 'exec pm2 restart elecV2P'。前面的属性值请不要包含空格。
     rtest: '/runjs test.js',    // 表示当输入命令 /rtest 或 rtest 时会自动替换成命令 '/runjs test.js' 运行 JS 脚本 test.js
     execls: 'exec ls -al',      // 同上，表示自动将命令 /execls 替换成 exec ls -al。 其他命令可参考自行添加
     update: {                   // 当为 object 类型时，note 表示备注显示信息， command 表示实际执行命令
       note: '软更新升级',
       command: 'runjs https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/softupdate.js'
-    }
+    },
+    renv: {
+      note: '带参数运行',       // 在 command 中用 $1 作为占位符
+      command: 'runjs exam-js-env.js -env name=$1',  // 使用示例: renv 参数elecV2PTGbot。目前仅支持单个参数
+    },
   },
   mode: {
     storemanage: false,         // 是否开启 store/cookie 管理模式。false: 不开启（默认），true: 开启
@@ -459,6 +463,15 @@ async function handlePostRequest(request) {
         let tcom = bodytext.replace(/^\//, '')
         if (CONFIG_EV2P.mycommand[tcom]) {
           bodytext = CONFIG_EV2P.mycommand[tcom].command || CONFIG_EV2P.mycommand[tcom]
+        } else if (tcom.indexOf(' ') !== -1) {
+          let tind = tcom.indexOf(' ')
+          let fcom = tcom.slice(0, tind)
+          if (CONFIG_EV2P.mycommand[fcom]) {
+            let otext = CONFIG_EV2P.mycommand[fcom].command || CONFIG_EV2P.mycommand[fcom]
+            if (/\$1/.test(otext)) {
+              bodytext = otext.replace(/\$1/, tcom.slice(tind+1))
+            }
+          }
         }
       }
       if (bodytext === 'sudo clear') {
