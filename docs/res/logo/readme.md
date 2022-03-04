@@ -21,3 +21,7 @@ elecV2Pall-720x720.png
 ![elecV2Pall-720x720](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/logo/elecV2Pall-720x720.png)
 
 欢迎 PR 提交自行设计的 logo 图标
+
+#### 其他说明
+
+svg 文件使用 [Inkscape](http://www.inkscape.org/) 制作
