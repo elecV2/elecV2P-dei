@@ -12,6 +12,7 @@
       "--secd-fc": "#003153B8",
     },
     "logo": "url",
+    "bkimage": "background-image url",
   }
 }
 ```
@@ -20,7 +21,7 @@
 
 - 颜色（文字/背景等
 
-以下为可选项
+以下为可选项（可能
 - 圆角大小
 - 图标 logo
 - 标题 title
@@ -28,17 +29,38 @@
 ### 具体实现
 
 ```
-:root[theme="themename"] {
+.theme--name {
   --main-bk: #003153;
   --main-fc: #FBFBFF;
+  --main-cl: #1890FF;
+  --sect-bk: #F0F2F5;
   --secd-bk: #A7A8BD88;
   --secd-fc: #003153B8;
-  --note-bk: #EF7A82;
-  --antd-wave: #1890FF;
-  --blue-bk: #1890FFB8;
   ...
 }
 
-<html theme="themename">
-document.documentElement.setAttribute('theme', 'themename')
+document.body.className = 'theme--name'
+```
+
+### 透明模式
+
+``` CSS
+#app {
+  background-image: url(https://images.unsplash.com/photo-1646505183416-f3301d2a8127);
+  --main-bk: #2e811c;
+}
+
+.section > .sider, .section, .content, .header, .footer {
+  background: transparent;
+}
+```
+
+config.json
+
+``` JSON
+transparent: {
+  "mainbk": "#123456",
+  "enable": true,
+  "bkimage": "https://xxx",
+}
 ```
