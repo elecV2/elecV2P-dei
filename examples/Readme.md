@@ -25,6 +25,8 @@
 
 - [markdown.efh](https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/markdown.efh) \- 一个简单的 markdown 阅读器
 
+- [其他 efh 脚本](https://github.com/elecV2/elecV2P-dei/tree/master/examples/JSTEST/efh)
+
 ### [TGbotonCFworker.js](https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker.js) - 通过 TG bot 控制 elecV2P
 
 2.0 版本(新增上下文执行环境): https://github.com/elecV2/elecV2P-dei/blob/master/examples/TGbotonCFworker2.0.js

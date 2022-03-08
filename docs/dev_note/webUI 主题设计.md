@@ -44,15 +44,21 @@ document.body.className = 'theme--name'
 
 ### 透明模式
 
-``` CSS
+``` JS
+// TEST 简单测试代码
+document.head.insertAdjacentHTML('beforeend', `<style>
 #app {
   background-image: url(https://images.unsplash.com/photo-1646505183416-f3301d2a8127);
   --main-bk: #2e811c;
 }
 
-.section > .sider, .section, .content, .header, .footer {
+.section > .sider,
+.sider_trigger.sider_trigger--mobile,
+.section, .content, .header, .footer {
   background: transparent;
 }
+</style>`)
+// background: #0008
 ```
 
 config.json

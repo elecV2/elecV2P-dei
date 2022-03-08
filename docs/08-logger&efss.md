@@ -265,6 +265,7 @@ $done({
 - 如果 $done 提前执行，$fend 无效
 - 直接运行 efh 脚本时，返回前端内容
 - efh 前端暂时无法使用本地 JS/CSS 等（只能内嵌或远程
+- 其他 efh 脚本：https://github.com/elecV2/elecV2P-dei/tree/master/examples/JSTEST/efh
 
 待优化项：
 - 其他类型数据 arrayBuffer/stream 等
