@@ -33,7 +33,6 @@
   --main-bk: #003153;
   --main-fc: #FBFBFF;
   --main-cl: #1890FF;
-  --sect-bk: #F0F2F5;
   --secd-bk: #A7A8BD88;
   --secd-fc: #003153B8;
   ...
@@ -42,14 +41,14 @@
 document.body.className = 'theme--name'
 ```
 
-### 透明模式
+### 简单主题
 
 ``` JS
 // TEST 简单测试代码
 document.head.insertAdjacentHTML('beforeend', `<style>
 #app {
-  background-image: url(https://images.unsplash.com/photo-1646505183416-f3301d2a8127);
-  --main-bk: #2e811c;
+  --main-bk: #326733;
+  background: url(https://images.unsplash.com/photo-1646505183416-f3301d2a8127);
 }
 
 .section > .sider,
@@ -58,15 +57,21 @@ document.head.insertAdjacentHTML('beforeend', `<style>
   background: transparent;
 }
 </style>`)
+// background: #222E
 // background: #0008
+app.style.setProperty('--main-bk', '#222E')
 ```
 
 config.json
 
 ``` JSON
-transparent: {
-  "mainbk": "#123456",
-  "enable": true,
-  "bkimage": "https://xxx",
+"theme": {
+  "simple": {
+    "enable": true,
+    "mainbk": "#123456",
+    "appbk": "https://xxx",
+    "elebk": "transparent",
+  },
+  "lists": []
 }
 ```
