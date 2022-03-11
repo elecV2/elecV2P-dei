@@ -1,5 +1,5 @@
 ```
-最近更新: 2021-09-05
+最近更新: 2022-03-09
 适用版本: 3.4.5
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/02-Docker.md
 ```
@@ -23,6 +23,7 @@ curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compo
 ## Docker 运行 elecV2P
 
 *以下命令仅供参考，具体映射端口和卷根据实际情况进行调整*
+
 ```sh
 # 基础启动命令（重建后数据会丢失）
 docker run --restart=always -d --name elecv2p -e TZ=Asia/Shanghai -p 80:80 -p 8001:8001 -p 8002:8002 elecv2/elecv2p
@@ -40,9 +41,11 @@ docker run --restart=always \
   -v /elecv2p/efss:/usr/local/app/efss \
   elecv2/elecv2p
 
+# -p/-v 对应环境参数 宿主参数:容器内参数
+# 宿主机映射目录尽量填写尚未创建或空的文件夹
+# 如需更改默认的 80 端口，可在 -e 后面加上 PORT=8000
 # 某些设备上，可能无法在根目录创建 elecv2p 文件夹，这时请根据使用设备搜索可操作的目录，进行替换
 # 如果在部分复杂的网络情况下出现无法联网或访问的问题，尝试在命令中添加 --net=host
-# 宿主机映射目录尽量填写尚未创建或空的文件夹，避免首次启动时因缺少初始文件而失败
 
 # 查看 docker 运行状态
 docker ps
@@ -107,6 +110,7 @@ services:
 ```
 
 - *具体使用的映射端口和 volumes 目录，根据个人情况进行调整*
+- *如需更改默认的 80 端口，在 environment 下添加一行: - PORT=8000*
 - *如果在某些设备上无法启动，尝试把文件开头的 version: '3.7' 更改为 version: '3.3'*
 
 然后在 docker-compose.yaml 同目录执行命令 **docker-compose up -d** ，启动程序。
