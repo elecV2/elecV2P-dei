@@ -144,7 +144,7 @@ http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=security&op=put
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=deljs&op=clear
 
 # 全局 CORS 设置(v3.5.4)
-http://127.0.0.1/webhook?token=c2cbbbff-1043-40f4-a4c4-45fc4badfa05&type=cors&enable=1&origin=http://127.0.0.1
+http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=cors&enable=1&origin=http://127.0.0.1
 # - enable 使用 0 或 false 表示关闭
 # - origin 使用 * 表示允许所有域名
 
@@ -153,7 +153,7 @@ http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=blackreset
 
 # 使用根证书签发任意域名证书(v3.5.8)
 # 生成的域名证书位于 当前项目/rootCA 目录下
-http://127.0.0.1/webhook?token=c2cbbbff-1043-40f4-a4c4-45fc4badfa05&type=newcrt&hostname=v2host.io
+http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=newcrt&hostname=v2host.io
 ```
 
 ## 使用 PUT/POST 方法
@@ -227,7 +227,7 @@ fetch('/webhook', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    token: 'c2cbbbff-1043-40f4-a4c4-45fc4badfa05',
+    token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
     type: 'taskstart',   // taskstart: 开始任务 taskstop: 停止任务
     tid: ['Wnj8rMaj', 'nPfq5Td3', 'cKUq3ViR'],     // 对应任务的 id
   })
@@ -295,7 +295,7 @@ fetch('/webhook', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    token: 'c2cbbbff-1043-40f4-a4c4-45fc4badfa05',
+    token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
     type: 'deletejs',   // 同等于: deljs === jsdel === jsdelete
     // op: 'clear',     // 启用此项，表示删除默认 JS 文件夹下的所有非 JS 文件
     fn: ['test/starturl.js', 'test/restart.js', '0body.js', 'test.js']   // 使用数组表示多个要删除的 JS 文件
