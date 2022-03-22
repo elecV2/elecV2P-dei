@@ -28,6 +28,8 @@
 
 ### 具体实现
 
+*最后实现使用其他的实现方式*
+
 ```
 .theme--name {
   --main-bk: #003153;
@@ -41,7 +43,7 @@
 document.body.className = 'theme--name'
 ```
 
-### 简单主题
+### 自定义主题
 
 ``` JS
 // TEST 简单测试代码
@@ -57,12 +59,19 @@ document.head.insertAdjacentHTML('beforeend', `<style>
   background: transparent;
 }
 </style>`)
+// #app {--main-bk: #2E3784;--main-fc: #FFCB40;--main-cl: #64AAD0;}
+// #app {--main-bk: #2e1630;--main-fc: #e9bb4c;--main-cl: #d3fd3c;}
+
 // background: #222E
 // background: #0008
 app.style.setProperty('--main-bk', '#222E')
 ```
 
-config.json
+前端设置 UI:
+
+NAEM 主色彩 导出 启用 删除
+
+### 最终实现方案
 
 ``` JSON
 "theme": {
@@ -71,7 +80,26 @@ config.json
     "mainbk": "#123456",
     "appbk": "https://xxx",
     "elebk": "transparent",
+    "style": "#app{}",
   },
-  "lists": []
+  "list": [{
+    "name": "主题名称",
+    "mainbk": "#123456",
+    "appbk": "https://xxx",
+    "elebk": "transparent",
+    "style": "#app{}",
+  }, {
+    "name": "主题名称",
+    "mainbk": "#2E3784",
+    "appbk": "https://xxx",
+    "elebk": "transparent",
+    "style": "#app{}",
+  }]
 }
 ```
+
+### Todo
+
+- [x] 主题保存切换
+- [x] 主题导入导出
+- [x] 自定义 style
