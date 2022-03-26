@@ -1,6 +1,6 @@
 ```
-最近更新: 2022-03-09
-适用版本: 3.4.5
+最近更新: 2022-03-15
+适用版本: 3.6.3
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/02-Docker.md
 ```
 
@@ -114,6 +114,34 @@ services:
 - *如果在某些设备上无法启动，尝试把文件开头的 version: '3.7' 更改为 version: '3.3'*
 
 然后在 docker-compose.yaml 同目录执行命令 **docker-compose up -d** ，启动程序。
+
+### env 默认环境变量
+
+在 elecV2P 启动前，可设置部分环境变量
+
+- TZ: 时区设置 timezone
+- PORT: webUI 对应端口，默认为 80
+- TOKEN: 启动时指定 WEBHOOK TOKEN
+
+使用示例：
+
+``` sh
+docker run --restart=always \
+  -d --name elecv2p \
+  -e TZ=Asia/Shanghai PORT=8000 TOKEN=YOUR-WEBHOOK-TOKEN \
+  -p 8100:8000 -p 8101:8001 -p 8102:8002 \
+  -v /elecv2p/JSFile:/usr/local/app/script/JSFile \
+  -v /elecv2p/Lists:/usr/local/app/script/Lists \
+  -v /elecv2p/Store:/usr/local/app/script/Store \
+  -v /elecv2p/Shell:/usr/local/app/script/Shell \
+  -v /elecv2p/rootCA:/usr/local/app/rootCA \
+  -v /elecv2p/efss:/usr/local/app/efss \
+  elecv2/elecv2p
+```
+
+环境变量可以同时设置部分或全部
+
+**在 docker-compose 中 env 对应 environment**
 
 ### 其他指令
 
