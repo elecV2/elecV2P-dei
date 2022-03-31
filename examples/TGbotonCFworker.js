@@ -281,7 +281,6 @@ async function handleRequest(request) {
 
 addEventListener('fetch', event => {
   const { request } = event
-  const { url } = request
   if (request.method === 'POST') {
     return event.respondWith(handlePostRequest(request))
   } else if (request.method === 'GET') {
