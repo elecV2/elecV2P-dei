@@ -1,6 +1,6 @@
 ```
-最近更新: 2022-01-01
-适用版本: 3.5.8
+最近更新: 2022-04-06
+适用版本: 3.6.4
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/09-webhook.md
 ```
 
@@ -139,6 +139,9 @@ http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=security       
 
 ## 修改后台 IP 限制。关键参数 op=put，其他修改参数 enable, blacklist, whitelist 可只设置一项，list 中多个数据用逗号(,)分开。
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=security&op=put&enable=true&blacklist=*&whitelist=127.0.0.1,192.168.1.1
+
+## 关闭仅开放 webhook 接口选项(v3.6.4)
+http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=security&op=put&webhook_only=false
 
 # 删除默认 JS 文件夹下的所有非 JS 文件(v3.4.2)
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=deljs&op=clear

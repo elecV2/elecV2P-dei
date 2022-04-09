@@ -1,28 +1,30 @@
 ```
-最近更新: 2022-01-21
-适用版本: 3.5.9
+最近更新: 2022-04-08
+适用版本: 3.6.4
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/Advanced.md
 ```
 
 ## elecV2P 进阶使用篇
 
-# 限制 IP 访问
+# 安全访问相关设置
 
-设置位于 webUI->SETTING 页面
+位于 webUI->SETTING/设置相关 页面
 
-![limitip](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/limitip.png)
+![limitip](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/security.png)
 
 - 默认处于关闭状态，所有 IP 可访问
 - 该限制仅对 webUI 端口（默认 80）有效，对 8001/8002 对应端口无效
 - 白名单的优先级高于黑名单。比如，当同个 IP 同时出现在白名单和黑名单中时，以白名单为准，即: 可访问
 - IP 以换行符或英文逗号(,)作为分隔，保存实时生效
 - 在黑名单中可用单个星号字符(\*)表示屏蔽所有不在白名单中的 IP，建议在公网部署的情况下使用
+- 设置**仅开放 webhook 接口**后，可通过 webhook?token=xx&type=security&op=put&webhook_only=0 来关闭
 
 IP 屏蔽后，可通过在请求链接中添加 **?token=webhook token** 的参数来绕过屏蔽，例如: http://你的服务器地址/?token=a8c259b2-67fe-4c64-8700-7bfdf1f55cb3 (服务器的 WEBHOOK TOKEN，首次启动时为随机值)
 
 - 首次通过 token 访问时会在浏览器端生成一个 cookie，之后访问时不再需要 token（v3.5.1）
 - cookie 默认有效期 7 天，在后面添加 ?token=xxx&cookie=long，有效期为 365 天
 - 如果不想留下 cookie，请使用无痕模式（在使用他人或公共设备时
+- 访问时后面添加 ?cookie=clear 删除当前设备的授权信息（v3.6.4）
 
 # minishell
 
