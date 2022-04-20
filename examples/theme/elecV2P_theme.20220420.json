@@ -1,0 +1,44 @@
+[
+  {
+    "name": "我的主题",
+    "mainbk": "#326733dd",
+    "appbk": "url(https://images.unsplash.com/photo-1646505183416-f3301d2a8127)",
+    "elebk": "#0006",
+    "style": ""
+  },
+  {
+    "name": "主题常用",
+    "mainbk": "#326733DD",
+    "appbk": "url(https://cdn.pixabay.com/photo/2022/03/01/20/58/peace-genius-7042013_960_720.jpg)",
+    "elebk": "#0003",
+    "style": ".header, .footer {background: #3338;}"
+  },
+  {
+    "name": "暗黑简单",
+    "mainbk": "#2E3784",
+    "appbk": "",
+    "elebk": "#000C",
+    "style": ""
+  },
+  {
+    "name": "常用2",
+    "mainbk": "#2E3784",
+    "appbk": "url(https://images.unsplash.com/photo-1646505183416-f3301d2a8127)",
+    "elebk": "#0000",
+    "style": ".header, .footer {background: #3338;}"
+  },
+  {
+    "name": "椰树背景",
+    "mainbk": "#2E3784",
+    "appbk": "url(https://images.unsplash.com/photo-1649256651398-46408de2f095?auto=format&fit=crop&w=1964)",
+    "elebk": "#0000",
+    "style": ""
+  },
+  {
+    "name": "透明主题",
+    "mainbk": "#0000",
+    "appbk": "url(https://images.unsplash.com/photo-1646505183416-f3301d2a8127?auto=format)",
+    "elebk": "#0000",
+    "style": ".content>div,.elecBtn--long,.efssset_container,.efsslist{border: 1px solid var(--tras-bk);}.header,.footer,.efsslist_content .efssa{color: var(--main-cl);}.content .about,.content .donation{color: var(--main-fc)}.loginfo.loginfo--full{background: var(--secd-fc);}.logs_item{border: 1px solid;}"
+  }
+]
