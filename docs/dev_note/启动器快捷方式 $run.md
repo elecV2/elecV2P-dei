@@ -23,6 +23,8 @@
 - done:  结束语句
 - for:   for 循环逻辑
 - while: while 循环逻辑
+- wait:  等待
+- aski:  ask for input 要求输入
 
 ## 格式 2021-12-16 18:06
 
