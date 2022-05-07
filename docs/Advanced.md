@@ -1,6 +1,6 @@
 ```
-最近更新: 2022-04-08
-适用版本: 3.6.4
+最近更新: 2022-05-07
+适用版本: 3.6.6
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/Advanced.md
 ```
 
@@ -25,6 +25,7 @@ IP 屏蔽后，可通过在请求链接中添加 **?token=webhook token** 的参
 - cookie 默认有效期 7 天，在后面添加 ?token=xxx&cookie=long，有效期为 365 天
 - 如果不想留下 cookie，请使用无痕模式（在使用他人或公共设备时
 - 访问时后面添加 ?cookie=clear 删除当前设备的授权信息（v3.6.4）
+- 在设置中取消 **允许 cookie 授权访问** 后，所有 cookie 将不可访问（v3.6.6）
 
 # minishell
 
