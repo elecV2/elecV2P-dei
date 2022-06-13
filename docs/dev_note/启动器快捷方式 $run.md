@@ -43,7 +43,7 @@
       "name": "任务一",
       "id": "taskone",           // 使用 id 方便跳转
       "type": "script",          // 可以使用远程脚本
-      "args": ["test.js", {"grant": "nodejs"}],
+      "args": ["test.js", "-grant", "nodejs"],
     }, {
       "name": "任务二",
       "type": "shell",
@@ -85,11 +85,30 @@ mixif:
 - 跳转到一下任务 next
 - 结束运行 done
 
+### 最小单元测试
+
+``` JS
+function run({
+  id, name,
+  type, args,
+}) {
+  // some code
+}
+// run test.js
+// run test.js -grant nodejs
+// run ls -cwd efss
+// run test.py
+// run bash.sh
+// task start tid
+// download url/path
+```
+
 ### 待解决的问题
 
 - 获取上一个任务的执行结果
 - 加入 IF/WHILE/FOR 等逻辑
 - .JSON 文件的可视化编辑
+- run bash 文件 process stdin
 
 #### 非问题的问题
 
