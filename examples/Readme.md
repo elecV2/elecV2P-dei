@@ -23,7 +23,9 @@
 
 关于 efh 格式文件的说明，参考说明文档 [08-logger&efss.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/08-logger&efss.md) 中的相关部分。
 
-- [markdown.efh](https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/markdown.efh) \- 一个简单的 markdown 阅读器
+- [markdown.efh](https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/efh/markdown.efh) \- 一个简单的 markdown 阅读器
+
+- [notepad.efh](https://github.com/elecV2/elecV2P-dei/blob/master/examples/JSTEST/efh/notepad.efh) \- 一个简单的云端记事本
 
 - [其他 efh 脚本](https://github.com/elecV2/elecV2P-dei/tree/master/examples/JSTEST/efh)
 

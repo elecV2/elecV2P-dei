@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-12-26
-适用版本: 3.5.7
+最近更新: 2022-05-24
+适用版本: 3.6.7
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/08-logger&efss.md
 ```
 
@@ -198,7 +198,7 @@ $done({
   console.log('原 html 页面中的 script 标签')
 </script>
 <!-- 上面为原 html 页面，下面为扩展部分 -->
-<script type="text/javascript" runon="elecV2P">
+<script type="text/javascript" runon="elecV2P"><!-- v3.6.7 可简写为 <script favend> -->
   console.log('efh 文件的扩展部分')
 </script>
 ```

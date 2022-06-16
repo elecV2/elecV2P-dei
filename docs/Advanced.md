@@ -1,6 +1,6 @@
 ```
-最近更新: 2022-05-07
-适用版本: 3.6.6
+最近更新: 2022-05-23
+适用版本: 3.6.7
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/Advanced.md
 ```
 
@@ -104,11 +104,13 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 - cd xxx      // 更改当前工作目录到xxx
 - docs        // 打开此 minishell 说明页面(v3.4.7)
 - exit        // 最小化 minishell 界面（在子进程交互中输入时表示结束子进程
+- run         // RUN 运行指令（v3.6.7 添加
 
-### 其他说明
+### 快捷按键
 
 - esc         // 清空当前输入命令
 - ctrl + l    // 清空屏幕日志
+- ctrl + a    // 移动光标到命令开始处
 - up/down     // 上下查找历史执行命令
 - shift + tab // 移动光标到子进程交互输入框（如果存在的话
 - 单击上方日志输出部分，停止自动滚动。单击下方命令输入部分，开启自动滚动
