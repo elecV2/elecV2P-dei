@@ -35,11 +35,15 @@
   "name": "Shell 指令",
   "type": "shell",
   "target": "node -v"
+}, {
+  "name": "交互输入",
+  "type": "shell",
+  "target": "ls -cwd %ei%"    // v3.6.8 增加 %ei% 占位符，用于简单交互输入。ei(eapp input)
 }]
 ```
 
 name 对应值可以为任意字符。
-logo 对应值为 img src 属性值，显示大小为 60x60，建议使用图片大小 180x180。可以是一个 http 链接，也是可 efss 目录中的图片。当省略或加载失败时，将根据 hash 值自动生成 logo，具体的生成算法参考自 https://elecv2.github.io/#算法研究之通过字符串生成艺术图片
+logo 对应值为 img src 属性值，显示大小为 60x60，建议使用图片大小 180x180。可以是一个 http 链接，也可以是 efss 目录中的图片。当省略或加载失败时，将根据 hash 值自动生成 logo，具体的生成算法参考自 https://elecv2.github.io/#算法研究之通过字符串生成艺术图片
 type 目前支持 **js efh shell url** 四种类型。
 target 为最终执行的内容。
 hash 生成算法，md5(NAME + TYPE + TARGET)。

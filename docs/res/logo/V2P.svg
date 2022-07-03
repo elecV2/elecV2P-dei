@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="elecV2P.t.svg"
+   inkscape:export-filename="C:\kFile\elecV2P\efss\SVG\V2P.t.2.png"
+   inkscape:export-xdpi="175.54286"
+   inkscape:export-ydpi="175.54286"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="true"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:zoom="8"
+     inkscape:cx="332.8125"
+     inkscape:cy="481.75"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid991" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="衬托背景"
+     style="display:inline">
+    <rect
+       style="opacity:1;fill:#00052e;fill-opacity:1;stroke-width:0.264999"
+       id="rect1944"
+       width="33.073002"
+       height="27.78125"
+       x="62.922844"
+       y="109.07517"
+       ry="1.0172526e-05"
+       inkscape:export-filename="C:\kFile\elecV2P\efss\SVG\rect1944.png"
+       inkscape:export-xdpi="43.007999"
+       inkscape:export-ydpi="43.007999" />
+  </g>
+  <g
+     inkscape:label="logo"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.3007px;line-height:1.25;font-family:sans-serif;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.619428;stroke-opacity:1"
+       x="76.871513"
+       y="118.76249"
+       id="text825"
+       transform="scale(0.96887649,1.0321233)"
+       inkscape:export-filename="C:\kFile\elecV2P\efss\SVG\rect1944.png"
+       inkscape:export-xdpi="43.007999"
+       inkscape:export-ydpi="43.007999"><tspan
+         sodipodi:role="line"
+         id="tspan823"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.3007px;font-family:'Microsoft YaHei';-inkscape-font-specification:'Microsoft YaHei Bold';fill:#ffffff;stroke:none;stroke-width:0.619428;stroke-opacity:1"
+         x="76.871513"
+         y="118.76249">V2P</tspan></text>
+    <path
+       style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.281655px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 83.34375,116.41667 c 0,0 -0.450879,1.702 -0.447247,1.25154 0.0036,-0.45045 -0.15874,-0.81255 -0.747268,-0.81226 -0.588528,2.9e-4 1.194515,-0.43928 1.194515,-0.43928 z"
+       id="path54712-16"
+       sodipodi:nodetypes="czzc"
+       inkscape:export-filename="C:\kFile\elecV2P\efss\SVG\rect1944.png"
+       inkscape:export-xdpi="43.007999"
+       inkscape:export-ydpi="43.007999" />
+    <path
+       style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.282824px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 74.083333,116.41667 c 0,0 0.455867,1.69741 0.452194,1.24817 -0.0037,-0.44925 0.160496,-0.81036 0.755532,-0.81007 0.595036,3e-4 -1.207726,-0.4381 -1.207726,-0.4381 z"
+       id="path54712-16-6"
+       sodipodi:nodetypes="czzc"
+       inkscape:export-filename="C:\kFile\elecV2P\efss\SVG\rect1944.png"
+       inkscape:export-xdpi="43.007999"
+       inkscape:export-ydpi="43.007999" />
+    <path
+       style="display:inline;opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.279561px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 83.34375,125.67708 c 0,0 -0.451504,-1.67449 -0.447867,-1.23131 0.0036,0.44318 -0.15896,0.79941 -0.748303,0.79913 -0.589343,-2.9e-4 1.19617,0.43218 1.19617,0.43218 z"
+       id="path54712-16-0"
+       sodipodi:nodetypes="czzc"
+       inkscape:export-filename="C:\kFile\elecV2P\efss\SVG\rect1944.png"
+       inkscape:export-xdpi="43.007999"
+       inkscape:export-ydpi="43.007999" />
+    <path
+       style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.278822px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 74.083333,125.67708 c 0,0 0.451819,-1.66448 0.448178,-1.22395 -0.0036,0.44052 0.159072,0.79464 0.748825,0.79434 0.589752,-2.8e-4 -1.197003,0.42961 -1.197003,0.42961 z"
+       id="path54712-16-2"
+       sodipodi:nodetypes="czzc"
+       inkscape:export-filename="C:\kFile\elecV2P\efss\SVG\rect1944.png"
+       inkscape:export-xdpi="43.007999"
+       inkscape:export-ydpi="43.007999" />
+  </g>
+</svg>
