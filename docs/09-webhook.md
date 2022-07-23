@@ -23,11 +23,9 @@
 
 ## 使用
 
-假如服务器地址为: http://192.168.1.102:12521 （后台管理界面的地址，默认端口为 80）
+首先在 webUI-> SETTING/设置相关中获取 WEBHOOK TOKEN，然后可通过 GET/PUT/POST 三种请求方式触发相关功能。
 
-首先访问 webUI(上面的网页地址)-> SETTING，获取 webhook token
-
-webhook 可通过 GET/PUT/POST 三种请求方式触发，下面以几个简单的例子进行说明。
+下面以几个简单的例子进行说明。
 
 ### 运行 JS
 
@@ -71,7 +69,7 @@ fetch('/webhook', {   // 本地服务器可直接用 /webhook
 - 如果是远程 JS , 会强制下载 JS 文件并保存
 - 支持使用 rename 参数，修改远程 JS 下载后的文件名
 
-## body/query 参数
+## body/query 参数说明
 
 |  type     |   target 目标  |    功能         |        传递参数
 | :-------: | -------------- | --------------- | --------------------
@@ -337,4 +335,4 @@ fetch('/webhook', {
 - webhook 可配合 **telegram bot** 或 **快捷指令** 等其他工具使用，方便快速调用 elecV2P 相关功能
 - 通过 webhook 提供的 API，可以自行设计其他 UI 界面，实现与 elecV2P 交互
 - v3.4.8 webhook 增加头部返回信息 {'Access-Control-Allow-Origin': '\*'}，避免 CORS 问题
-- v3.5.8 增加可在脚本中使用 $webhook(type, options) 触发，详见 https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md 相关说明
+- v3.5.8 在脚本中增加函数 $webhook(type, options) ，详见 https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md 相关说明

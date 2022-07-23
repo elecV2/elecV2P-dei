@@ -35,7 +35,7 @@ IP 屏蔽后，可通过在请求链接中添加 **?token=webhook token** 的参
 
 ## 开启方式
 
-- v3.4.4 增加使用 webhook 快速开启关闭的方式
+- v3.4.4 之后使用 webhook 快速开启关闭
 
 ```
 // 查看当前 minishell 状态
@@ -48,9 +48,9 @@ http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug
 http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug&get=minishell&op=close
 ```
 
-- v3.4.4 之前打开方式
+- v3.4.4 之前的打开方式
 
-方法一: 在 script/Lists/config.json 中添加下面的参数，然后重启服务。
+方法一: 在 script/Lists/config.json 中添加下面的参数，然后重启 elecV2P。
 
 ``` JSON
 {
@@ -60,6 +60,7 @@ http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug
 ```
 
 方法二: 在 webUI 页面，打开浏览器开发者工具，在 Console 中执行以下代码，然后刷新页面。
+
 ``` JS
 fetch('/config', {
   method: 'put',
@@ -75,7 +76,7 @@ fetch('/config', {
 }).then(res=>res.text()).then(s=>console.log(s))
 ```
 
-再打开 webUI，在 SETTING 界面的右上角有一个蓝黑的小圈，点击即可打开 **minishell** 交互台。
+再打开 webUI，在 SETTING/设置相关 界面的右上角有一个蓝黑的小圈，点击即可打开 **minishell** 交互台。
 
 ## 基础使用
 
@@ -83,7 +84,7 @@ fetch('/config', {
 - minishell 的执行基于 nodejs 的 **[child_process exec](https://nodejs.org/api/child_process.html)**
 - minishell 命令执行默认 timeout 为 60000ms(1 分钟)。可在结尾增加 -timeout=0 进行调整
 
-elecV2P 对一些简单的命令会自动进行跨平台转换。比如，在 windows 平台输入 **ls** 命令，会自动转化为 **dir**, **reboot** 自动转化为 **restart-computer** 等。
+elecV2P 对一些简单的命令会自动进行跨平台转换。比如，在 windows 平台输入 **ls** 命令，会自动转化为 **dir**。**reboot** 自动转化为 **restart-computer** 等。
 更多跨平台命令自动转换持续添加中，欢迎反馈。
 
 另外，如果指令中包含 http 链接，将会自动下载后再执行，比如命令:
@@ -115,49 +116,8 @@ python3 -u https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Shell/
 - shift + tab // 移动光标到子进程交互输入框（如果存在的话
 - 单击上方日志输出部分，停止自动滚动。单击下方命令输入部分，开启自动滚动
 
-# 使用 $exec 执行任一程序
 
-在 JS 中使用 $exec 执行 shell 命令，通过此方式可以在 JS 中调用其他任意语言的程序，比如运行 python 或 .sh 文件等，例如:
-
-``` JS $exec
-// example 1 执行 python 程序
-$exec('python test.py', {
-  cwd: './script/Shell',      // 命令执行目录
-  timeout: 5000,              // 设置 timeout。 0: 表示不限制
-  cb(data, error){
-    if (error) {
-      console.error(error)
-    } else {
-      console.log(data)
-    }
-  }
-})
-
-// example 2
-$exec('./hello.sh', {
-  cwd: './script/Shell',
-  env: {
-    name: 'elecV2P'
-  },
-  cb(data){
-    console.log(data)
-  }
-})
-
-// example 3, 会使用默认浏览器打开对应网页(windows 平台)
-$exec('start https://github.com/elecV2/elecV2P')
-```
-
-## 相关说明
-
-$exec 会调用系统默认程序执行相关文件，所以需提前安装好相关执行环境。
-比如，执行 **test.py**，需安装好 Python，并将 test.py 文件放置到 **cwd** 对应目录。
-
-$exec 执行效果类似于直接在命令行下的 cwd 目录执行相关指令。如果出现问题，使用系统自带命令行工具在对应目录下，测试命令是否可行。
-
-更多说明参考: [04-JS.md](https://github.com/elecV2/elecV2P-dei/tree/master/docs/04-JS.md) $exec 部分
-
-# 其他一些操作
+# 其他进阶操作
 
 - 开启 anyproxy 代理 websocket 请求: 在 script/Lists/config.json 中 anyproxy 部分添加
 
