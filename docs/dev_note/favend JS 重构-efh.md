@@ -247,3 +247,16 @@ CONTEXT.final.$fend = async function (key, fn) {
 - 其他类型数据 arrayBuffer/stream 等
 - $fend 后台无匹配时返回结果
 - $fend key/路由 配对优化
+
+### $fend.on('message', ()=>{}) 2022-07-31
+
+接收服务器端发送的数据，基于 sse
+
+*客户端服务器自动协商通信*（how?
+
+``` JS
+$fend.on = (event, fn)=>{
+
+}
+let ee = new EventSource('/sse/elecV2P/' + this.id)
+```

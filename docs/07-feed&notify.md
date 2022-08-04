@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-08-10
-适用版本: 3.4.5
+最近更新: 2022-08-04
+适用版本: 3.6.9
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/07-feed&notify.md
 ```
 
@@ -106,35 +106,26 @@ Github 地址：https://github.com/Finb/Bark
 
 ### 通知触发 JS
 
-具体触发的 JS 可在 webUI->SETTING 通知相关设置中填写。
 可实现的功能:
   - 过滤通知
   - 自定义个性化通知
   - 其他 JS 能做的事
-
-触发的 JS 默认带有三个变量 $title$, $body$, $url$，分别表示通知标题，内容和附带链接。
 
 v3.4.5 更改:
   - 通知触发的 JS 默认以 nodejs 兼容模式运行
   - 增加临时环境变量 $env.title/body/url
 
 ``` JS
-// 在通知触发的 JS 中可直接获取这三个参数
-console.log('通知触发的 JS，获取到的通知内容', $title$, $body$, $url$)
-
-// v3.4.5 增加临时环境变量 $env
+// 通过临时环境变量 $env.title/$env.body/$env.url 分别获取通知内容
 console.log('title:', $env.title, 'body:', $env.body, 'url:', $env.url)
 
 if ($env.title) {
-  // 相比于之前使用 $title$ 等的优势: 
-  // - 如果不是通知触发的 JS，结果是 undefined，但不会报错
-  // 推荐使用此种方式来获取通知内容
   console.log('通知触发的 JS', $env.title)
 }
 
 // 可以过滤通知或自定义其他通知方式
-if (/important/.test($title$)) {
-  mynotify($title$, $body$, $url$)
+if (/important/.test($env.title)) {
+  mynotify($env.title, $env.body, $env.url)
 }
 
 function mynotify(title, body, url) {
@@ -157,7 +148,7 @@ function mynotify(title, body, url) {
 
 ## 在 JS 调用通知模块
 
-**请提前在 webUI->SETTING 界面设置好通知相关参数**
+**请提前在 webUI->SETTING/设置相关 界面填写好通知参数**
 
 ### 关键字：$feed
 
@@ -178,9 +169,9 @@ $feed.bark('Bark notification', 'a bark notification', 'https://t.me/elecV2')
 // 发送一条自定义通知
 $feed.cust('elecV2P customize notification', `一条自定义通知。\na customize notification`, 'https://t.me/elecV2G')
 
-// 在通知关闭的情况下，在 title 开头添加 $enable$ 强制发送 (v3.2.8 添加功能)
+// 【已移除】 在通知关闭的情况下，在 title 开头添加 $enable$ 强制发送 (v3.2.8 添加功能)
+// v3.6.9 $enable$ 强制发送功能已移除
 $feed.bark('$enable$elecV2P 强制通知', '通过在 title 开头添加 $enable$ 强制发送的通知', 'https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/overview.png')
-// 开头的 $enable$ 字符串在实际通知中会被省略掉
 ```
 
 ### 其他说明
@@ -190,8 +181,3 @@ $feed.bark('$enable$elecV2P 强制通知', '通过在 title 开头添加 $enable
   - 默认 feed 通知不限制字符长度，不分段
   - 单独调用（$feed.ifttt/$feed.bark/$feed.cust）时也不分段通知
   - 只有默认通知和使用 **$feed.push**，在字符超过设定值时才会分段发送。该设定值可在 webUI->SETTING 界面修改，0 表示始终不分段
-
-- 当通知标题（title）以 **$enable$** 开头时，强制发送通知 (v3.2.8 添加功能)
-  - 必须是 **$** 字符 + 小写的 **enable**
-  - 仅在已设置好相关通知的 KEY 等参数时才有效
-  - 开头的 **$enable$** 字符串在实际发出通知时会被自动截取掉
