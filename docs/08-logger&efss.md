@@ -194,13 +194,14 @@ $done({
 
 一个同时包含前后端运行代码的 html 扩展格式，也可以说是一个文件协议或标准。基础结构如下：
 
-``` xml
+``` HTML
 <div>原来的 html 格式/标签/内容</div>
 <script type="text/javascript">
   console.log('原 html 页面中的 script 标签')
 </script>
 <!-- 上面为原 html 页面，下面为扩展部分 -->
-<script type="text/javascript" runon="elecV2P"><!-- v3.6.7 可简写为 <script favend> -->
+<!-- <script type="text/javascript" runon="elecV2P"> v3.6.7 版本之前的写法 -->
+<script favend>
   console.log('efh 文件的扩展部分')
 </script>
 ```
@@ -228,7 +229,7 @@ $done({
 
 在 EFFSS 页面，favend 中**类型**选择 **运行脚本**, 目标填写 efh 文件远程或本地地址（*本地文件可在 JSMANAGE 界面推送/上传/编辑*）
 
-``` XML
+``` HTML
 <h3>一个简单的 efh 格式示例文件</h3>
 <div><label>请求后台数据测试</label><button onclick="dataFetch()">获取</button></div>
 
@@ -250,9 +251,10 @@ $done({
 
 <script type="text/javascript" runon="elecV2P" srcf="favend.js">
   // 使用 runon="elecV2P" 属性来表示此部分是运行在后台的代码
+  // v3.6.7 版本后可直接简写为 <script favend>
   // 使用 src 属性表示使用服务器上的 JS 作为后台代码（支持远程
-  // 当有 src 属性时下面的代码无效（建议测试时去掉
-  // 后台 $fend 第一参数需与前端对应，第二参数为返回数据
+  // 当有 src 属性时标签内的代码无效
+  // 后台 $fend 第一参数需与前端对应，第二参数为返回给前端的数据
   $fend('data', {
     hello: 'elecV2P favend',
     data: $store.get('cookieKEY'),
@@ -264,20 +266,20 @@ $done({
 
 其他说明：
 - 无后台代码时直接返回前端内容
+- 直接运行 efh 脚本时，返回前端内容
 - 远程 efh 更新间隔和远程 JS 更新间隔同步
 - 如果 $done 提前执行，$fend 无效
-- 直接运行 efh 脚本时，返回前端内容
 - efh 前端暂时无法使用本地 JS/CSS 等（只能内嵌或远程
-- 其他 efh 脚本：https://github.com/elecV2/elecV2P-dei/tree/master/examples/JSTEST/efh
+- 其他 efh 示例脚本：https://github.com/elecV2/elecV2P-dei/tree/master/examples/JSTEST/efh
 
 待优化项：
 - 其他类型数据 arrayBuffer/stream 等
 - $fend 后台无匹配时返回结果
-- $fend key/路由 配对优化
 - 前后台数据的持续交互(?)
 - efh 前端调用本地 JS/CSS/图片 等
 
 优化完成：
+- $fend key/路由 配对优化
 - runJS 直接运行 efh 文件
 - 前后台更好/优雅的传输数据($fend（done
 - 缓存清理(done) $fend.clear();
