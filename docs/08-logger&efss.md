@@ -1,6 +1,6 @@
 ```
-最近更新: 2022-05-24
-适用版本: 3.6.7
+最近更新: 2022-09-19
+适用版本: 3.7.1
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/08-logger&efss.md
 ```
 
@@ -158,10 +158,10 @@ $done({
 // elecV2P 会把最终结果当作 body 输出，其他项使用默认参数
 ```
 
-favend 同时也接受 post/put 等网络请求，可在 body 中使用指定临时环境变量 env，比如:
+favend 也接受 post/put 等请求。支持在 body 中添加临时环境变量(env)参数，比如:
 
 ``` JS
-// 需提前在 EFSS 界面中设置好 favend 参数
+// 需提前在 EFSS 界面中设置好 favend 参数 envtest
 // 然后使用浏览器的开发者工具发送如下请求（也可以在 webUI->JSMANAGE 中模拟网络请求
 fetch('http://127.0.0.1/efss/envtest', {
   method: 'put',
@@ -207,34 +207,29 @@ $done({
 ```
 
 执行过程/基本原理:
-- 首次执行 .efh 文件时，使用 cheerio 模块将 efh 文件分离为**前端和后端**，并进行缓存
-- 然后当使用 Get 请求主页时，直接返回**前端**代码
-- 当收到其他请求时，执行**后端**代码并返回执行结果
-- v3.5.5 增加默认 $fend 函数用于前后端数据交互（具体参考 [04-JS.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md) 相关部分
-- v3.5.7 增加限制: Get 请求返回前端页面，Post 请求执行后台代码（数据交互
+- 首次执行 efh 文件时，将文件分离为**前端和后台**部分，并进行缓存
+- 然后当收到 POST 请求时，执行**后台部分**代码，返回执行结果
+- 当收到其他请求时，直接返回**前端 HTML** 页面
 
 优点:
 - 前后端代码同一页面，方便开发者统一管理
-- 结构更清晰，标签高亮（最初要解决的问题
+- 标签内代码高亮（最初要解决的问题
 - 沿用 html 语法，没有额外的学习成本
-
-缺点:
-- 前后端数据传输不够简洁（引入 $fend(v3.5.5)
-- script src 部分暂不支持使用本地文件
 
 #### efh 实战测试
 
 测试文件: https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/elecV2P.efh
 适用版本: v3.5.5
 
-在 EFFSS 页面，favend 中**类型**选择 **运行脚本**, 目标填写 efh 文件远程或本地地址（*本地文件可在 JSMANAGE 界面推送/上传/编辑*）
+在 EFSS 页面 favend 相关设置中添加新的规则，设置好名称和关键字，**类型** 选择 **运行脚本**, 目标填写 efh 文件远程或本地地址（*本地文件可在 webUI->JSMANAGE 脚本管理界面推送/上传/编辑*），然后点击保存(ctrl+s)，最后在操作栏中点击运行。
+
+#### efh 格式文件说明
 
 ``` HTML
 <h3>一个简单的 efh 格式示例文件</h3>
 <div><label>请求后台数据测试</label><button onclick="dataFetch()">获取</button></div>
 
 <script type="text/javascript">
-  // 前端部分可使用多个 script 标签引入远程 axios/vue/UI 框架等文件
   // $fend 默认函数用于前后端数据交互（本质为一个 fetch 的 post 请求
   function dataFetch() {
     $fend('data').then(res=>res.text())
@@ -248,12 +243,21 @@ $done({
     })
   }
 </script>
+<!-- 前端部分可以使用多个 script 标签
+使用 src 引入任意远程文件，比如：
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-<script type="text/javascript" runon="elecV2P" srcf="favend.js">
-  // 使用 runon="elecV2P" 属性来表示此部分是运行在后台的代码
-  // v3.6.7 版本后可直接简写为 <script favend>
-  // 使用 src 属性表示使用服务器上的 JS 作为后台代码（支持远程
-  // 当有 src 属性时标签内的代码无效
+(v3.7.1) 如需引入 elecV2P 服务器上的本地脚本，加上 /script 前缀，比如：
+<script src="/script/webhook.js"></script>
+支持多级目录，比如：
+<script src="/script/test/webhook.js"></script>
+前端 src 暂不支持使用相对目录，比如 src='./webhook.js' ，会提示脚本不存在
+-->
+
+<!-- 后台代码仅能使用一个 script 标签，如有其他多的标签将被当作前端代码处理
+使用 runon="elecV2P" 属性来表示此部分脚本是运行在后台的代码
+v3.6.7 之后可简写为 <script favend>  -->
+<script type="text/javascript" runon="elecV2P">
   // 后台 $fend 第一参数需与前端对应，第二参数为返回给前端的数据
   $fend('data', {
     hello: 'elecV2P favend',
@@ -262,23 +266,31 @@ $done({
   })
   $done('no $fend match');
 </script>
+<!-- 后台 script 标签同样支持 src 属性，比如：
+<script favend src="https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/favend.js"></script>
+
+后台 src 在引入 elecV2P 服务器上的本地脚本时，无需添加 /script 前缀，支持相对、绝对目录，比如：
+<script favend src="favend.js"></script>
+<script favend src="./0body.js"></script>
+// 相对目录，表示的是相对于当前 efh 文件
+<script favend src="/webhook.js"></script>
+// 绝对目录，表示的是服务器上的脚本根目录
 ```
 
 其他说明：
-- 无后台代码时直接返回前端内容
-- 直接运行 efh 脚本时，返回前端内容
+- 无后台代码时直接返回前端 html 内容
+- 直接运行 efh 脚本时，返回前端 html 内容
 - 远程 efh 更新间隔和远程 JS 更新间隔同步
-- 如果 $done 提前执行，$fend 无效
-- efh 前端暂时无法使用本地 JS/CSS 等（只能内嵌或远程
+- v3.5.5 增加默认 $fend 函数用于前后端数据交互（具体参考 [04-JS.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md) $fend 相关部分
 - 其他 efh 示例脚本：https://github.com/elecV2/elecV2P-dei/tree/master/examples/JSTEST/efh
 
 待优化项：
 - 其他类型数据 arrayBuffer/stream 等
 - $fend 后台无匹配时返回结果
 - 前后台数据的持续交互(?)
-- efh 前端调用本地 JS/CSS/图片 等
 
 优化完成：
+- efh 前端调用本地 JS/CSS/图片 等（part done
 - $fend key/路由 配对优化
 - runJS 直接运行 efh 文件
 - 前后台更好/优雅的传输数据($fend（done

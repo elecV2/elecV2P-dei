@@ -1,14 +1,16 @@
 ```
-最近更新： 2022-03-09
-适用版本： 3.6.1
+最近更新： 2022-09-06
+适用版本： 3.7.0
 ```
+
+*此章节内容同步自 [elecV2P Readme 文档](https://github.com/elecV2/elecV2P)*
 
 ## 简介
 
 elecV2P - customize personal network.
 一款基于 NodeJS，可通过 JS 修改网络请求，以及定时运行脚本或 SHELL 指令的网络工具。
 
-![](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/overview.png)
+![elecV2P overview/预览](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/overview.png)
 
 ### 基础功能
 
@@ -21,9 +23,13 @@ elecV2P - customize personal network.
 
 ***程序开放权限极大，建议局域网使用。公网部署（务必参考 [Advanced.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/Advanced.md)），风险自负***
 
+*elecV2P 所有文件及依赖总大小约 90 M。初始运行时内存占用约 90 M，运行 100 个定时任务时总内存占用约 150 M（仅供参考，不同软硬件条件下程序调用资源可能有所不同）*
+
+**在可使用 Docker 的情况下，推荐使用方法三进行安装**
+
 ### 方法一：直接 NODEJS 运行
 
-**nodejs 版本需大于 14.0.0 (node -v)**
+**需求 NODEJS 版本 (node -v) >= 14.17.0**
 
 ``` sh
 git clone https://github.com/elecV2/elecV2P.git
@@ -33,31 +39,39 @@ cd elecV2P
 yarn
 
 # elecV2P 默认以 pm2 的方式启动，需要先安装好 pm2
-# pm2 安装方式:
-# - 添加目录 elecV2P 所在目录/node_modules/.bin 到系统环境变量 PATH 中
-# - 或者直接执行 yarn global add pm2
+# pm2 的安装方式:
+# 1. 添加 elecV2P 所在目录/node_modules/.bin 到系统环境变量 PATH 中
+# 2. 或者直接执行 yarn global add pm2
 # 然后执行命令
 yarn start
 
-# 如果要使用基础方式启动，执行命令
+# 其他基础方式启动命令
 node index.js
 # 假如提示 80 端口不可用，尝试命令
-# PORT=8000 node index.js
-
-# 调试模式(webUI 端口为 12521，正常模式下端口为 80)
-yarn dev
-
-# 升级（【推荐使用自带的 softupdate.js 进行软更新升级】
-# 或者手动执行以下步骤
-# - 先备份好个人数据，比如 根证书，以及 efss、script/JSFile、Store、Lists、Shell 等文件夹
-# - （推荐在 webUI/efss 界面，右键对应文件夹，然后 zip 打包下载。）
-# - 然后在项目目录下执行命令 git pull，拉取最新的代码进行覆盖升级
-# - 最后再把备份好的文件上传/复制还原到之前的位置
+# windows 平台：
+# set PORT=8000 && node index.js
+# 其他平台：
+# PORT=8000 TZ=Asia/Shanghai node index.js
+## TZ=Asia/Shanghai 用于设置程序运行时区
 ```
 
-**【推荐使用的软更新升级文件 [softupdate.js](https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/softupdate.js) 】**
+#### 升级
 
-其他 PM2 相关指令
+方式一：使用 [softupdate.js](https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/softupdate.js) 软更新升级
+
+- 首先在 webUI/JSMANAGE 脚本管理中找到 softupdate.js 文件，假如不存在就远程推送或本地上传一下
+- 然后按照文件内的说明，根据自身需求更改 CONFIG 设置项
+- 最后点击测试运行即可
+
+方式二：手动升级（不推荐
+
+- 先备份好个人数据，比如 根证书，以及 efss、script/JSFile、Store、Lists、Shell 等文件夹
+- （推荐在 webUI/efss 界面，右键对应文件夹，然后 zip 打包下载。）
+- 然后在项目目录下执行命令 git pull，拉取最新的代码进行覆盖升级
+- 最后再把备份好的文件上传/复制还原到之前的位置
+
+### 其他 PM2 相关指令
+
 ``` sh
 pm2 stop elecV2P  # 停止 elecV2P
 pm2 stop all      # 停止所有程序
@@ -93,12 +107,13 @@ docker run --restart=always \
   -v /elecv2p/efss:/usr/local/app/efss \
   elecv2/elecv2p
 
-# -p/-v 对应环境参数 宿主参数:容器内参数
+# -p/-v 对应参数 宿主:容器
 # 如需更改默认的 80 端口，可在 -e 后面加上 PORT=8000
 # 升级 Docker 镜像（如果没有使用 -v 持久化存储，容器内数据会丢失，请提前备份）
 docker rm -f elecv2p           # 先删除旧的容器
 docker pull elecv2/elecv2p     # 再拉取新的镜像
 # 再使用之前的 docker run xxxx 命令重新启动一下
+# 如果拉取到的镜像不是最新的版本，请修改 Docker 当前使用的仓库地址
 ```
 
 - ARM32 平台如果出错，参考 [issues #78](https://github.com/elecV2/elecV2P/issues/78)
@@ -106,17 +121,22 @@ docker pull elecv2/elecv2p     # 再拉取新的镜像
 ### 方法三：DOCKER-COMPOSE （推荐）
 
 ``` sh
+# 创建 elecV2P 持久化数据保存目录
 mkdir /elecv2p && cd /elecv2p
-curl -sL https://git.io/JLw7s > docker-compose.yaml
+# 假如失败，请尝试在其他有权限的目录进行创建
+# 后面 docker-compose.yaml 映射目录保持和创建的目录一致
 
+# 下载 docker-compose.yaml 文件
+curl -sL https://git.io/JLw7s > docker-compose.yaml
+# 启动运行 elecV2P
 docker-compose up -d
 
 # 注意: 需提前安装好 docker-compose 管理器
-# 另外，默认把 80/8001/8002 端口分别映射成了 8100/8101/8102，以防出现端口占用的情况，访问时注意
-# 如果需要设置为其他端口，可以自行修改下面的内容然后手动保存
+# 默认将 80/8001/8002 端口分别映射到了宿主机的 8100/8101/8102 端口，以防出现占用的情况
+# 如果需要设置为其他端口，请自行修改 docker-compose.yaml 文件内容，然后重新启动
 ```
 
-或者将以下的内容手动保存为 docker-compose.yaml 文件。
+以下为 docker-compose.yaml 文件内容，可根据自身需求进行修改。
 
 ``` yaml
 version: '3.7'
@@ -140,10 +160,8 @@ services:
       - "/elecv2p/efss:/usr/local/app/efss"
 ```
 
-- 具体使用的映射端口和 volumes 目录，根据个人情况进行调整
-- 如需更改默认的 80 端口，在 environment 下添加一行: - PORT=8000
+修改后保存文件，然后在 docker-compose.yaml 文件所在目录下执行以下任一命令
 
-文件保存后，在 docker-compose.yaml 同目录下执行以下任一命令
 ``` sh
 # 直接启动（首次启动命令）
 docker-compose up -d
@@ -156,6 +174,7 @@ docker-compose pull elecv2p && docker-compose up -d
 - ARM32 平台如果出错，参考 [issues #78](https://github.com/elecV2/elecV2P/issues/78)
 
 其他 docker 相关指令
+
 ``` sh
 # 查看是否启动及对应端口
 docker ps
@@ -167,7 +186,7 @@ docker logs elecv2p -f
 ## 默认端口
 
 - 80：    webUI 后台管理界面。用于添加规则/管理脚本/定时任务/MITM 证书 等
-- 8001：  ANYPROXY HTTP代理端口。（*代理端口不是网页，不能通过浏览器直接访问*）
+- 8001：  ANYPROXY HTTP 代理端口。（*代理端口不是网页，不能通过浏览器直接访问*）
 - 8002：  ANYPROXY 代理请求查看端口
 
 **ANYPROXY 相关端口默认关闭。可在 webUI 首页双击 ANYPROXY 临时开启。**
