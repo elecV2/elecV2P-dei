@@ -72,9 +72,20 @@ case CACHE_PATH.has(request.pathname):
 
 仅在 event.request.mode === 'navigate' 的情况下发生
 
+### 问题记录
+
+- 白屏
+
+网络问题无加载，使用 cache first
+
+- PWA 不更新
+
+
+
 ### 参考资料
 
 https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers
 https://developer.chrome.com/docs/workbox/
 https://googlechrome.github.io/samples/service-worker/basic/
 https://web.dev/service-worker-lifecycle/
+https://phyks.me/2019/01/manage-expiration-of-cached-assets-with-service-worker-caching.html

@@ -1,10 +1,12 @@
 ```
-最近更新: 2022-04-06
-适用版本: 3.6.4
+最近更新: 2022-09-20
+适用版本: 3.7.1
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/09-webhook.md
 ```
 
-## 功能
+webhook 用于使用一个网络请求来调用 elecV2P 的部分功能
+
+## 可调用功能列表
 
 - 获取 JS 列表/运行 JS
 - 获取/删除 日志
@@ -100,6 +102,8 @@ fetch('/webhook', {   // 本地服务器可直接用 /webhook
 - **如果使用 PUT/POST 方式，body 应为对应的 JSON 格式**
 - **command 指令需先使用 encodeURI 进行编码**
 - **shell 执行默认 timeout 为 5000ms（以防出现服务器长时间无响应的问题）**
+
+- (v3.7.1 更新) 当 type 参数缺省，或对应参数不在列表中时，可使用脚本处理 payload（即 request body）。需在 webUI->SETTING 设置界面启用 WEBHOOK SCRIPT。此种方式触发的脚本，通过 **$env.payload** 变量来获取除 token 以外的所有 body 参数
 
 - (具体使用方法，参考下面的相关示例)
 
@@ -329,6 +333,23 @@ fetch('/webhook', {
     origin: '*',       // 设置全局 Access-Control-Allow-Origin 值
   })
 }).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
+
+// type 参数缺省，或对应参数不在列表中时，可使用脚本来处理 payload (v3.7.1)
+fetch('/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3', {
+  method: 'post',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    // type: 'cors',   // type 缺省
+    version: 14,       // payload(即 body 内容) 为其他未知值
+    some: 'value',
+  })
+}).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
+
+// 在 webUI SETTING 设置好 WEBHOOK SCRIPT 相关内容后，可在对应脚本中使用 $env.payload 来获取任意网络请求的 payload
+// 假如设置对应的脚本为 webhook.js ，webhook.js 的内容如下：
+// console.log('获取到的 payload', $env.payload);$done($env.payload);
 ```
 
 - 假如 elecV2P 可远程访问，可以使用使用其他任意程序发送网络请求进行调用
