@@ -1,5 +1,5 @@
 ```
-最近更新: 2022-09-19
+最近更新: 2022-09-24
 适用版本: 3.7.1
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/08-logger&efss.md
 ```
@@ -113,10 +113,13 @@ EFSS favorite&backend，用于快速打开/查看某个目录的文件(favorite)
 
 ### favend - favorite 收藏目录
 
-返回某个文件夹下的所有文件列表。
+列出某个文件夹下的所有文件。
 
 默认最大返回文件数 **1000**，可在 url 中使用 max 参数来进行更改，比如: **http://127.0.0.1/efss/logs?max=8**
+
 默认是否显示 dot(.) 开头文件共用 EFSS 中相关设置，也可以在 url 中使用参数 dotfiles 来设置，比如: **http://127.0.0.1/efss/logs?dotfiles=allow** (除 dotfiles=deny 外，其他任意值都表示 allow 允许)
+
+v3.7.1 后将在收藏目录下自动寻找 "index" 文件，默认为 **index.html**（不包含子目录）。比如收藏目录 x/blog 下存在文件 index.html，将直接显示 index.html 页面。可在 url 中使用 index 参数修改待查找的 index 文件，比如 **http://127.0.0.1/efss/blog/?index=main.html** (blog 后面须有斜杠/)，将会显示 main.html 页面（如果存在的话）。如果 index 文件不存在，将像之前一样返回所有文件列表。
 
 作用：
 
