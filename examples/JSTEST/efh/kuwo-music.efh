@@ -71,7 +71,15 @@
         margin-top: 5px;
       }
       .espan {
-        margin: 8px;
+        display: inline-block;
+        margin: 2px 8px;
+      }
+      .eli--down .espan {
+        min-width: 80px;
+        text-align: right;
+      }
+      .ehistory .espan {
+        cursor: pointer;
       }
       .ecenter {
         text-align: center;
@@ -125,19 +133,31 @@
     <script type="text/babel">
     // sublime 用户推荐安装 Package: Naomi 进行高亮显示
       // Todo:
-      // - skip download 提醒
-      // - 显示 总大小
-      // - 删除下载
-      // - 搜索历史
+      // - 删除已下载文件
+      // - sse id 优化
       // - 下载完播放测试
       // - 预览后选择下载
       // Done:
+      // - 搜索历史
+      // - 显示 总大小
+      // - skip download 提醒
       // - 下载目录设置
       // - 超时下载提醒
 
       const useState = React.useState
       const useEffect = React.useEffect
-
+      function kSize(size, k = 1024) {
+        if (size < k) {
+          return size + ' B'
+        }
+        if (size < k*k) {
+          return (size/k).toFixed(2) + ' K'
+        }
+        if (size < k*k*k) {
+          return (size/(k*k)).toFixed(2) + ' M'
+        }
+        return (size/(k*k*k)).toFixed(2) + ' G'
+      }
       function MyApp() {
         const [search, setSearch] = useState({ word: '', history: [] })
         const [reslist, setReslist] = useState([])
@@ -151,8 +171,8 @@
           setPage(0)
           setSubfold('')
         }
-        const statueUpdate = (name, status)=>{
-          setDownlist((prevList)=>(status ? { ...prevList, [name]: status } : { [name]: '0.00%', ...prevList }))
+        const statueUpdate = (name, { status, total })=>{
+          setDownlist((prevList)=>(status ? { ...prevList, [name]: { status, total } } : { [name]: { status: '0.00%', total }, ...prevList }))
         }
         const htmlDecode = input=> {
           const tagsToReplace = {
@@ -169,11 +189,11 @@
           // return doc.documentElement.textContent
         }
         const searchRes = ()=>{
-          const word = search.word, history = [word, ...search.history]
+          const word = search.word, history = [...new Set([word, ...search.history])]
           setSearch({ word, history })
           localStorage.setItem('search_history', JSON.stringify(history))
           const search_url = `http://search.kuwo.cn/r.s?all=${word}&ft=music&itemset=web_2013&client=kt&pn=${page}&rn=10&rformat=json&encoding=utf8`
-          console.log('search url:', search_url)
+          console.debug('search url:', search_url)
           fetch(`/data?type=stream&url=${encodeURIComponent(search_url)}`).then(res=>res.text()).then(res=>{
             let obj = (new Function("return " + res))();
             setReslist(obj.abslist.map(f=>[htmlDecode(f.ARTIST), htmlDecode(f.SONGNAME), f.MUSICRID]))
@@ -209,13 +229,15 @@
             }
             setResraw(`开始下载 ${name}...`)
             e.target.dataset.d = 'finish'
-            statueUpdate(name, 0)
+            statueUpdate(name, { status: 0, total: 0 })
             $fend('download', {
               name, url,
               // timeout: 6000,
             }).then(res=>res.text()).then(res=>{
               e.target.style.background = 'var(--green-bk)'
-              setResraw(`${name} 下载结果 ${res}`)
+              if (/skip download/.test(res)) {
+                statueUpdate(name, { status: '100%', total: '已存在，跳过下载' })
+              }
             }).catch(e=>{
               setResraw(`${name} 下载 error ${e.message}`)
               console.error(e)
@@ -223,11 +245,14 @@
             return
           }
           const search_url = `http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=${rid}&format=${e.target.dataset.type || 'mp3'}&response=url`
-          console.log('search:', rid)
           fetch(`/data?type=stream&url=${encodeURIComponent(search_url)}`).then(res=>res.text()).then(res=>{
             e.target.innerText = res
             e.target.dataset.m = 'download'
-            console.debug(res)
+            if (/^http:\/\//.test(res)) {
+              setResraw(`成功获取对应 URL，再次点击进行下载`)
+            } else {
+              setResraw(`没有找到 ${name} 对应资源`)
+            }
           }).catch(e=>{
             setResraw(`${search_url} error ${e.message}`)
             console.error(e)
@@ -240,11 +265,11 @@
             setSearch({ word: history[0] || '王菲', history })
             const ssevent = new EventSource('/sse/elecV2P/kuwodown');
             ssevent.onmessage = (event)=>{
-              const { name, dsize, total, finish } = JSON.parse(event.data);
-              if (finish) {
-                statueUpdate(name, kSize(total));
+              const { name, dsize, total, start } = JSON.parse(event.data);
+              if (start) {
+                statueUpdate(name, { status: 0, total });
               } else {
-                statueUpdate(name, (dsize/total*100).toFixed(2) + '%');
+                statueUpdate(name, { status: (dsize/total*100).toFixed(2) + '%', total });
               }
             }
             ssevent.onerror = (error)=>{
@@ -267,16 +292,15 @@
               <input class="yinput yinput--short" value={subfold} onChange={e=>setSubfold(e.target.value)} placeholder="子目录" />
             </div>
             <div className="ehistory">
-              <span className="espan">搜索历史：</span>
+              <span className="espan" onClick={()=>{setSearch({ ...search, history: [] });localStorage.removeItem('search_history')}}>搜索历史：</span>
               {
-                search.history.map(h=>(<span className="espan">{h}</span>))
+                search.history.map(h=>(<span className="espan" onClick={()=>setSearch({...search, word: h})}>{h}</span>))
               }
             </div>
             <ul className="eul">{reslist.map(item=>(
-              <li className="eli" key={item[2]}>
+              <li className="eli" key={item[2]} data-rid={item[2]}>
                 <span className="espan">{item[0]}</span>
                 <span className="espan">{item[1]}</span>
-                <span className="espan">{item[2]}</span>
                 <span className="espan geturl" data-type="mp3" onClick={e=>getUrl(e, item[1], item[2])}>获取 MP3</span>
                 <span className="espan geturl" data-type="mp4" onClick={e=>getUrl(e, item[1], item[2])}>获取 MP4</span>
               </li>
@@ -293,12 +317,18 @@
             <li className="eli ecenter" key="downlist">下载列表 {Object.keys(downlist).length}
               <button className="ybutton ybutton--h32" onClick={listClear}>清空</button>
             </li>
-            {Object.keys(downlist).map(key=>(
-              <li className="eli eli--down" style={{backgroundSize: downlist[key]}} key={key}>
-                <span>{key}</span>
-                <span>{downlist[key]}</span>
-              </li>
-            ))}
+            {Object.keys(downlist).map(key=>{
+              const { status, total } = downlist[key]
+              return (
+                <li className={'eli eli--down' + (typeof(total)!=='number'?' ebk--blue':'')} style={{backgroundSize: status}} key={key}>
+                  <span>{key}</span>
+                  <div className="downstatus">
+                    <span className="espan">{typeof(total)==='number'?kSize(total):total}</span>
+                    <span className="espan">{status}</span>
+                  </div>
+                </li>
+              )}
+            )}
           </ul>
         )
       }
@@ -322,7 +352,7 @@
         return (size/(k*k*k)).toFixed(2) + ' G'
       }
       $fend('download', data=>{
-        console.log('download name', data.name, 'url', data.url, data.timeout)
+        console.log('download name', data.name, 'url', data.url)
         return new Promise((resolve, reject)=>{
           $download(data.url, {
             folder: 'efss/music',
@@ -330,11 +360,11 @@
             existskip: true,
           }, (options)=>{
             // callback 函数
-            if (options.finish) {
-              $ws.sse('kuwodown', { name: options.name, finish: true, total: options.total })
+            if (options.start) {
+              $ws.sse('kuwodown', { name: options.name, start: options.start, total: Number(options.total) })
               console.log(`${options.name} 下载完成 ${options.total ? '总大小 ' + kSize(options.total) : ''}`)
-            } else {
-              $ws.sse('kuwodown', { name: options.name, dsize: options.dsize, total: options.total })
+            } else if (!options.finish) {
+              $ws.sse('kuwodown', { name: options.name, dsize: options.dsize, total: Number(options.total) })
               options.chunk % 100 === 0 && console.log(`${options.name} ${options.chunk } ${kSize(options.dsize)}/${kSize(options.total)}\x1b[J`)
             }
           })
