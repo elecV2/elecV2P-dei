@@ -1,0 +1,347 @@
+<!-- 适用于 elecV2P v3.7.2 及以上版本 -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Kuwo music download</title>
+    <style type="text/css">
+      :root {
+        --main-bk: #003153;
+        --main-fc: #FAFAFD;
+        --main-cl: #2890EE;
+        --secd-bk: #2890EEB8;
+        --secd-fc: #003153B8;
+        --green-bk: #66FF0088;
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #app {
+        width: 100%;
+        min-height: 100vh;
+        padding: 0.5em;
+        box-sizing: border-box;
+        word-break: break-all;
+        color: var(--main-fc);
+        background-color: var(--main-bk);
+      }
+
+      .yflex {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+      }
+      .yflex_f1 {
+        flex: 1;
+      }
+
+      .eul {
+        list-style: none;
+        padding: 0;
+        margin: 8px 0;
+        border-top: 1px solid;
+      }
+      .eli {
+        border-bottom: 1px solid;
+        padding: 5px 0px;
+      }
+      .ebk--green {
+        background: var(--green-bk);
+      }
+      .ebk--blue {
+        background: var(--secd-bk);
+      }
+      .eli--down {
+        display: flex;
+        justify-content: space-between;
+        background-image: linear-gradient(to right, var(--green-bk), var(--green-bk));
+        background-repeat: no-repeat;
+        transition: background-size 1s linear;
+      }
+      .eres {
+        background: var(--main-fc);
+        color: var(--main-cl);
+        padding: 3px;
+      }
+      .ehistory {
+        text-align: center;
+        margin-top: 5px;
+      }
+      .espan {
+        margin: 8px;
+      }
+      .ecenter {
+        text-align: center;
+      }
+      .geturl {
+        background: var(--main-cl);
+        padding: 0 8px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .yselect, .yinput {
+        height: 40px;
+        min-width: 80px;
+        font-size: 20px;
+        border-radius: 8px;
+        padding: 0 6px;
+        color: var(--main-cl);
+        border: none;
+        box-sizing: border-box;
+        font-family: var(--font-fm);
+      }
+      .yselect--short, .yinput--short {
+        width: 80px;
+        margin: 0 0.5em;
+      }
+
+      .ybutton {
+        width: 120px;
+        height: 40px;
+        border: none;
+        border-radius: 0.5em;
+        font-size: 20px;
+        color: var(--main-fc);
+        background: var(--main-cl);
+        cursor: pointer;
+      }
+      .ybutton--h32 {
+        height: 32px;
+        margin-left: 1em;
+      }
+    </style>
+    <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Don't use this in production: -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="text/babel">
+    // sublime 用户推荐安装 Package: Naomi 进行高亮显示
+      // Todo:
+      // - skip download 提醒
+      // - 显示 总大小
+      // - 删除下载
+      // - 搜索历史
+      // - 下载完播放测试
+      // - 预览后选择下载
+      // Done:
+      // - 下载目录设置
+      // - 超时下载提醒
+
+      const useState = React.useState
+      const useEffect = React.useEffect
+
+      function MyApp() {
+        const [search, setSearch] = useState({ word: '', history: [] })
+        const [reslist, setReslist] = useState([])
+        const [resraw, setResraw] = useState('')
+        const [page, setPage] = useState(0)
+        const [downlist, setDownlist] = useState({})
+        const [subfold, setSubfold] = useState('')
+
+        const handleChange = (e)=>{
+          setSearch({ word: e.target.value, history: search.history })
+          setPage(0)
+          setSubfold('')
+        }
+        const statueUpdate = (name, status)=>{
+          setDownlist((prevList)=>(status ? { ...prevList, [name]: status } : { [name]: '0.00%', ...prevList }))
+        }
+        const htmlDecode = input=> {
+          const tagsToReplace = {
+            '&amp;': '&',
+            '&lt;': '《',
+            '&gt;': '》',
+            '&nbsp;': ' ',
+            '&quot;': '"',
+            '?': '？',
+            '&apos;': '\'',
+          }
+          return input.replace(/&nbsp;|&amp;|&lt;|&gt;|&quot;|\?|&apos;/g, tag=>tagsToReplace[tag] || tag);
+          // const doc = new DOMParser().parseFromString(input, "text/html")
+          // return doc.documentElement.textContent
+        }
+        const searchRes = ()=>{
+          const word = search.word, history = [word, ...search.history]
+          setSearch({ word, history })
+          localStorage.setItem('search_history', JSON.stringify(history))
+          const search_url = `http://search.kuwo.cn/r.s?all=${word}&ft=music&itemset=web_2013&client=kt&pn=${page}&rn=10&rformat=json&encoding=utf8`
+          console.log('search url:', search_url)
+          fetch(`/data?type=stream&url=${encodeURIComponent(search_url)}`).then(res=>res.text()).then(res=>{
+            let obj = (new Function("return " + res))();
+            setReslist(obj.abslist.map(f=>[htmlDecode(f.ARTIST), htmlDecode(f.SONGNAME), f.MUSICRID]))
+            if (obj.abslist.length) {
+              setPage(Number(page)+1)
+            } else {
+              setResraw(`没有找到相关数据`)
+            }
+          }).catch(e=>{
+            setResraw(`${search_url} error ${e.message}`)
+            console.error(e)
+          })
+        }
+        const getUrl = (e, name, rid)=>{
+          if (e.target.dataset.d === 'finish') {
+            setResraw(`${name} 已下载`)
+            return
+          }
+          if (e.target.dataset.d === 'start') {
+            setResraw(`${name} 下载中`)
+            return
+          }
+          if (e.target.dataset.m) {
+            e.target.dataset.d = 'start'
+            const url = e.target.innerText
+            if (!/^http:\/\//.test(url)) {
+              setResraw(`${url} 并不是 http 链接`)
+              return
+            }
+            name += '.' + url.split('.').pop()
+            if (subfold) {
+              name = `${subfold}/${name}`
+            }
+            setResraw(`开始下载 ${name}...`)
+            e.target.dataset.d = 'finish'
+            statueUpdate(name, 0)
+            $fend('download', {
+              name, url,
+              // timeout: 6000,
+            }).then(res=>res.text()).then(res=>{
+              e.target.style.background = 'var(--green-bk)'
+              setResraw(`${name} 下载结果 ${res}`)
+            }).catch(e=>{
+              setResraw(`${name} 下载 error ${e.message}`)
+              console.error(e)
+            })
+            return
+          }
+          const search_url = `http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=${rid}&format=${e.target.dataset.type || 'mp3'}&response=url`
+          console.log('search:', rid)
+          fetch(`/data?type=stream&url=${encodeURIComponent(search_url)}`).then(res=>res.text()).then(res=>{
+            e.target.innerText = res
+            e.target.dataset.m = 'download'
+            console.debug(res)
+          }).catch(e=>{
+            setResraw(`${search_url} error ${e.message}`)
+            console.error(e)
+          })
+        }
+
+        useEffect(
+          ()=>{
+            const history = JSON.parse(localStorage.getItem('search_history')||'[]')
+            setSearch({ word: history[0] || '王菲', history })
+            const ssevent = new EventSource('/sse/elecV2P/kuwodown');
+            ssevent.onmessage = (event)=>{
+              const { name, dsize, total, finish } = JSON.parse(event.data);
+              if (finish) {
+                statueUpdate(name, kSize(total));
+              } else {
+                statueUpdate(name, (dsize/total*100).toFixed(2) + '%');
+              }
+            }
+            ssevent.onerror = (error)=>{
+              ssevent.close();
+              console.error('sse close', error);
+              setResraw('sse close ' + error.message);
+            }
+          }, []
+        )
+        return (
+          <>
+            <div className="yflex">
+              <input className="yinput yflex_f1" value={search.word} onChange={handleChange} onKeyDown={(e)=>{
+                if (e.keyCode === 13) {
+                  searchRes()
+                }
+              }}/>
+              <input class="yinput yinput--short" type="number" value={page} onChange={e=>setPage(e.target.value)} />
+              <button onClick={searchRes} className="ybutton">SEARCH</button>
+              <input class="yinput yinput--short" value={subfold} onChange={e=>setSubfold(e.target.value)} placeholder="子目录" />
+            </div>
+            <div className="ehistory">
+              <span className="espan">搜索历史：</span>
+              {
+                search.history.map(h=>(<span className="espan">{h}</span>))
+              }
+            </div>
+            <ul className="eul">{reslist.map(item=>(
+              <li className="eli" key={item[2]}>
+                <span className="espan">{item[0]}</span>
+                <span className="espan">{item[1]}</span>
+                <span className="espan">{item[2]}</span>
+                <span className="espan geturl" data-type="mp3" onClick={e=>getUrl(e, item[1], item[2])}>获取 MP3</span>
+                <span className="espan geturl" data-type="mp4" onClick={e=>getUrl(e, item[1], item[2])}>获取 MP4</span>
+              </li>
+            ))}</ul>
+            <div className="eres">{resraw}</div>
+            <DownList downlist={downlist} listClear={()=>setDownlist({})} />
+          </>
+        )
+      }
+
+      function DownList({ downlist, listClear }){
+        return (
+          <ul className="eul">
+            <li className="eli ecenter" key="downlist">下载列表 {Object.keys(downlist).length}
+              <button className="ybutton ybutton--h32" onClick={listClear}>清空</button>
+            </li>
+            {Object.keys(downlist).map(key=>(
+              <li className="eli eli--down" style={{backgroundSize: downlist[key]}} key={key}>
+                <span>{key}</span>
+                <span>{downlist[key]}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      const app = document.getElementById('app');
+      const root = ReactDOM.createRoot(app);
+      root.render(<MyApp />);
+    </script>
+    <script favend>
+      console.clear()
+      function kSize(size, k = 1024) {
+        if (size < k) {
+          return size + ' B'
+        }
+        if (size < k*k) {
+          return (size/k).toFixed(2) + ' K'
+        }
+        if (size < k*k*k) {
+          return (size/(k*k)).toFixed(2) + ' M'
+        }
+        return (size/(k*k*k)).toFixed(2) + ' G'
+      }
+      $fend('download', data=>{
+        console.log('download name', data.name, 'url', data.url, data.timeout)
+        return new Promise((resolve, reject)=>{
+          $download(data.url, {
+            folder: 'efss/music',
+            name: data.name,
+            existskip: true,
+          }, (options)=>{
+            // callback 函数
+            if (options.finish) {
+              $ws.sse('kuwodown', { name: options.name, finish: true, total: options.total })
+              console.log(`${options.name} 下载完成 ${options.total ? '总大小 ' + kSize(options.total) : ''}`)
+            } else {
+              $ws.sse('kuwodown', { name: options.name, dsize: options.dsize, total: options.total })
+              options.chunk % 100 === 0 && console.log(`${options.name} ${options.chunk } ${kSize(options.dsize)}/${kSize(options.total)}\x1b[J`)
+            }
+          })
+          .then(d=>resolve('success ' + d))
+          .catch(e=>resolve(e.message || e))
+        })
+      })
+    </script>
+  </body>
+</html>

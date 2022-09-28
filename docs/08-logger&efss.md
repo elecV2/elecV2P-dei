@@ -103,6 +103,8 @@ elecV2P 文件管理系统
 
 EFSS favorite&backend，用于快速打开/查看某个目录的文件(favorite)，以及将脚本作为 backend 返回执行结果。
 
+可以简单理解为 favorite 返回系统静态文件，backend 返回脚本动态生成的“文件”。
+
 ![favend](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/favend.png)
 
 其中关键字表示 favend 访问路径，比如: **http://127.0.0.1/efss/test**, **http://127.0.0.1/efss/cloudbk**
