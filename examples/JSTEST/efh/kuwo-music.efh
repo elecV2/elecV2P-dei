@@ -1,4 +1,5 @@
-<!-- 适用于 elecV2P v3.7.2 及以上版本 -->
+<!-- 适用于 elecV2P v3.7.2 及以上版本  -->
+<!-- 脚本仅供测试使用，请勿用于其他用途 -->
 <!DOCTYPE html>
 <html>
   <head>
@@ -29,7 +30,7 @@
         background-color: var(--main-bk);
       }
 
-      .yflex {
+      .eflex {
         display: flex;
         align-items: center;
         justify-content: space-around;
@@ -47,12 +48,6 @@
       .eli {
         border-bottom: 1px solid;
         padding: 5px 0px;
-      }
-      .ebk--green {
-        background: var(--green-bk);
-      }
-      .ebk--blue {
-        background: var(--secd-bk);
       }
       .eli--down {
         display: flex;
@@ -74,15 +69,20 @@
         display: inline-block;
         margin: 2px 8px;
       }
+      .espan--border {
+        border: 2px solid var(--main-cl);
+        padding: 2px 8px;
+        margin: 2px;
+        border-radius: 8px;
+        color: var(--main-fc);
+        text-decoration: none;
+      }
       .eli--down .espan {
         min-width: 80px;
         text-align: right;
       }
-      .ehistory .espan {
+      .ehistory .espan, .ecursor {
         cursor: pointer;
-      }
-      .ecenter {
-        text-align: center;
       }
       .geturl {
         background: var(--main-cl);
@@ -116,9 +116,17 @@
         background: var(--main-cl);
         cursor: pointer;
       }
-      .ybutton--h32 {
+      .ybutton--h36 {
+        height: 36px;
+      }
+      .ebk--green {
+        background: var(--green-bk);
+      }
+      .ebk--blue {
+        background: var(--secd-bk);
+      }
+      .epreview {
         height: 32px;
-        margin-left: 1em;
       }
     </style>
     <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
@@ -134,10 +142,10 @@
     // sublime 用户推荐安装 Package: Naomi 进行高亮显示
       // Todo:
       // - 删除已下载文件
-      // - sse id 优化
-      // - 下载完播放测试
       // - 预览后选择下载
       // Done:
+      // - 下载完播放测试
+      // - sse id 优化
       // - 搜索历史
       // - 显示 总大小
       // - skip download 提醒
@@ -158,6 +166,21 @@
         }
         return (size/(k*k*k)).toFixed(2) + ' G'
       }
+      function htmlDecode(input) {
+        const tagsToReplace = {
+          '&amp;': '&',
+          '&lt;': '《',
+          '&gt;': '》',
+          '&nbsp;': ' ',
+          '&quot;': '"',
+          '?': '？',
+          '&apos;': '\'',
+        }
+        return input.replace(/&nbsp;|&amp;|&lt;|&gt;|&quot;|\?|&apos;/g, tag=>tagsToReplace[tag] || tag);
+      }
+      const CONFIG = {
+        sseid: 'kuwodown_' + Date.now()
+      }
       function MyApp() {
         const [search, setSearch] = useState({ word: '', history: [] })
         const [reslist, setReslist] = useState([])
@@ -173,20 +196,6 @@
         }
         const statueUpdate = (name, { status, total })=>{
           setDownlist((prevList)=>(status ? { ...prevList, [name]: { status, total } } : { [name]: { status: '0.00%', total }, ...prevList }))
-        }
-        const htmlDecode = input=> {
-          const tagsToReplace = {
-            '&amp;': '&',
-            '&lt;': '《',
-            '&gt;': '》',
-            '&nbsp;': ' ',
-            '&quot;': '"',
-            '?': '？',
-            '&apos;': '\'',
-          }
-          return input.replace(/&nbsp;|&amp;|&lt;|&gt;|&quot;|\?|&apos;/g, tag=>tagsToReplace[tag] || tag);
-          // const doc = new DOMParser().parseFromString(input, "text/html")
-          // return doc.documentElement.textContent
         }
         const searchRes = ()=>{
           const word = search.word, history = [...new Set([word, ...search.history])]
@@ -228,15 +237,16 @@
               name = `${subfold}/${name}`
             }
             setResraw(`开始下载 ${name}...`)
-            e.target.dataset.d = 'finish'
             statueUpdate(name, { status: 0, total: 0 })
             $fend('download', {
               name, url,
+              sseid: CONFIG.sseid,
               // timeout: 6000,
             }).then(res=>res.text()).then(res=>{
+              e.target.dataset.d = 'finish'
               e.target.style.background = 'var(--green-bk)'
               if (/skip download/.test(res)) {
-                statueUpdate(name, { status: '100%', total: '已存在，跳过下载' })
+                statueUpdate(name, { status: '100.00%', total: '已存在，跳过下载' })
               }
             }).catch(e=>{
               setResraw(`${name} 下载 error ${e.message}`)
@@ -263,7 +273,7 @@
           ()=>{
             const history = JSON.parse(localStorage.getItem('search_history')||'[]')
             setSearch({ word: history[0] || '王菲', history })
-            const ssevent = new EventSource('/sse/elecV2P/kuwodown');
+            const ssevent = new EventSource('/sse/elecV2P/' + CONFIG.sseid);
             ssevent.onmessage = (event)=>{
               const { name, dsize, total, start } = JSON.parse(event.data);
               if (start) {
@@ -281,7 +291,7 @@
         )
         return (
           <>
-            <div className="yflex">
+            <div className="eflex">
               <input className="yinput yflex_f1" value={search.word} onChange={handleChange} onKeyDown={(e)=>{
                 if (e.keyCode === 13) {
                   searchRes()
@@ -312,10 +322,14 @@
       }
 
       function DownList({ downlist, listClear }){
+        const [preurl, setPreurl] = useState('')
         return (
           <ul className="eul">
-            <li className="eli ecenter" key="downlist">下载列表 {Object.keys(downlist).length}
-              <button className="ybutton ybutton--h32" onClick={listClear}>清空</button>
+            <li className="eli eflex" key="downlist">
+              {preurl && <audio className="epreview" src={preurl} autoplay="true" controls></audio>}
+              <span className="espan--border">下载列表 {Object.keys(downlist).length}</span>
+              <button className="ybutton ybutton--h36" onClick={listClear}>清空</button>
+              <a className="espan--border" href="/efss/" target="elecV2PEFSS">EFSS/music 查看全部</a>
             </li>
             {Object.keys(downlist).map(key=>{
               const { status, total } = downlist[key]
@@ -323,6 +337,17 @@
                 <li className={'eli eli--down' + (typeof(total)!=='number'?' ebk--blue':'')} style={{backgroundSize: status}} key={key}>
                   <span>{key}</span>
                   <div className="downstatus">
+                    {status==='100.00%' && <sapn className="ecursor" onClick={(e)=>{
+                      if (e.target.innerText === '⏵') {
+                        setPreurl('/efss/music/'+key)
+                        document.title = key + ' - elecV2P Player'
+                        e.target.innerText = '⏸︎'
+                      } else {
+                        e.target.innerText = '⏵'
+                        document.title = 'kuwo music download'
+                        setPreurl('')
+                      }
+                    }}>⏵</sapn>}
                     <span className="espan">{typeof(total)==='number'?kSize(total):total}</span>
                     <span className="espan">{status}</span>
                   </div>
@@ -353,6 +378,7 @@
       }
       $fend('download', data=>{
         console.log('download name', data.name, 'url', data.url)
+        const sseid = data.sseid
         return new Promise((resolve, reject)=>{
           $download(data.url, {
             folder: 'efss/music',
@@ -361,10 +387,10 @@
           }, (options)=>{
             // callback 函数
             if (options.start) {
-              $ws.sse('kuwodown', { name: options.name, start: options.start, total: Number(options.total) })
+              $ws.sse(sseid || 'kuwodown', { name: options.name, start: options.start, total: Number(options.total) })
               console.log(`${options.name} 下载完成 ${options.total ? '总大小 ' + kSize(options.total) : ''}`)
             } else if (!options.finish) {
-              $ws.sse('kuwodown', { name: options.name, dsize: options.dsize, total: Number(options.total) })
+              $ws.sse(sseid || 'kuwodown', { name: options.name, dsize: options.dsize, total: Number(options.total) })
               options.chunk % 100 === 0 && console.log(`${options.name} ${options.chunk } ${kSize(options.dsize)}/${kSize(options.total)}\x1b[J`)
             }
           })
