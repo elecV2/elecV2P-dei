@@ -337,7 +337,7 @@
                 <li className={'eli eli--down' + (typeof(total)!=='number'?' ebk--blue':'')} style={{backgroundSize: status}} key={key}>
                   <span>{key}</span>
                   <div className="downstatus">
-                    {status==='100.00%' && <sapn className="ecursor" onClick={(e)=>{
+                    {status==='100.00%' && <sapn className="espan ecursor" onClick={(e)=>{
                       if (e.target.innerText === '⏵') {
                         setPreurl('/efss/music/'+key)
                         document.title = key + ' - elecV2P Player'
