@@ -1,4 +1,4 @@
-<!-- 适用于 elecV2P v3.7.2 及以上版本  -->
+<!-- 适用于 elecV2P v3.7.2 及以上版本 -->
 <!-- 脚本仅供测试使用，请勿用于其他用途 -->
 <!DOCTYPE html>
 <html>
@@ -10,8 +10,8 @@
         --main-bk: #003153;
         --main-fc: #FAFAFD;
         --main-cl: #2890EE;
+        --note-bk: #EF7A82;
         --secd-bk: #2890EEB8;
-        --secd-fc: #003153B8;
         --green-bk: #66FF0088;
       }
 
@@ -122,6 +122,9 @@
       .ebk--green {
         background: var(--green-bk);
       }
+      .ebk--note {
+        background-color: var(--note-bk);
+      }
       .ebk--blue {
         background: var(--secd-bk);
       }
@@ -144,6 +147,8 @@
       // - 删除已下载文件
       // - 预览后选择下载
       // Done:
+      // - sse 断开重连提醒
+      // - 删除单个搜索历史
       // - 下载完播放测试
       // - sse id 优化
       // - 搜索历史
@@ -168,15 +173,17 @@
       }
       function htmlDecode(input) {
         const tagsToReplace = {
+          '&nbsp;': ' ',
           '&amp;': '&',
+          '&lt;em&gt;': '',
+          '&lt;/em&gt;': '',
           '&lt;': '《',
           '&gt;': '》',
-          '&nbsp;': ' ',
           '&quot;': '"',
           '?': '？',
           '&apos;': '\'',
         }
-        return input.replace(/&nbsp;|&amp;|&lt;|&gt;|&quot;|\?|&apos;/g, tag=>tagsToReplace[tag] || tag);
+        return input.replace(/&nbsp;|&amp;|&lt;em&gt;|&lt;\/em&gt;|&lt;|&gt;|&quot;|\?|&apos;/g, tag=>tagsToReplace[tag] ?? tag);
       }
       const CONFIG = {
         sseid: 'kuwodown_' + Date.now()
@@ -186,7 +193,6 @@
         const [reslist, setReslist] = useState([])
         const [resraw, setResraw] = useState('')
         const [page, setPage] = useState(0)
-        const [downlist, setDownlist] = useState({})
         const [subfold, setSubfold] = useState('')
 
         const handleChange = (e)=>{
@@ -194,22 +200,21 @@
           setPage(0)
           setSubfold('')
         }
-        const statueUpdate = (name, { status, total })=>{
-          setDownlist((prevList)=>(status ? { ...prevList, [name]: { status, total } } : { [name]: { status: '0.00%', total }, ...prevList }))
-        }
         const searchRes = ()=>{
           const word = search.word, history = [...new Set([word, ...search.history])]
           setSearch({ word, history })
           localStorage.setItem('search_history', JSON.stringify(history))
           const search_url = `http://search.kuwo.cn/r.s?all=${word}&ft=music&itemset=web_2013&client=kt&pn=${page}&rn=10&rformat=json&encoding=utf8`
           console.debug('search url:', search_url)
+          setResraw(`正在搜索 ${word}...`)
           fetch(`/data?type=stream&url=${encodeURIComponent(search_url)}`).then(res=>res.text()).then(res=>{
             let obj = (new Function("return " + res))();
             setReslist(obj.abslist.map(f=>[htmlDecode(f.ARTIST), htmlDecode(f.SONGNAME), f.MUSICRID]))
             if (obj.abslist.length) {
               setPage(Number(page)+1)
+              setResraw(`成功获取 ${word} 相关搜索结果`)
             } else {
-              setResraw(`没有找到相关数据`)
+              setResraw(`没有找到 ${word} 相关数据`)
             }
           }).catch(e=>{
             setResraw(`${search_url} error ${e.message}`)
@@ -236,17 +241,16 @@
             if (subfold) {
               name = `${subfold}/${name}`
             }
-            setResraw(`开始下载 ${name}...`)
-            statueUpdate(name, { status: 0, total: 0 })
+            setResraw(`准备下载 ${name}...`)
             $fend('download', {
               name, url,
               sseid: CONFIG.sseid,
-              // timeout: 6000,
+              timeout: 15000,
             }).then(res=>res.text()).then(res=>{
               e.target.dataset.d = 'finish'
               e.target.style.background = 'var(--green-bk)'
-              if (/skip download/.test(res)) {
-                statueUpdate(name, { status: '100.00%', total: '已存在，跳过下载' })
+              if (!/still running/.test(res)) {
+                setResraw(`${name} 下载结果 ${res}`)
               }
             }).catch(e=>{
               setResraw(`${name} 下载 error ${e.message}`)
@@ -255,13 +259,15 @@
             return
           }
           const search_url = `http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=${rid}&format=${e.target.dataset.type || 'mp3'}&response=url`
+          setResraw(`${name} 资源链接获取中...`)
           fetch(`/data?type=stream&url=${encodeURIComponent(search_url)}`).then(res=>res.text()).then(res=>{
+            const type = e.target.innerText
             e.target.innerText = res
             e.target.dataset.m = 'download'
             if (/^http:\/\//.test(res)) {
-              setResraw(`成功获取对应 URL，再次点击进行下载`)
+              setResraw(`成功获取 ${name} ${type} 资源链接，再次点击进行下载`)
             } else {
-              setResraw(`没有找到 ${name} 对应资源`)
+              setResraw(`没有找到 ${name} ${type} 对应资源`)
             }
           }).catch(e=>{
             setResraw(`${search_url} error ${e.message}`)
@@ -273,20 +279,6 @@
           ()=>{
             const history = JSON.parse(localStorage.getItem('search_history')||'[]')
             setSearch({ word: history[0] || '王菲', history })
-            const ssevent = new EventSource('/sse/elecV2P/' + CONFIG.sseid);
-            ssevent.onmessage = (event)=>{
-              const { name, dsize, total, start } = JSON.parse(event.data);
-              if (start) {
-                statueUpdate(name, { status: 0, total });
-              } else {
-                statueUpdate(name, { status: (dsize/total*100).toFixed(2) + '%', total });
-              }
-            }
-            ssevent.onerror = (error)=>{
-              ssevent.close();
-              console.error('sse close', error);
-              setResraw('sse close ' + error.message);
-            }
           }, []
         )
         return (
@@ -297,44 +289,92 @@
                   searchRes()
                 }
               }}/>
-              <input class="yinput yinput--short" type="number" value={page} onChange={e=>setPage(e.target.value)} />
+              <input class="yinput yinput--short" type="number" value={page} onChange={e=>setPage(e.target.value)} placeholder="page" />
               <button onClick={searchRes} className="ybutton">SEARCH</button>
-              <input class="yinput yinput--short" value={subfold} onChange={e=>setSubfold(e.target.value)} placeholder="子目录" />
+              <input class="yinput yinput--short" value={subfold} onChange={e=>setSubfold(e.target.value)} placeholder="子目录" title="文件保存子目录" />
             </div>
             <div className="ehistory">
               <span className="espan" onClick={()=>{setSearch({ ...search, history: [] });localStorage.removeItem('search_history')}}>搜索历史：</span>
               {
-                search.history.map(h=>(<span className="espan" onClick={()=>setSearch({...search, word: h})}>{h}</span>))
+                search.history.map(h=>(<span className="espan" onClick={()=>{
+                  const idx = search.history.indexOf(h)
+                  search.history.splice(idx, 1)
+                  setSearch({ word: h, history: [...search.history] })
+                }}>{h}</span>))
               }
             </div>
             <ul className="eul">{reslist.map(item=>(
               <li className="eli" key={item[2]} data-rid={item[2]}>
                 <span className="espan">{item[0]}</span>
                 <span className="espan">{item[1]}</span>
-                <span className="espan geturl" data-type="mp3" onClick={e=>getUrl(e, item[1], item[2])}>获取 MP3</span>
-                <span className="espan geturl" data-type="mp4" onClick={e=>getUrl(e, item[1], item[2])}>获取 MP4</span>
+                <span className="espan geturl" data-type="mp3" onClick={e=>getUrl(e, item[1], item[2])}>MP3</span>
+                <span className="espan geturl" data-type="mp4" onClick={e=>getUrl(e, item[1], item[2])}>MP4</span>
               </li>
             ))}</ul>
             <div className="eres">{resraw}</div>
-            <DownList downlist={downlist} listClear={()=>setDownlist({})} />
+            <DownList setResraw={setResraw} />
           </>
         )
       }
 
-      function DownList({ downlist, listClear }){
+      function DownList({ setResraw }){
         const [preurl, setPreurl] = useState('')
+        const [downlist, setDownlist] = useState({})
+
+        const statueUpdate = (name, { status, total, skip })=>{
+          setDownlist((prevList)=>((status && !skip) ? { ...prevList, [name]: { status, total } } : { [name]: { status: status||'0.00%', total, skip }, ...prevList }))
+        }
+        const sseNew = (sid = CONFIG.sseid)=>{
+          if (!sid) {
+            CONFIG.sseid = 'kuwodown_' + Date.now();
+            sid = CONFIG.sseid
+          }
+          const ssevent = new EventSource('/sse/elecV2P/' + sid);
+          ssevent.onopen = (event) => {
+            setResraw('elecV2P SSE 连接成功')
+          }
+          ssevent.onmessage = (event)=>{
+            const { name, dsize, total, start, skip, type } = JSON.parse(event.data);
+            if (type === 'init') {
+              // SSE 初始连接返回的数据 { type, data }
+              return;
+            }
+            if (skip) {
+              statueUpdate(name, { status: '100.00%', total: '已存在，跳过下载', skip: true });
+            } else if (start) {
+              statueUpdate(name, { status: 0, total });
+            } else {
+              statueUpdate(name, { status: (dsize/total*100).toFixed(2) + '%', total });
+            }
+          }
+          ssevent.onerror = (error)=>{
+            ssevent.close();
+            CONFIG.sseid = '';
+            console.error('sse close', error);
+            setResraw(`SSE 已断开, 无法接收后台文件下载进度`);
+          }
+        }
+        useEffect(sseNew, [])
         return (
           <ul className="eul">
             <li className="eli eflex" key="downlist">
               {preurl && <audio className="epreview" src={preurl} autoplay="true" controls></audio>}
               <span className="espan--border">下载列表 {Object.keys(downlist).length}</span>
-              <button className="ybutton ybutton--h36" onClick={listClear}>清空</button>
+              <button className="ybutton ybutton--h36" onClick={()=>setDownlist({})}>清空</button>
               <a className="espan--border" href="/efss/" target="elecV2PEFSS">EFSS/music 查看全部</a>
+              <button class={'ybutton ybutton--h36 ' + (CONFIG.sseid?'ebk--green':'ebk--note')} onClick={()=>{
+                if (CONFIG.sseid) {
+                  setResraw('elecV2P SSE 已连接');
+                } else {
+                  setResraw('elecV2P SSE 重连中...');
+                  sseNew();
+                }
+              }} title="用于接收后台下载进度">SSE {CONFIG.sseid?'已连接':'已断开'}</button>
             </li>
             {Object.keys(downlist).map(key=>{
-              const { status, total } = downlist[key]
+              const { status, total, skip } = downlist[key]
               return (
-                <li className={'eli eli--down' + (typeof(total)!=='number'?' ebk--blue':'')} style={{backgroundSize: status}} key={key}>
+                <li className={'eli eli--down' + (skip?' ebk--blue':'')} style={{backgroundSize: status}} key={key}>
                   <span>{key}</span>
                   <div className="downstatus">
                     {status==='100.00%' && <sapn className="espan ecursor" onClick={(e)=>{
@@ -348,7 +388,7 @@
                         setPreurl('')
                       }
                     }}>⏵</sapn>}
-                    <span className="espan">{typeof(total)==='number'?kSize(total):total}</span>
+                    <span className="espan">{!skip?kSize(total):total}</span>
                     <span className="espan">{status}</span>
                   </div>
                 </li>
@@ -387,14 +427,19 @@
           }, (options)=>{
             // callback 函数
             if (options.start) {
-              $ws.sse(sseid || 'kuwodown', { name: options.name, start: options.start, total: Number(options.total) })
+              sseid && $ws.sse(sseid, { name: options.name, start: options.start, total: Number(options.total) })
               console.log(`${options.name} 下载完成 ${options.total ? '总大小 ' + kSize(options.total) : ''}`)
             } else if (!options.finish) {
-              $ws.sse(sseid || 'kuwodown', { name: options.name, dsize: options.dsize, total: Number(options.total) })
+              sseid && $ws.sse(sseid, { name: options.name, dsize: options.dsize, total: Number(options.total) })
               options.chunk % 100 === 0 && console.log(`${options.name} ${options.chunk } ${kSize(options.dsize)}/${kSize(options.total)}\x1b[J`)
             }
           })
-          .then(d=>resolve('success ' + d))
+          .then(d=>{
+            resolve(d)
+            if (/skip download/.test(d)) {
+              sseid && $ws.sse(sseid, { name: data.name, skip: true })
+            }
+          })
           .catch(e=>resolve(e.message || e))
         })
       })
