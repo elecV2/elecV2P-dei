@@ -42,7 +42,7 @@
       .eul {
         list-style: none;
         padding: 0;
-        margin: 8px 0;
+        margin: 0;
         border-top: 1px solid;
       }
       .eli {
@@ -59,11 +59,11 @@
       .eres {
         background: var(--main-fc);
         color: var(--main-cl);
-        padding: 3px;
+        padding: 6px 3px;
       }
       .ehistory {
         text-align: center;
-        margin-top: 5px;
+        margin: 6px;
       }
       .espan {
         display: inline-block;
@@ -75,7 +75,6 @@
         margin: 2px;
         border-radius: 8px;
         color: var(--main-fc);
-        text-decoration: none;
       }
       .eli--down .espan {
         min-width: 80px;
@@ -84,11 +83,12 @@
       .ehistory .espan, .ecursor {
         cursor: pointer;
       }
-      .geturl {
+      .espan--btn {
         background: var(--main-cl);
         padding: 0 8px;
         border-radius: 8px;
         cursor: pointer;
+        user-select: none;
       }
       .yselect, .yinput {
         height: 40px;
@@ -147,6 +147,7 @@
       // - 删除已下载文件
       // - 预览后选择下载
       // Done:
+      // - 右键复制链接
       // - sse 断开重连提醒
       // - 删除单个搜索历史
       // - 下载完播放测试
@@ -185,9 +186,7 @@
         }
         return input.replace(/&nbsp;|&amp;|&lt;em&gt;|&lt;\/em&gt;|&lt;|&gt;|&quot;|\?|&apos;/g, tag=>tagsToReplace[tag] ?? tag);
       }
-      const CONFIG = {
-        sseid: 'kuwodown_' + Date.now()
-      }
+
       function MyApp() {
         const [search, setSearch] = useState({ word: '', history: [] })
         const [reslist, setReslist] = useState([])
@@ -198,7 +197,6 @@
         const handleChange = (e)=>{
           setSearch({ word: e.target.value, history: search.history })
           setPage(0)
-          setSubfold('')
         }
         const searchRes = ()=>{
           const word = search.word, history = [...new Set([word, ...search.history])]
@@ -213,6 +211,7 @@
             if (obj.abslist.length) {
               setPage(Number(page)+1)
               setResraw(`成功获取 ${word} 相关搜索结果`)
+              setSubfold(word)
             } else {
               setResraw(`没有找到 ${word} 相关数据`)
             }
@@ -244,9 +243,13 @@
             setResraw(`准备下载 ${name}...`)
             $fend('download', {
               name, url,
-              sseid: CONFIG.sseid,
               timeout: 15000,
             }).then(res=>res.text()).then(res=>{
+              if (/download fail/.test(res)) {
+                e.target.dataset.d = ''
+                setResraw(`${name} 下载结果 ${res}`)
+                return
+              }
               e.target.dataset.d = 'finish'
               e.target.style.background = 'var(--green-bk)'
               if (!/still running/.test(res)) {
@@ -265,7 +268,7 @@
             e.target.innerText = res
             e.target.dataset.m = 'download'
             if (/^http:\/\//.test(res)) {
-              setResraw(`成功获取 ${name} ${type} 资源链接，再次点击进行下载`)
+              setResraw(`成功获取 ${name} ${type} 资源链接，再次点击进行下载，右键复制`)
             } else {
               setResraw(`没有找到 ${name} ${type} 对应资源`)
             }
@@ -273,6 +276,13 @@
             setResraw(`${search_url} error ${e.message}`)
             console.error(e)
           })
+        }
+        const copyToClipboard = e => {
+          e.preventDefault();
+          const url = e.target.innerText;
+          navigator.clipboard.writeText(url).then(()=>setResraw(url + ' 已复制到粘贴板')).catch(error=>{
+            setResraw(url + ' 复制失败 ' + error.message);
+          });
         }
 
         useEffect(
@@ -307,8 +317,8 @@
               <li className="eli" key={item[2]} data-rid={item[2]}>
                 <span className="espan">{item[0]}</span>
                 <span className="espan">{item[1]}</span>
-                <span className="espan geturl" data-type="mp3" onClick={e=>getUrl(e, item[1], item[2])}>MP3</span>
-                <span className="espan geturl" data-type="mp4" onClick={e=>getUrl(e, item[1], item[2])}>MP4</span>
+                <span className="espan espan--btn" data-type="mp3" onClick={e=>getUrl(e, item[1], item[2])} onContextMenu={copyToClipboard}>MP3</span>
+                <span className="espan espan--btn" data-type="mp4" onClick={e=>getUrl(e, item[1], item[2])} onContextMenu={copyToClipboard}>MP4</span>
               </li>
             ))}</ul>
             <div className="eres">{resraw}</div>
@@ -320,16 +330,18 @@
       function DownList({ setResraw }){
         const [preurl, setPreurl] = useState('')
         const [downlist, setDownlist] = useState({})
+        const [sseonline, setSseonline] = useState(false)
 
         const statueUpdate = (name, { status, total, skip })=>{
           setDownlist((prevList)=>((status && !skip) ? { ...prevList, [name]: { status, total } } : { [name]: { status: status||'0.00%', total, skip }, ...prevList }))
         }
-        const sseNew = (sid = CONFIG.sseid)=>{
-          if (!sid) {
-            CONFIG.sseid = 'kuwodown_' + Date.now();
-            sid = CONFIG.sseid
+        const sseNew = ()=>{
+          if (sseonline) {
+            setResraw('elecV2P SSE 已连接');
+            return;
           }
-          const ssevent = new EventSource('/sse/elecV2P/' + sid);
+          const ssevent = new EventSource('/sse/elecV2P/kuwomusic');
+          // 所有客户端会同步接收 SSE 同一路径下的消息
           ssevent.onopen = (event) => {
             setResraw('elecV2P SSE 连接成功')
           }
@@ -337,6 +349,7 @@
             const { name, dsize, total, start, skip, type } = JSON.parse(event.data);
             if (type === 'init') {
               // SSE 初始连接返回的数据 { type, data }
+              setSseonline(true);
               return;
             }
             if (skip) {
@@ -348,10 +361,11 @@
             }
           }
           ssevent.onerror = (error)=>{
+            setSseonline(false);
             ssevent.close();
-            CONFIG.sseid = '';
             console.error('sse close', error);
             setResraw(`SSE 已断开, 无法接收后台文件下载进度`);
+            alert('SSE 已断开, 无法接收后台文件下载进度\n点击 SSE 已断开 按钮进行重连');
           }
         }
         useEffect(sseNew, [])
@@ -362,14 +376,14 @@
               <span className="espan--border">下载列表 {Object.keys(downlist).length}</span>
               <button className="ybutton ybutton--h36" onClick={()=>setDownlist({})}>清空</button>
               <a className="espan--border" href="/efss/" target="elecV2PEFSS">EFSS/music 查看全部</a>
-              <button class={'ybutton ybutton--h36 ' + (CONFIG.sseid?'ebk--green':'ebk--note')} onClick={()=>{
-                if (CONFIG.sseid) {
+              <button class={'ybutton ybutton--h36 ' + (sseonline?'ebk--green':'ebk--note')} onClick={()=>{
+                if (sseonline) {
                   setResraw('elecV2P SSE 已连接');
                 } else {
                   setResraw('elecV2P SSE 重连中...');
                   sseNew();
                 }
-              }} title="用于接收后台下载进度">SSE {CONFIG.sseid?'已连接':'已断开'}</button>
+              }} title="用于接收后台下载进度">SSE {sseonline?'已连接':'已断开'}</button>
             </li>
             {Object.keys(downlist).map(key=>{
               const { status, total, skip } = downlist[key]
@@ -402,8 +416,9 @@
       const root = ReactDOM.createRoot(app);
       root.render(<MyApp />);
     </script>
+    <!-- 以下为在 elecV2P 后台运行的脚本 -->
     <script favend>
-      console.clear()
+      // console.clear();     // 是否清除之前的日志
       function kSize(size, k = 1024) {
         if (size < k) {
           return size + ' B'
@@ -427,17 +442,19 @@
           }, (options)=>{
             // callback 函数
             if (options.start) {
-              sseid && $ws.sse(sseid, { name: options.name, start: options.start, total: Number(options.total) })
+              $ws.sse('kuwomusic', { name: options.name, start: options.start, total: Number(options.total) })
+              console.log(`${options.name} 下载开始 ${options.total ? '总大小 ' + kSize(options.total) : ''}`)
+            } else if (options.finish) {
               console.log(`${options.name} 下载完成 ${options.total ? '总大小 ' + kSize(options.total) : ''}`)
-            } else if (!options.finish) {
-              sseid && $ws.sse(sseid, { name: options.name, dsize: options.dsize, total: Number(options.total) })
+            } else {
+              $ws.sse('kuwomusic', { name: options.name, dsize: options.dsize, total: Number(options.total) })
               options.chunk % 100 === 0 && console.log(`${options.name} ${options.chunk } ${kSize(options.dsize)}/${kSize(options.total)}\x1b[J`)
             }
           })
           .then(d=>{
             resolve(d)
             if (/skip download/.test(d)) {
-              sseid && $ws.sse(sseid, { name: data.name, skip: true })
+              $ws.sse('kuwomusic', { name: data.name, skip: true })
             }
           })
           .catch(e=>resolve(e.message || e))
