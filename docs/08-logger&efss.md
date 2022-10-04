@@ -1,6 +1,6 @@
 ```
-最近更新: 2022-09-24
-适用版本: 3.7.1
+最近更新: 2022-10-03
+适用版本: 3.7.2
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/08-logger&efss.md
 ```
 
@@ -233,8 +233,13 @@ $done({
 ``` HTML
 <h3>一个简单的 efh 格式示例文件</h3>
 <div><label>请求后台数据测试</label><button onclick="dataFetch()">获取</button></div>
+<input type="text" name="data" class="data" placeholder="data">
 
 <script type="text/javascript">
+  // v3.7.2 增加 $ 简易选择器函数，示例：
+  // let data = $('.data').value;   // 等价于 document.querySelector('.data').value
+  // let div  = $('div', 'all');    // 等价于 document.querySelectorAll('div')
+
   // $fend 默认函数用于前后端数据交互（本质为一个 fetch 的 post 请求
   function dataFetch() {
     $fend('data').then(res=>res.text())
@@ -288,13 +293,15 @@ v3.6.7 之后可简写为 <script favend>  -->
 - 远程 efh 更新间隔和远程 JS 更新间隔同步
 - v3.5.5 增加默认 $fend 函数用于前后端数据交互（具体参考 [04-JS.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md) $fend 相关部分
 - 其他 efh 示例脚本：https://github.com/elecV2/elecV2P-dei/tree/master/examples/JSTEST/efh
+- 另一篇相关说明文章：https://elecv2.github.io/#efh：一种简单的%20html%20语法扩展结构
 
 待优化项：
 - 其他类型数据 arrayBuffer/stream 等
 - $fend 后台无匹配时返回结果
-- 前后台数据的持续交互(?)
+- 默认前端内置脚本可选择是否使用远程链接
 
 优化完成：
+- 前后台数据的持续交互($ws.sse
 - efh 前端调用本地 JS/CSS/图片 等（part done
 - $fend key/路由 配对优化
 - runJS 直接运行 efh 文件

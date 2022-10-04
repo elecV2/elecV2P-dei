@@ -17,12 +17,25 @@
 作以下限制：
 
 单页面只能有一个连接（不同页面的同一路径请求如何区分？
+页面刷新后如何复用的问题
 
 ### 要实现的功能
 
 - 服务器端
 
 ``` JS
+/** clients 数据结构
+{
+  target1: {
+    euid: res, euid: res, euid: res
+  },
+  target2: {euid: res},
+}
+可使用 query 指定 euid，方便重复使用（断开后重连
+优势：
+- 自定义多路径
+- 同一路径多个请求
+***/
 class sse {
   constructor({ app }) {
     this.clients = new Map();
@@ -77,3 +90,10 @@ sse.recv(target, message=>{
   done();
 })
 ```
+
+### 其他实现
+
+假如分两种连接类型：
+
+- 单路径单连接 /sse/efss
+- 单路径多连接 /sse
