@@ -119,6 +119,9 @@
       .ybutton--h36 {
         height: 36px;
       }
+      .epreview {
+        height: 32px;
+      }
       .ebk--green {
         background: var(--green-bk);
       }
@@ -128,8 +131,22 @@
       .ebk--blue {
         background: var(--secd-bk);
       }
-      .epreview {
-        height: 32px;
+      .ebk--loading {
+        background-image: linear-gradient(to right, transparent, var(--note-bk), transparent);
+        background-size: 10%;
+        background-repeat: no-repeat;
+        animation: loading 5s ease-in-out infinite;
+      }
+      @keyframes loading {
+        0% {
+          background-position-x: 0%;
+        }
+        50% {
+          background-position-x: 100%;
+        }
+        100% {
+          background-position-x: 0%;
+        }
       }
     </style>
     <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
@@ -147,6 +164,7 @@
       // - 删除已下载文件
       // - 预览后选择下载
       // Done:
+      // - 子目录预览问题
       // - 右键复制链接
       // - sse 断开重连提醒
       // - 删除单个搜索历史
@@ -261,10 +279,10 @@
             })
             return
           }
-          const search_url = `http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=${rid}&format=${e.target.dataset.type || 'mp3'}&response=url`
-          setResraw(`${name} 资源链接获取中...`)
+          const type = e.target.dataset.type || 'mp3'
+          const search_url = `http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=${rid}&format=${type}&response=url`
+          setResraw(`${name} ${type} 资源链接获取中...`)
           fetch(`/data?type=stream&url=${encodeURIComponent(search_url)}`).then(res=>res.text()).then(res=>{
-            const type = e.target.innerText
             e.target.innerText = res
             e.target.dataset.m = 'download'
             if (/^http:\/\//.test(res)) {
@@ -365,18 +383,24 @@
             ssevent.close();
             console.error('sse close', error);
             setResraw(`SSE 已断开, 无法接收后台文件下载进度`);
-            alert('SSE 已断开, 无法接收后台文件下载进度\n点击 SSE 已断开 按钮进行重连');
+            // alert('SSE 已断开, 无法接收后台文件下载进度\n点击 SSE 已断开 按钮进行重连');
           }
         }
         useEffect(sseNew, [])
+        const volumeSet = (e)=>{
+          if (e.target.dataset.vol === '0') {
+            e.target.volume = 0.3
+            e.target.dataset.vol = '1'
+          }
+        }
         return (
-          <ul className="eul">
+          <ul className={'eul' + (!sseonline?' ebk--loading':'')}>
             <li className="eli eflex" key="downlist">
-              {preurl && <audio className="epreview" src={preurl} autoplay="true" controls></audio>}
+              {preurl && <audio className="epreview" src={preurl} autoplay="true" controls onLoadedMetadata={volumeSet} data-vol="0"></audio>}
               <span className="espan--border">下载列表 {Object.keys(downlist).length}</span>
               <button className="ybutton ybutton--h36" onClick={()=>setDownlist({})}>清空</button>
               <a className="espan--border" href="/efss/" target="elecV2PEFSS">EFSS/music 查看全部</a>
-              <button class={'ybutton ybutton--h36 ' + (sseonline?'ebk--green':'ebk--note')} onClick={()=>{
+              <button className={'ybutton ybutton--h36 ' + (sseonline?'ebk--green':'ebk--note')} onClick={()=>{
                 if (sseonline) {
                   setResraw('elecV2P SSE 已连接');
                 } else {
@@ -433,7 +457,6 @@
       }
       $fend('download', data=>{
         console.log('download name', data.name, 'url', data.url)
-        const sseid = data.sseid
         return new Promise((resolve, reject)=>{
           $download(data.url, {
             folder: 'efss/music',
@@ -442,12 +465,13 @@
           }, (options)=>{
             // callback 函数
             if (options.start) {
-              $ws.sse('kuwomusic', { name: options.name, start: options.start, total: Number(options.total) })
+              $ws.sse('kuwomusic', { name: data.name, start: options.start, total: Number(options.total) })
               console.log(`${options.name} 下载开始 ${options.total ? '总大小 ' + kSize(options.total) : ''}`)
             } else if (options.finish) {
+              // $ws.sse('kuwomusic', { name: data.name, finish: options.finish, total: Number(options.total) })
               console.log(`${options.name} 下载完成 ${options.total ? '总大小 ' + kSize(options.total) : ''}`)
             } else {
-              $ws.sse('kuwomusic', { name: options.name, dsize: options.dsize, total: Number(options.total) })
+              $ws.sse('kuwomusic', { name: data.name, dsize: options.dsize, total: Number(options.total) })
               options.chunk % 100 === 0 && console.log(`${options.name} ${options.chunk } ${kSize(options.dsize)}/${kSize(options.total)}\x1b[J`)
             }
           })
