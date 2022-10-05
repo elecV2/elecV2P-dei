@@ -1,7 +1,7 @@
-// github 子目录文件下载
-// 仅适用于 elecV2P
-// Todo:
-// [x] 多文件同时下载（限制最大数
+// 功能: github 子目录文件下载（仅适用于 elecV2P
+// 作者: https://t.me/elecV2
+// 文件地址: https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/github-subdownload.js
+// 最近更新: 2022-10-05
 
 const config = {
   repos: $env.repos || 'elecV2/elecV2P-dei',     // github 仓库名。比如 elecV2/elecV2P
@@ -79,7 +79,7 @@ function mulDownload(url, dest, name) {
     name, existskip: true,
   }, (d) => {
     if (d.progress) {
-      console.log(d.progress + '\x1b[F')
+      console.log(d.progress + '\r\x1b[F')
     }
   }).then(res=>{
     console.log(name, '下载结果', res)
@@ -91,6 +91,8 @@ function mulDownload(url, dest, name) {
       mulDownload(...todownlist.shift())
     } else if (count === 0) {
       console.log('所有文件下载完成（如有错误或漏下，可以重新运行一次脚本）')
+    } else {
+      console.log('当前下载文件数:', count)
     }
   })
 }

@@ -90,6 +90,20 @@
         cursor: pointer;
         user-select: none;
       }
+      .epadding0 {
+        padding: 0;
+      }
+      .edown {
+        display: inline-block;
+        padding: 0 8px;
+        border-radius: 8px 0 0 8px;
+      }
+      .eplay {
+        padding: 0 4px;
+        color: var(--main-cl);
+        background: var(--main-fc);
+        border-radius: 0 8px 8px 0;
+      }
       .yselect, .yinput {
         height: 40px;
         min-width: 80px;
@@ -148,6 +162,33 @@
           background-position-x: 0%;
         }
       }
+      .ehidden {
+        display: none;
+      }
+      .emedia {
+        position: fixed;
+        top: 20%;
+        right: 0.5em;
+        display: inline-flex;
+        max-width: 50%;
+        max-height: 60%;
+      }
+      .emedia_delete {
+        position: absolute;
+        right: .5em;
+        top: .5em;
+        padding: 3px;
+        background: var(--main-bk);
+        border-radius: 8px;
+        opacity: 0;
+        cursor: pointer;
+      }
+      .emedia:hover .emedia_delete {
+        opacity: 1;
+      }
+      .emax-w100 {
+        max-width: 100%
+      }
     </style>
     <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -161,9 +202,11 @@
     <script type="text/babel">
     // sublime 用户推荐安装 Package: Naomi 进行高亮显示
       // Todo:
+      // - preview 移动
       // - 删除已下载文件
-      // - 预览后选择下载
       // Done:
+      // - getOrgUrl(isHttps)
+      // - 预览后选择下载
       // - 子目录预览问题
       // - 右键复制链接
       // - sse 断开重连提醒
@@ -211,10 +254,14 @@
         const [resraw, setResraw] = useState('')
         const [page, setPage] = useState(0)
         const [subfold, setSubfold] = useState('')
+        const [mediaurl, setMediaurl] = useState('')
 
         const handleChange = (e)=>{
           setSearch({ word: e.target.value, history: search.history })
           setPage(0)
+        }
+        const streamUrl = (url)=>{
+          return location.protocol === 'https:' ? `/data?type=stream&url=${encodeURIComponent(url)}` : url
         }
         const searchRes = ()=>{
           const word = search.word, history = [...new Set([word, ...search.history])]
@@ -223,7 +270,7 @@
           const search_url = `http://search.kuwo.cn/r.s?all=${word}&ft=music&itemset=web_2013&client=kt&pn=${page}&rn=10&rformat=json&encoding=utf8`
           console.debug('search url:', search_url)
           setResraw(`正在搜索 ${word}...`)
-          fetch(`/data?type=stream&url=${encodeURIComponent(search_url)}`).then(res=>res.text()).then(res=>{
+          fetch(streamUrl(search_url)).then(res=>res.text()).then(res=>{
             let obj = (new Function("return " + res))();
             setReslist(obj.abslist.map(f=>[htmlDecode(f.ARTIST), htmlDecode(f.SONGNAME), f.MUSICRID]))
             if (obj.abslist.length) {
@@ -247,7 +294,16 @@
             setResraw(`${name} 下载中`)
             return
           }
-          if (e.target.dataset.m) {
+          if (e.target.dataset.m === 'preview') {
+            setMediaurl(streamUrl(e.target.dataset.url))
+            return
+          }
+          const type = e.target.dataset.type || 'mp3'
+          if (e.target.dataset.m === 'notfound') {
+            setResraw(`${name} ${type} 对应资源无结果`)
+            return
+          }
+          if (e.target.dataset.m === 'download') {
             e.target.dataset.d = 'start'
             const url = e.target.innerText
             if (!/^http:\/\//.test(url)) {
@@ -279,15 +335,16 @@
             })
             return
           }
-          const type = e.target.dataset.type || 'mp3'
           const search_url = `http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=${rid}&format=${type}&response=url`
           setResraw(`${name} ${type} 资源链接获取中...`)
-          fetch(`/data?type=stream&url=${encodeURIComponent(search_url)}`).then(res=>res.text()).then(res=>{
-            e.target.innerText = res
-            e.target.dataset.m = 'download'
+          fetch(streamUrl(search_url)).then(res=>res.text()).then(res=>{
             if (/^http:\/\//.test(res)) {
+              e.target.classList.add('epadding0')
+              e.target.innerHTML = `<span data-m="download" class="edown">${res}</span><span class="eplay" data-m="preview" data-url="${res}">⏵</span>`
               setResraw(`成功获取 ${name} ${type} 资源链接，再次点击进行下载，右键复制`)
             } else {
+              e.target.dataset.m = 'notfound'
+              e.target.innerText = '资源不存在'
               setResraw(`没有找到 ${name} ${type} 对应资源`)
             }
           }).catch(e=>{
@@ -297,6 +354,7 @@
         }
         const copyToClipboard = e => {
           e.preventDefault();
+          if (e.target.dataset.m !== 'download') return;
           const url = e.target.innerText;
           navigator.clipboard.writeText(url).then(()=>setResraw(url + ' 已复制到粘贴板')).catch(error=>{
             setResraw(url + ' 复制失败 ' + error.message);
@@ -341,7 +399,22 @@
             ))}</ul>
             <div className="eres">{resraw}</div>
             <DownList setResraw={setResraw} />
+            <MediaPreview mediaurl={mediaurl} setMediaurl={setMediaurl} />
           </>
+        )
+      }
+      function MediaPreview({ mediaurl, setMediaurl }) {
+        const volumeSet = (e)=>{
+          if (e.target.dataset.vol === '0') {
+            e.target.volume = 0.3
+            e.target.dataset.vol = '1'
+          }
+        }
+        return (
+          <div className={'ehidden' + (mediaurl?' emedia':'')}>
+            <video className="emax-w100" src={mediaurl} autoplay="true" controls onLoadedMetadata={volumeSet} data-vol="0"></video>
+            <span className="emedia_delete" onClick={()=>setMediaurl('')}>❌</span>
+          </div>
         )
       }
 
