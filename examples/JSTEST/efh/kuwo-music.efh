@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Kuwo music download</title>
+    <title>Kuwo Music Download - elecV2P</title>
     <style type="text/css">
       :root {
         --main-bk: #003153;
@@ -34,6 +34,9 @@
         display: flex;
         align-items: center;
         justify-content: space-around;
+      }
+      .eflex--wrap {
+        flex-flow: wrap;
       }
       .yflex_f1 {
         flex: 1;
@@ -71,8 +74,8 @@
       }
       .espan--border {
         border: 2px solid var(--main-cl);
-        padding: 2px 8px;
-        margin: 2px;
+        padding: 4px 8px;
+        margin: 0;
         border-radius: 8px;
         color: var(--main-fc);
       }
@@ -130,11 +133,8 @@
         background: var(--main-cl);
         cursor: pointer;
       }
-      .ybutton--h36 {
+      .ybutton--h36, .epreview {
         height: 36px;
-      }
-      .epreview {
-        height: 32px;
       }
       .ebk--green {
         background: var(--green-bk);
@@ -167,17 +167,20 @@
       }
       .emedia {
         position: fixed;
-        top: 20%;
-        right: 0.5em;
+        top: 60px;
+        right: 8px;
         display: inline-flex;
+        min-width: 300px;
         max-width: 50%;
         max-height: 60%;
+        border-radius: 1.5em;
+        background: var(--secd-bk);
       }
       .emedia_delete {
         position: absolute;
         right: .5em;
         top: .5em;
-        padding: 3px;
+        padding: 6px;
         background: var(--main-bk);
         border-radius: 8px;
         opacity: 0;
@@ -186,8 +189,11 @@
       .emedia:hover .emedia_delete {
         opacity: 1;
       }
-      .emax-w100 {
-        max-width: 100%
+      .emax-wp100 {
+        max-width: 100%;
+      }
+      .emin-w300 {
+        min-width: 300px;
       }
     </style>
     <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
@@ -202,9 +208,10 @@
     <script type="text/babel">
     // sublime 用户推荐安装 Package: Naomi 进行高亮显示
       // Todo:
-      // - preview 移动
       // - 删除已下载文件
       // Done:
+      // - 进度条拖动问题
+      // - preview 移动
       // - getOrgUrl(isHttps)
       // - 预览后选择下载
       // - 子目录预览问题
@@ -221,7 +228,7 @@
 
       const useState = React.useState
       const useEffect = React.useEffect
-      function kSize(size, k = 1024) {
+      function kSize(size = 0, k = 1024) {
         if (size < k) {
           return size + ' B'
         }
@@ -296,6 +303,9 @@
           }
           if (e.target.dataset.m === 'preview') {
             setMediaurl(streamUrl(e.target.dataset.url))
+            const name = e.target.dataset.name
+            setResraw(`开始播放 ${name}`)
+            document.title = name + ' - elecV2P Player'
             return
           }
           const type = e.target.dataset.type || 'mp3'
@@ -339,8 +349,9 @@
           setResraw(`${name} ${type} 资源链接获取中...`)
           fetch(streamUrl(search_url)).then(res=>res.text()).then(res=>{
             if (/^http:\/\//.test(res)) {
+              e.target.dataset.d = 'finish'
               e.target.classList.add('epadding0')
-              e.target.innerHTML = `<span data-m="download" class="edown">${res}</span><span class="eplay" data-m="preview" data-url="${res}">⏵</span>`
+              e.target.innerHTML = `<span data-m="download" class="edown">${res}</span><span class="eplay" data-name="${name}.${type}" data-m="preview" data-url="${res}">⏵</span>`
               setResraw(`成功获取 ${name} ${type} 资源链接，再次点击进行下载，右键复制`)
             } else {
               e.target.dataset.m = 'notfound'
@@ -404,16 +415,40 @@
         )
       }
       function MediaPreview({ mediaurl, setMediaurl }) {
+        const [position, setPosition] = useState([0, 0, 0, 0])
         const volumeSet = (e)=>{
           if (e.target.dataset.vol === '0') {
             e.target.volume = 0.3
             e.target.dataset.vol = '1'
           }
         }
+        const dragStart = (e)=>{
+          // e.preventDefault();
+          // console.debug('drag start', ...position);
+          e.dataTransfer.effectAllowed = 'move';
+          setPosition([e.clientX, e.clientY, position[2], position[3]]);
+        }
+        const dragEnd = (e)=>{
+          e.preventDefault();
+          const endp = [position[2] + e.clientX - position[0], position[3] + e.clientY - position[1]];
+          endp[0] = endp[0] < 0 ? Math.max(e.target.clientWidth-window.innerWidth+8, endp[0]) : 0;
+          endp[1] = endp[1] > 0 ? Math.min(window.innerHeight-e.target.clientHeight-60, endp[1]) : 0;
+          e.target.style = `transform: translate(${endp[0]}px, ${endp[1]}px);`;
+          setPosition([position[0], position[1], endp[0], endp[1]]);
+        }
         return (
-          <div className={'ehidden' + (mediaurl?' emedia':'')}>
-            <video className="emax-w100" src={mediaurl} autoplay="true" controls onLoadedMetadata={volumeSet} data-vol="0"></video>
-            <span className="emedia_delete" onClick={()=>setMediaurl('')}>❌</span>
+          <div className={'ehidden' + (mediaurl?' emedia':'')}
+            draggable="true"
+            onDragStart={dragStart}
+            onDragEnd={dragEnd}
+          >
+            <video className="emax-wp100 emin-w300" src={mediaurl} autoplay="true" controls onEnded={()=>{
+              document.title = 'Kuwo Music Download - elecV2P';
+            }} onLoadedMetadata={volumeSet} data-vol="0"></video>
+            <span className="emedia_delete" onClick={()=>{
+              setMediaurl('');
+              document.title = 'Kuwo Music Download - elecV2P';
+            }}>❌</span>
           </div>
         )
       }
@@ -468,7 +503,7 @@
         }
         return (
           <ul className={'eul' + (!sseonline?' ebk--loading':'')}>
-            <li className="eli eflex" key="downlist">
+            <li className="eli eflex eflex--wrap" key="downlist">
               {preurl && <audio className="epreview" src={preurl} autoplay="true" controls onLoadedMetadata={volumeSet} data-vol="0"></audio>}
               <span className="espan--border">下载列表 {Object.keys(downlist).length}</span>
               <button className="ybutton ybutton--h36" onClick={()=>setDownlist({})}>清空</button>
@@ -495,7 +530,7 @@
                         e.target.innerText = '⏸︎'
                       } else {
                         e.target.innerText = '⏵'
-                        document.title = 'kuwo music download'
+                        document.title = 'Kuwo Music Download - elecV2P'
                         setPreurl('')
                       }
                     }}>⏵</sapn>}
