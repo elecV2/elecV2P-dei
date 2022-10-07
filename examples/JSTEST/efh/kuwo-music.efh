@@ -3,7 +3,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="var(--main-bk)">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <title>Kuwo Music Download - elecV2P</title>
     <style type="text/css">
       :root {
@@ -50,7 +52,7 @@
       }
       .eli {
         border-bottom: 1px solid;
-        padding: 5px 0px;
+        padding: 3px 0px;
       }
       .eli--down {
         display: flex;
@@ -186,7 +188,7 @@
         opacity: 0;
         cursor: pointer;
       }
-      .emedia:hover .emedia_delete {
+      .emedia:hover .emedia_delete, .emedia[data-delshow=true] .emedia_delete {
         opacity: 1;
       }
       .emax-wp100 {
@@ -203,31 +205,9 @@
     <!-- Don't use this in production: -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
-  <body>
+  <body><noscript><strong>Please enable JavaScript to continue.</strong></noscript>
     <div id="app"></div>
-    <script type="text/babel">
-    // sublime 用户推荐安装 Package: Naomi 进行高亮显示
-      // Todo:
-      // - 删除已下载文件
-      // Done:
-      // - 进度条拖动问题
-      // - preview 移动
-      // - getOrgUrl(isHttps)
-      // - 预览后选择下载
-      // - 子目录预览问题
-      // - 右键复制链接
-      // - sse 断开重连提醒
-      // - 删除单个搜索历史
-      // - 下载完播放测试
-      // - sse id 优化
-      // - 搜索历史
-      // - 显示 总大小
-      // - skip download 提醒
-      // - 下载目录设置
-      // - 超时下载提醒
-
-      const useState = React.useState
-      const useEffect = React.useEffect
+    <script type="text/javascript">
       function kSize(size = 0, k = 1024) {
         if (size < k) {
           return size + ' B'
@@ -254,6 +234,37 @@
         }
         return input.replace(/&nbsp;|&amp;|&lt;em&gt;|&lt;\/em&gt;|&lt;|&gt;|&quot;|\?|&apos;/g, tag=>tagsToReplace[tag] ?? tag);
       }
+      function setTitle(title = 'elecV2P'){
+        document.title = title
+      }
+      function streamUrl(url){
+        return location.protocol === 'https:' ? `/data?type=stream&url=${encodeURIComponent(url)}` : url
+      }
+    </script>
+    <script type="text/babel">
+    // sublime 用户推荐安装 Package: Naomi 进行高亮显示
+      // Todo:
+      // - 删除已下载文件
+      // Done:
+      // - 移动端 preview 问题
+      // - 进度条拖动问题
+      // - preview 移动
+      // - getOrgUrl(isHttps)
+      // - 预览后选择下载
+      // - 子目录预览问题
+      // - 右键复制链接
+      // - sse 断开重连提醒
+      // - 删除单个搜索历史
+      // - 下载完播放测试
+      // - sse id 优化
+      // - 搜索历史
+      // - 显示 总大小
+      // - skip download 提醒
+      // - 下载目录设置
+      // - 超时下载提醒
+
+      const useState = React.useState
+      const useEffect = React.useEffect
 
       function MyApp() {
         const [search, setSearch] = useState({ word: '', history: [] })
@@ -266,9 +277,6 @@
         const handleChange = (e)=>{
           setSearch({ word: e.target.value, history: search.history })
           setPage(0)
-        }
-        const streamUrl = (url)=>{
-          return location.protocol === 'https:' ? `/data?type=stream&url=${encodeURIComponent(url)}` : url
         }
         const searchRes = ()=>{
           const word = search.word, history = [...new Set([word, ...search.history])]
@@ -305,7 +313,7 @@
             setMediaurl(streamUrl(e.target.dataset.url))
             const name = e.target.dataset.name
             setResraw(`开始播放 ${name}`)
-            document.title = name + ' - elecV2P Player'
+            setTitle(name + ' - elecV2P Player')
             return
           }
           const type = e.target.dataset.type || 'mp3'
@@ -433,6 +441,7 @@
           const endp = [position[2] + e.clientX - position[0], position[3] + e.clientY - position[1]];
           endp[0] = endp[0] < 0 ? Math.max(e.target.clientWidth-window.innerWidth+8, endp[0]) : 0;
           endp[1] = endp[1] > 0 ? Math.min(window.innerHeight-e.target.clientHeight-60, endp[1]) : 0;
+          e.dataTransfer.dropEffect = 'move';
           e.target.style = `transform: translate(${endp[0]}px, ${endp[1]}px);`;
           setPosition([position[0], position[1], endp[0], endp[1]]);
         }
@@ -441,13 +450,17 @@
             draggable="true"
             onDragStart={dragStart}
             onDragEnd={dragEnd}
+            onClick={(e)=>{
+              e.currentTarget.dataset.delshow = e.currentTarget.dataset.delshow !== 'true' ? 'true' : '';
+              e.preventDefault();
+            }}
           >
             <video className="emax-wp100 emin-w300" src={mediaurl} autoplay="true" controls onEnded={()=>{
-              document.title = 'Kuwo Music Download - elecV2P';
+              setTitle('Kuwo Music Download - elecV2P');
             }} onLoadedMetadata={volumeSet} data-vol="0"></video>
             <span className="emedia_delete" onClick={()=>{
               setMediaurl('');
-              document.title = 'Kuwo Music Download - elecV2P';
+              setTitle('Kuwo Music Download - elecV2P');
             }}>❌</span>
           </div>
         )
@@ -526,11 +539,11 @@
                     {status==='100.00%' && <sapn className="espan ecursor" onClick={(e)=>{
                       if (e.target.innerText === '⏵') {
                         setPreurl('/efss/music/'+key)
-                        document.title = key + ' - elecV2P Player'
+                        setTitle(key + ' - elecV2P Player')
                         e.target.innerText = '⏸︎'
                       } else {
                         e.target.innerText = '⏵'
-                        document.title = 'Kuwo Music Download - elecV2P'
+                        setTitle('Kuwo Music Download - elecV2P')
                         setPreurl('')
                       }
                     }}>⏵</sapn>}
