@@ -2,13 +2,18 @@
 功能：一个简单的 markdonw 文件阅读器
 使用：
 - 打开 webUI/efss -> favend 设置
-- 填写任意名称/关键字 | 运行脚本 | https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/JSTEST/markdown.efh
-更新：2022-02-19 21:40
+- 填写任意名称/关键字 | 运行脚本 | https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/examples/JSTEST/efh/markdown.efh
+更新：2022-10-12 13:42
 -->
+<!DOCTYPE html>
+<html>
 <head>
+  <meta charset="UTF-8">
+  <meta name="theme-color" content="#009688">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>a simple markdown reader</title>
   <style type="text/css">
-    .mflex{display:flex;justify-content:center;align-items:center}.minput{min-width:320px;height:32px;font-size:1em;padding:.1em .4em;border-radius:.5em}.mbutton{height:32px;padding:0 1em;margin:0 1em;border:0;color:#fbfbff;background:#003153;border-radius:.5em;font-size:1em;cursor:pointer}html,body{font-family:'Microsoft YaHei',-apple-system,Helvetica,Arial}pre,code{font-size:16px;font-family:Consolas,Inconsolata,Courier,monospace;margin:auto 5px}code{white-space:pre-wrap;border-radius:2px;display:inline}pre{font-size:18px;line-height:1.4em;display:block;border:1px solid #ccc;border-radius:8px;padding:10px;color:#333;background:#f8f8f8;overflow-x:auto}pre code{display:block;padding:0;white-space:pre-wrap;background-color:transparent;border-radius:0}strong,b{color:#bf360c}em,i{color:#009688}hr{border:1px solid #bf360c;margin:1.5em auto}p{margin:1.5em 5px;word-break:break-all}table,pre,dl,blockquote,q,ul,ol{margin:10px 5px}ul,ol{padding-left:15px}li{margin:10px}li p{margin:10px 0!important}ul ul,ul ol,ol ul,ol ol{margin:0;padding-left:10px}ul{list-style-type:circle}dl{padding:0}dl dt{font-size:1em;font-weight:bold;font-style:italic}dl dd{margin:0 0 10px;padding:0 10px}blockquote,q{border-left:2px solid #009688;padding:0 10px;color:#777;quotes:none;margin-left:1em}blockquote::before,blockquote::after,q::before,q::after{content:none}h1,h2,h3,h4,h5,h6{margin:20px 0 10px;padding:0;font-style:bold;color:#009688;text-align:center;margin:1.5em 5px;padding:.5em 1em}h1{font-size:24px;border-bottom:1px solid #a8a8a8}h2{font-size:20px;border-bottom:1px solid #a8a8a8}h3{font-size:18px}h4{font-size:16px}table{padding:0;border-collapse:collapse;border-spacing:0;font-size:1em;font:inherit;border:0;margin:0 auto}tbody{margin:0;padding:0;border:0}table tr{border:0;border-top:1px solid #CCC;background-color:white;margin:0;padding:0}table tr:nth-child(2n){background-color:#f8f8f8}table tr th,table tr td{font-size:16px;border:1px solid #CCC;margin:0;padding:5px 10px}table tr th{font-weight:bold;color:#eee;border:1px solid #009688;background-color:#009688}
+    .mflex{display:flex;justify-content:center;align-items:center;flex-wrap: wrap;}.minput{min-width:320px;height:32px;font-size:1em;padding:0 .4em;border-radius:.5em;box-sizing: border-box;border: 1px solid #003153;}.mbutton{height:32px;padding:0 1em;margin:3px 1em;border:0;color:#fbfbff;background:#003153;border-radius:.5em;font-size:1em;cursor:pointer}html,body{font-family:'Microsoft YaHei',-apple-system,Helvetica,Arial}body[theme-color=black]{background: #080808;color: #e8e8e8;}pre, code {font-size: 16px;font-family: Consolas, Inconsolata, Courier, monospace;margin: auto 5px;}code {white-space: pre-wrap;border-radius: 2px;display: inline;}pre {font-size: 18px;line-height: 1.4em;display: block;border: 1px solid #ccc;border-radius: 8px;padding: 10px;color: #333;background: #f8f8f8;overflow-x: auto;}pre code {display: block;padding: 0;white-space: pre-wrap;background-color: transparent;border-radius: 0;}strong, b{color: #BF360C;}em, i {color: #009688;}hr {border: 1px solid #BF360C;margin: 1.5em auto;}p {margin: 1.5em 5px;word-break: break-word;text-align: justify;letter-spacing: 1px;line-height: 1.5em;}table, pre, dl, blockquote, q, ul, ol {margin: 10px 5px;}ul, ol {padding-left: 15px;}li {margin: 10px;}li p {margin: 10px 0 !important;}ul ul, ul ol, ol ul, ol ol {margin: 0;padding-left: 10px;}ul {list-style-type: circle;}dl {padding: 0;}dl dt {font-size: 1em;font-weight: bold;font-style: italic;}dl dd {margin: 0 0 10px;padding: 0 10px;}blockquote, q {border-left: 2px solid #009688;padding: 0 10px;color: #777;quotes: none;margin-left: 1em;}blockquote::before, blockquote::after, q::before, q::after {content: none;}h1, h2, h3, h4, h5, h6 {margin: 20px 0 10px;padding: 0.5em 1em;text-align: center;font-weight: bold;color: #009688;}h1 {font-size: 24px;border-bottom: 1px solid #A8A8A8;}h2 {font-size: 20px;border-bottom: 1px solid #A8A8A8;}h3 {font-size: 18px;border-bottom: 1px solid #A8A8A8;}h4 {font-size: 16px;}img {display: flex;max-width: 100%;margin: auto;}table {padding: 0;border-collapse: collapse;border-spacing: 0;font-size: 1em;font: inherit;border: 0;margin: 0 auto;}tbody {margin: 0;padding: 0;border: 0;}table tr {border: 0;border-top: 1px solid #CCC;background-color: white;margin: 0;padding: 0;}table tr:nth-child(2n) {background-color: #F8F8F8;}table tr th, table tr td {font-size: 16px;border: 1px solid #CCC;margin: 0;padding: 5px 10px;}table tr th {font-weight: bold;color: #eee;border: 1px solid #009688;background-color: #009688;}
   </style>
 </head>
 <body>
@@ -37,14 +42,18 @@
     }
     function dataLocal() {
       getFile({ accept: '.md' }).then(data=>{
-        parseContent(data.content)
+        parseContent(data.content, data.name)
       })
     }
-    function parseContent(content) {
+    function parseContent(content, title = '') {
       mcontent.innerHTML = marked.parse(content)
+      if (title) {
+        document.title = title + ' - elecV2P markdown reader'
+        return
+      }
       const titleH = document.querySelector('h1') || document.querySelector('h2')
       if (titleH) {
-        document.title = titleH.innerText
+        document.title = titleH.innerText + ' - elecV2P markdown reader'
       }
     }
     function getFile({ accept = '*', type = 'text', multiple = false } = {}) {
@@ -83,11 +92,11 @@
       })
     }
   </script>
-</body>
-
 <script type="text/javascript" runon="elecV2P">
   $fend('data', async (url)=>{
     let md = await $axios(url)
     return md.data
   })
 </script>
+</body>
+</html>

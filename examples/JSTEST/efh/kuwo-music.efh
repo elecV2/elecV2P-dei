@@ -25,7 +25,7 @@
       #app {
         width: 100%;
         min-height: 100vh;
-        padding: 0.5em;
+        padding: 8px;
         box-sizing: border-box;
         word-break: break-all;
         color: var(--main-fc);
@@ -191,6 +191,11 @@
       .emedia:hover .emedia_delete, .emedia[data-delshow=true] .emedia_delete {
         opacity: 1;
       }
+      .emeida_name {
+        position: absolute;
+        margin: .5em 1em;
+        word-break: break-word;
+      }
       .emax-wp100 {
         max-width: 100%;
       }
@@ -272,10 +277,10 @@
         const [resraw, setResraw] = useState('')
         const [page, setPage] = useState(0)
         const [subfold, setSubfold] = useState('')
-        const [mediaurl, setMediaurl] = useState('')
+        const [media, setMedia] = useState({ url: '', name: '' })
 
         const handleChange = (e)=>{
-          setSearch({ word: e.target.value, history: search.history })
+          setSearch({ word: e.target.value.trim(), history: search.history })
           setPage(0)
         }
         const searchRes = ()=>{
@@ -310,8 +315,8 @@
             return
           }
           if (e.target.dataset.m === 'preview') {
-            setMediaurl(streamUrl(e.target.dataset.url))
             const name = e.target.dataset.name
+            setMedia({ url: streamUrl(e.target.dataset.url), name })
             setResraw(`开始播放 ${name}`)
             setTitle(name + ' - elecV2P Player')
             return
@@ -353,6 +358,9 @@
             })
             return
           }
+          getRes({e, rid, name, type})
+        }
+        const getRes = ({e, rid, name, type})=>{
           const search_url = `http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=${rid}&format=${type}&response=url`
           setResraw(`${name} ${type} 资源链接获取中...`)
           fetch(streamUrl(search_url)).then(res=>res.text()).then(res=>{
@@ -360,7 +368,7 @@
               e.target.dataset.d = 'finish'
               e.target.classList.add('epadding0')
               e.target.innerHTML = `<span data-m="download" class="edown">${res}</span><span class="eplay" data-name="${name}.${type}" data-m="preview" data-url="${res}">⏵</span>`
-              setResraw(`成功获取 ${name} ${type} 资源链接，再次点击进行下载，右键复制`)
+              setResraw(`${name} ${type} 资源链接已获取，再次点击下载至 elecV2P 服务器，右键复制`)
             } else {
               e.target.dataset.m = 'notfound'
               e.target.innerText = '资源不存在'
@@ -418,11 +426,11 @@
             ))}</ul>
             <div className="eres">{resraw}</div>
             <DownList setResraw={setResraw} />
-            <MediaPreview mediaurl={mediaurl} setMediaurl={setMediaurl} />
+            <MediaPreview media={media} setMedia={setMedia} />
           </>
         )
       }
-      function MediaPreview({ mediaurl, setMediaurl }) {
+      function MediaPreview({ media, setMedia }) {
         const [position, setPosition] = useState([0, 0, 0, 0])
         const volumeSet = (e)=>{
           if (e.target.dataset.vol === '0') {
@@ -439,14 +447,14 @@
         const dragEnd = (e)=>{
           e.preventDefault();
           const endp = [position[2] + e.clientX - position[0], position[3] + e.clientY - position[1]];
-          endp[0] = endp[0] < 0 ? Math.max(e.target.clientWidth-window.innerWidth+8, endp[0]) : 0;
+          endp[0] = endp[0] < 0 ? Math.max(e.target.clientWidth-window.innerWidth+16, endp[0]) : 0;
           endp[1] = endp[1] > 0 ? Math.min(window.innerHeight-e.target.clientHeight-60, endp[1]) : 0;
           e.dataTransfer.dropEffect = 'move';
           e.target.style = `transform: translate(${endp[0]}px, ${endp[1]}px);`;
           setPosition([position[0], position[1], endp[0], endp[1]]);
         }
         return (
-          <div className={'ehidden' + (mediaurl?' emedia':'')}
+          <div className={'ehidden' + (media.url?' emedia':'')}
             draggable="true"
             onDragStart={dragStart}
             onDragEnd={dragEnd}
@@ -455,11 +463,12 @@
               e.preventDefault();
             }}
           >
-            <video className="emax-wp100 emin-w300" src={mediaurl} autoplay="true" controls onEnded={()=>{
+            <span className="emeida_name">{media.name}</span>
+            <video className="emax-wp100 emin-w300" src={media.url} autoplay="true" controls onEnded={()=>{
               setTitle('Kuwo Music Download - elecV2P');
             }} onLoadedMetadata={volumeSet} data-vol="0"></video>
             <span className="emedia_delete" onClick={()=>{
-              setMediaurl('');
+              setMedia({url: '', name: ''});
               setTitle('Kuwo Music Download - elecV2P');
             }}>❌</span>
           </div>
