@@ -44,6 +44,12 @@
   "name": "eval 执行",
   "type": "eval",             // v3.7.0 增加使用 eval 函数在前端网页上执行 JS 代码
   "target": "alert('hello elecV2P')"
+}, {
+  "name": "PM2LS",
+  "type": "shell",
+  "target": "pm2 ls",
+  "run": "auto",              // v3.7.3 增加在打开 webUI 首页时自动运行的选项。auto: 自动运行 click: 点击运行（默认）
+  "note": "备注信息"
 }]
 ```
 
@@ -52,6 +58,12 @@ logo 对应值为 img src 属性值，显示大小为 60x60，建议使用图片
 type 目前支持 **js efh shell url** 四种类型。 v3.7.0 增加 eval
 target 为最终执行的内容。
 hash 生成算法，md5(NAME + TYPE + TARGET)。
+
+run  在打开 webUI 时，该 EAPP 的运行方式(v3.7.3)。共两个选择项 auto: 自动运行，click: 点击运行
+- auto: 自动运行。每次打开 webUI 首页加载 EAPP 列表时，运行一次。不影响之后通过点击再次运行
+- click: 手动点击运行(默认)
+
+note 备注信息(v3.7.3 增加)。
 
 ### 执行
 
@@ -78,8 +90,7 @@ hash 生成算法，md5(NAME + TYPE + TARGET)。
 
 ## 实现
 
-可能：
-- JSX
+EAPP 图标/LOGO 使用 canvas 显示，方便通过 JS 修改，可做成动态 widget
 
 ## 更新/trigger
 
