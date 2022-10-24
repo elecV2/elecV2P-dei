@@ -1,6 +1,6 @@
 ```
-最近更新： 2022-09-06
-适用版本： 3.7.0
+最近更新： 2022-10-21
+适用版本： 3.7.3
 ```
 
 *此章节内容同步自 [elecV2P Readme 文档](https://github.com/elecV2/elecV2P)*
@@ -48,8 +48,10 @@ yarn start
 # 其他基础方式启动命令
 node index.js
 # 假如提示 80 端口不可用，尝试命令
-# windows 平台：
+# windows 平台 CMD:
 # set PORT=8000 && node index.js
+# windows 平台 PowerShell:
+# $env:PORT="8000";node index.js
 # 其他平台：
 # PORT=8000 TZ=Asia/Shanghai node index.js
 ## TZ=Asia/Shanghai 用于设置程序运行时区
