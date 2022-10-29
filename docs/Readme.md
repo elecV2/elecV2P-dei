@@ -15,5 +15,5 @@
 
 ### 两篇使用教程
 
-- [elecV2P 基础使用之定时运行 JS](https://elecv2.github.io/#elecV2P%20%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8%E4%B9%8B%E5%AE%9A%E6%97%B6%E8%BF%90%E8%A1%8C%20JS)
+- [elecV2P 基础使用之定时运行脚本](https://elecv2.github.io/#elecV2P%20%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8%E4%B9%8B%E5%AE%9A%E6%97%B6%E8%BF%90%E8%A1%8C%20JS)
 - [elecV2P 进阶使用之抓包及 COOKIE 获取](https://elecv2.github.io/#elecV2P%20%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E4%B9%8B%E6%8A%93%E5%8C%85%E5%8F%8A%20COOKIE%20%E8%8E%B7%E5%8F%96)

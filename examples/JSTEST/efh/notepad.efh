@@ -2,6 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="theme-color" content="#003153">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cloud Notepad</title>
   <style type="text/css">
@@ -61,21 +63,22 @@
 </html>
 
 <script type="text/javascript" runon="elecV2P">
+  const store_key = 'cloud_notepad'
   $fend('init', ()=>{
-    return $store.get('cloud_notepad')
+    return $store.get(store_key)
   })
   // add 部分可配合捷径等工具实现分享上传
   // http.post({ body: { key: "add", data: "some string", token: "xxxx-xx" }})
   $fend('add', (data)=>{
-    if ($store.put(data, 'cloud_notepad', { type: 'a' })) {
-      return 'success add new data to note'
+    if ($store.put(data, store_key, { type: 'a' })) {
+      return 'success add new data to note ' + store_key
     }
-    return 'fail to add new data to note'
+    return 'fail to add new data to note ' + store_key
   })
   $fend('save', (data)=>{
-    if ($store.put(data, 'cloud_notepad')) {
-      return 'success saved'
+    if ($store.put(data, store_key)) {
+      return 'success saved ' + store_key
     }
-    return 'fail to save'
+    return 'fail to save ' + store_key
   })
 </script>

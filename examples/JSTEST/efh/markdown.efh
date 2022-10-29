@@ -20,7 +20,7 @@
   <div class="mflex">
     <input class="minput" type="text" placeholder="markdown file url">
     <button class="mbutton" onclick="dataFetch()">显示</button>
-    <button class="mbutton" onclick="dataLocal()">本地 .md 文件</button>
+    <button class="mbutton" onclick="dataLocal()">本地文件</button>
   </div>
   <div class="markdown_content"></div>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>

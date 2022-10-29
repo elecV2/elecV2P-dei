@@ -20,8 +20,8 @@ v3.5.0 添加 **匹配阶段** 选项
 - 数据返回前，用于修改获取到的内容 response headers/body 等
 
 - 当规则对应重写方式为 (reject|reject-200|reject-dict|reject-json|reject-array|reject-img) 中的某个参数时，表示阻止该网络请求（直接返回相应内容）
-- 当规则对应重写方式为 JS 时，表示在通过该 JS 修改该网络请求或返回内容
-- JS 的编写参考说明文档 [04-JS.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md) 或 示例脚本 [0body.js](https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/0body.js)
+- 当规则对应重写方式为脚本时，表示在通过该脚本修改该网络请求或返回内容
+- 脚本编写参考说明文档 [04-JS.md](https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md) 或 示例脚本 [0body.js](https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/0body.js)
 
 - 订阅链接必须以 http 或 efss 开头，具体订阅内容参考下面的 **订阅内容格式** 部分
   - http: 表示订阅为远程地址，比如: https://raw.githubusercontent.com/elecV2/elecV2P/master/efss/rewritesub.json
@@ -49,7 +49,7 @@ REWRITE 规则列表保存于 **./script/Lists/rewrite.list**，实际格式为�
       {
         "match": "^https?://httpbin\\.org/get\\?rewrite=elecV2P",   // 网络请求 url 匹配
         "stage": "res",  // 匹配阶段。req: 网络请求前 res: 数据返回前。 v3.5.0 添加
-        "target": "https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/0body.js",  // 匹配后使用的 JS 文件
+        "target": "https://raw.githubusercontent.com/elecV2/elecV2P/master/script/JSFile/0body.js",  // 匹配后使用的脚本文件
         "enable": true
       }
     ]
