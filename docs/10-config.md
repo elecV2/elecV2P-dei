@@ -12,7 +12,7 @@ elecV2P 配置文件默认保存目录为 **./script/Lists/config.json**。
 
 ## 内容
 
-*实际配置文件为严格的 JSON 格式，不包含任何注释。以下注释仅为说明，非注释版本查看 [config.json 示例文件]()*
+*实际配置文件为严格的 JSON 格式，不包含任何注释。以下注释仅为说明，非注释版本查看 [config.json 示例文件](https://raw.githubusercontent.com/elecV2/elecV2P/master/script/Lists/config.json)*
 
 ``` JSON
 {
@@ -90,11 +90,56 @@ elecV2P 配置文件默认保存目录为 **./script/Lists/config.json**。
     "enable": false,           // 是否在 response.headers 中设置 Access-Control-Allow-Origin
     "origin": "*"              // Access-Control-Allow-Origin 对应值
   },
-  "eapp": {                    // EAPP 相关设置
+  "eapp": {                    // EAPP 相关设置。详见 https://github.com/elecV2/elecV2P-dei/blob/master/docs/dev_note/webUI%20首页快捷运行程序%20eapp.md
+    "enable": true,            // EAPP 是否在首页显示
+    "logo_type": 1,            // EAPP 默认图标风格
+    "apps": [{                 // EAPP 列表
+      "name": "EAPP 名称",
+      "type": "js",            // EAPP 类型。共 js|efh|shell|url|eval 五种
+      "target": "efss/efh",    // EAPP 最终执行内容
+      "hash": "xxxxx",         // EAPP hash 值，自动生成，手动设置无效
+    }, {
+      "name": "PM2LS",
+      "type": "shell",
+      "target": "pm2 ls",
+      "run": "auto",           // 首次加载时运行方式。仅当为 auto 时表示自动运行一次（v3.7.3 增加
+      "note": "显示 PM2 信息"  // EAPP 备注信息（v3.7.3 增加
+    }]
   },
   "efss": {                    // EFSS 相关设置
+    "enable": true,            // 是否启用
+    "directory": "./efss",     // EFSS 对应文件夹
+    "dotshow": {
+      "enable": false          // 是否显示以点(.) 开头的文件
+    },
+    "max": 600,                // 最大显示文件数
+    "skip": {
+      "folder": [              // 跳过显示部分文件夹内文件
+        "node_modules"
+      ],
+      "file": []               // 路过显示部分文件
+    },
+    "favend": {
+      "efh": {
+        "key": "efh",          // favend 访问关键字。efss/efh
+        "name": "efh 初版",
+        "type": "runjs",       // favend 类型。runjs 执行脚本|favorite 收藏目录
+        "target": "elecV2P.efh",
+        "enable": true         // 是否启用
+      },
+      "logs": {
+        "key": "logs",
+        "name": "查看日志",
+        "type": "favorite",    // favorite 列出 target 目录下的所有文件
+        "target": "logs",
+        "enable": true
+      }
+    },
+    "favendtimeout": 5000      // favend 脚本运行超时时间
   },
-  "env": {                     // 环境变量相关设置
+  "env": {                     // 环境变量相关设置（在 elecV2P 启动后自动添加
+    "path": "",                // 该项内容会和 process.env.PATH 合并，并自动更新
+    "acookie": "myappcookie"   // 其他环境变量会自动添加，process.env.acookie = "myappcookie"
   },
   "gloglevel": "info",         // 后台日志显示等级。可选值 error|notify|info|debug，默认 info
   "glogslicebegin": 5,         // 日志时间显示格式。0: 默认，5: 不显示年份，11: 不显示年月日
