@@ -22,10 +22,69 @@ elecV2P 配置文件默认保存目录为 **./script/Lists/config.json**。
     "webPort": 8002            // anyproxy 网络请求查看端口
   },
   "CONFIG_FEED": {             // 通知相关设置
+    "enable": true,            // 是否开启默认通知
+    "rss": {
+      "enable": true,          // 是否将通知输出为 feed/rss
+      "homepage": ""           // feed/rss 主页。同最外层 homepage 参数
+    },
+    "iftttid": {
+      "enable": false,         // 是否启用 IFTTT 通知
+      "key": ""                // IFTTT 对应 key 值
+    },
+    "barkkey": {
+      "enable": false,         // 是否启用 BARK 通知
+      "key": ""
+    },
+    "custnotify": {
+      "enable": false,         // 是否启用自定义通知
+      "url": "",               // 自定义通知 URL
+      "type": "GET",           // 自定义通知内容发送方式
+      "data": ""               // 自定义通知内容
+    },
+    "runjs": {
+      "enable": false,         // 通知时触发脚本，即通过自定义脚本发送通知
+      "list": "notify.js"      // 通知时运行脚本
+    },
+    "merge": {
+      "enable": true,          // 是否合并默认通知
+      "gaptime": 60,           // 合并该时间段内通知。单位：秒
+      "number": 10,            // 合并通知条数
+      "andor": false           // 时间段和通知条数合并逻辑。true: 同时满足，false: 满足任一
+    },
+    "maxbLength": 1200,        // 最大通知内容长度。超过后将分段发送
+    "webmessage": {
+      "enable": true           // 是否在 webUI 前端显示通知
+    }
   },
   "CONFIG_RUNJS": {            // 脚本运行相关设置
+    "timeout": 5000,           // 脚本运行时间。单位：毫秒 0 表示不设定超时时间
+    "intervals": 86400,        // 远程脚本最低更新时间间隔，单位：秒。 默认：86400(一天)。0 表示有则不更新
+    "numtofeed": 50,           // 每运行 { numtofeed } 次脚本, 发送一个默认通知。0 表示不通知
+    "jslogfile": true,         // 是否保存脚本运行日志
+    "eaxioslog": false,        // 是否保存网络请求 url 到日志中
+    "proxy": true,             // 是否应用网络请求相关设置中的代理（如有）
+    "white": {
+      "enable": false,         // 是否启用白名单脚本。放行脚本内所有网络请求
+      "list": ["softupdate.js"]
+    }
   },
   "CONFIG_Axios": {            // 网络请求相关设置
+    "proxy": {
+      "enable": false,         // 是否使用 http 代理
+      "host": "",              // 代理服务器
+      "port": 8001             // 代理端口
+    },
+    "timeout": 5000,           // 网络请求超时时间。单位：毫秒
+    "uagent": "iPhone",        // 默认 User-Agent，相关列表位于 script/Lists/useragent.list
+    "block": {
+      "enable": false,         // 是否阻止部分网络请求。匹配方式 new RegExp('regexp').test(url)
+      "regexp": ""
+    },
+    "only": {
+      "enable": false,         // 当前启用时，表示仅允许符合该规则的 url 通过
+      "regexp": ""
+    },
+    "reject_unauthorized": true       // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] 设置。仅当为 false 时，对应值为 0。v3.7.4 增加
   },
   "cors": {
     "enable": false,           // 是否在 response.headers 中设置 Access-Control-Allow-Origin
