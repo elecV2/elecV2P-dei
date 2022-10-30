@@ -86,10 +86,6 @@ elecV2P 配置文件默认保存目录为 **./script/Lists/config.json**。
     },
     "reject_unauthorized": true       // process.env['NODE_TLS_REJECT_UNAUTHORIZED'] 设置。仅当为 false 时，对应值为 0。v3.7.4 增加
   },
-  "cors": {
-    "enable": false,           // 是否在 response.headers 中设置 Access-Control-Allow-Origin
-    "origin": "*"              // Access-Control-Allow-Origin 对应值
-  },
   "eapp": {                    // EAPP 相关设置。详见 https://github.com/elecV2/elecV2P-dei/blob/master/docs/dev_note/webUI%20首页快捷运行程序%20eapp.md
     "enable": true,            // EAPP 是否在首页显示
     "logo_type": 1,            // EAPP 默认图标风格
@@ -146,6 +142,7 @@ elecV2P 配置文件默认保存目录为 **./script/Lists/config.json**。
   "homepage": "http://127.0.0.1",      // 主页地址。用于 RSS 订阅及脚本中的 __home 参数
   "init": {
     "checkupdate": false,      // elecV2P 启动时，是否检测更新。默认 true
+    "runjsenable": true,       // elecV2P 启动时，是否自动运行脚本（v3.7.4 增加）仅在为 false 时，表示不运行
     "runjs": ""                // elecV2P 启动时，自动运行脚本。多个脚本使用逗号(,)隔开，比如 test.js, 0body.js
   },
   "lang": "zh-CN",             // 语言偏好。zh-CN 中文|en 英文（多语言翻译龟速进行中... 

@@ -1,6 +1,6 @@
 ```
-最近更新: 2022-09-20
-适用版本: 3.7.1
+最近更新: 2022-10-30
+适用版本: 3.7.4
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/09-webhook.md
 ```
 
@@ -8,7 +8,7 @@ webhook 用于使用一个网络请求来调用 elecV2P 的部分功能
 
 ## 可调用功能列表
 
-- 获取 JS 列表/运行 JS
+- 获取脚本列表/运行脚本
 - 获取/删除 日志
 - 获取服务器相关信息
 - 获取定时任务信息
@@ -17,10 +17,10 @@ webhook 用于使用一个网络请求来调用 elecV2P 的部分功能
 - 远程下载文件到 EFSS
 - 执行 shell 指令
 - 查看/修改 store/cookie(v3.3.3)
-- JS 文件获取/新增(v3.4.0)
+- 脚本文件获取/新增(v3.4.0)
 - IP 限制 黑白名单更新(v3.4.0)
 - 打开/关闭代理端口(v3.4.8)
-- 全局 CORS 设置(v3.5.4)
+- 全局 CORS 设置(v3.5.4-v3.7.3, v3.7.4 后移除)
 - 使用根证书签发任意域名证书(v3.5.8)
 
 ## 使用
@@ -68,14 +68,14 @@ fetch('/webhook', {   // 本地服务器可直接用 /webhook
 }).then(res=>res.text()).then(s=>console.log(s))
 ```
 
-- 如果是远程 JS , 会强制下载 JS 文件并保存
-- 支持使用 rename 参数，修改远程 JS 下载后的文件名
+- 如果是远程脚本, 会强制下载脚本文件并保存
+- 支持使用 rename 参数，修改远程脚本下载后的文件名
 
 ## body/query 参数说明
 
 |  type     |   target 目标  |    功能         |        传递参数
 | :-------: | -------------- | --------------- | --------------------
-| runjs     | fn=webhook.js  | 运行 JS         |  &type=runjs&fn=webhook.js
+| runjs     | fn=webhook.js  | 运行脚本        |  &type=runjs&fn=webhook.js
 | status    | 无 ---         | 服务器运行状态  |  &type=status
 | task      | 无 ---         | 获取任务列表    |  &type=task
 | tasksave  | 无 ---         | 保存任务列表    |  &type=tasksave
@@ -88,13 +88,12 @@ fetch('/webhook', {   // 本地服务器可直接用 /webhook
 | download  | url=http://xxx | 下载文件到EFSS  |  &type=download&url=https://rawxxxx
 | shell     | command=ls     | 执行 shell 指令 |  &type=shell&command=node%20-v
 | info      | debug=1  可选  | 查看服务器信息  |  &type=info or &type=info&debug=true
-| jslist    | 无 ---         | 获取 JS 列表    |  &type=jslist
+| jslist    | 无 ---         | 获取脚本列表    |  &type=jslist
 | store     | key=cookieKEY  | 获取 cookie 信息|  &type=store&key=cookieKEY
-| deljs     | fn=webhook.js  | 删除 JS 文件    |  &type=deljs&fn=webhook.js
-| jsfile    | fn=test.js     | 获取 JS 内容    |  &type=jsfile&fn=test.js
+| deljs     | fn=webhook.js  | 删除脚本文件    |  &type=deljs&fn=webhook.js
+| jsfile    | fn=test.js     | 获取脚本内容    |  &type=jsfile&fn=test.js
 | security  | op=put&enable. | 后台 IP 限制修改|  &type=security
 | proxyport | op=open/close  | 打开/关闭代理   |  &type=proxyport&op=open
-| cors      | enable/origin  | 设置全局 cors   |  &type=cors&enable=true&origin=http://xxx
 | blackreset| 无 ---         | 重置非法IP 记录 |  &type=blackreset
 | newcrt    | hostname=xx.xx | 签发域名证书    |  &type=newcrt&hostname=myhost.com
 
@@ -145,13 +144,8 @@ http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=security&op=put
 ## 关闭仅开放 webhook 接口选项(v3.6.4)
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=security&op=put&webhook_only=false
 
-# 删除默认 JS 文件夹下的所有非 JS 文件(v3.4.2)
+# 删除默认脚本文件夹下的所有非脚本文件(v3.4.2)
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=deljs&op=clear
-
-# 全局 CORS 设置(v3.5.4)
-http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=cors&enable=1&origin=http://127.0.0.1
-# - enable 使用 0 或 false 表示关闭
-# - origin 使用 * 表示允许所有域名
 
 # 重置非法访问的 IP 记录(v3.5.5)
 http://127.0.0.1/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3&type=blackreset
@@ -260,7 +254,7 @@ fetch('/webhook', {
   })
 }).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
 
-// 在服务器中新增一个 JS 文件(v3.4.0)
+// 在服务器中新增一个脚本文件(v3.4.0)
 fetch('http://192.168.1.3/webhook', {
   method: 'post',
   headers: {
@@ -270,8 +264,8 @@ fetch('http://192.168.1.3/webhook', {
     token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
     type: 'jsfile',
     op: 'put',
-    fn: 'awbnew.js',      // JS 文件名
-    rawcode: `// JS 文件内容
+    fn: 'awbnew.js',      //脚本文件名
+    rawcode: `//脚本文件内容
 console.log('一个通过 webhook 新添加的文件')`
   })
 }).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
@@ -293,7 +287,7 @@ fetch('http://172.20.10.1/webhook', {
   })
 }).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
 
-// 批量删除 JS (v3.4.2)
+// 批量删除脚本(v3.4.2)
 fetch('/webhook', {
   method: 'post',
   headers: {
@@ -302,8 +296,8 @@ fetch('/webhook', {
   body: JSON.stringify({
     token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
     type: 'deletejs',   // 同等于: deljs === jsdel === jsdelete
-    // op: 'clear',     // 启用此项，表示删除默认 JS 文件夹下的所有非 JS 文件
-    fn: ['test/starturl.js', 'test/restart.js', '0body.js', 'test.js']   // 使用数组表示多个要删除的 JS 文件
+    // op: 'clear',     // 启用此项，表示删除默认脚本文件夹下的所有非脚本文件
+    fn: ['test/starturl.js', 'test/restart.js', '0body.js', 'test.js']   // 使用数组表示多个要删除的脚本文件
   })
 }).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
 
@@ -320,20 +314,6 @@ fetch('/webhook', {
   })
 }).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
 
-// 全局 CORS 设置（v3.5.4）
-fetch('/webhook', {
-  method: 'post',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    token: 'a8c259b2-67fe-D-7bfdf1f55cb3',
-    type: 'cors',
-    enable: true,
-    origin: '*',       // 设置全局 Access-Control-Allow-Origin 值
-  })
-}).then(res=>res.text()).then(res=>console.log(res)).catch(e=>console.log(e))
-
 // type 参数缺省，或对应参数不在列表中时，可使用脚本来处理 payload (v3.7.1)
 fetch('/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3', {
   method: 'post',
@@ -341,7 +321,7 @@ fetch('/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    // type: 'cors',   // type 缺省
+    // type: 'unknow', // type 缺省
     version: 14,       // payload(即 body 内容) 为其他未知值
     some: 'value',
   })
@@ -355,5 +335,4 @@ fetch('/webhook?token=a8c259b2-67fe-D-7bfdf1f55cb3', {
 - 假如 elecV2P 可远程访问，可以使用使用其他任意程序发送网络请求进行调用
 - webhook 可配合 **telegram bot** 或 **快捷指令** 等其他工具使用，方便快速调用 elecV2P 相关功能
 - 通过 webhook 提供的 API，可以自行设计其他 UI 界面，实现与 elecV2P 交互
-- v3.4.8 webhook 增加头部返回信息 {'Access-Control-Allow-Origin': '\*'}，避免 CORS 问题
 - v3.5.8 在脚本中增加函数 $webhook(type, options) ，详见 https://github.com/elecV2/elecV2P-dei/blob/master/docs/04-JS.md 相关说明
