@@ -1,6 +1,6 @@
 ```
-最近更新: 2022-05-23
-适用版本: 3.6.7
+最近更新: 2022-10-31
+适用版本: 3.7.4
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/Advanced.md
 ```
 
@@ -26,6 +26,50 @@ IP 屏蔽后，可通过在请求链接中添加 **?token=webhook token** 的参
 - 如果不想留下 cookie，请使用无痕模式（在使用他人或公共设备时
 - 访问时后面添加 ?cookie=clear 删除当前设备的授权信息（v3.6.4）
 - 在设置中取消 **允许 cookie 授权访问** 后，所有 cookie 将不可访问（v3.6.6）
+
+## 临时访问 TOKEN（v3.7.4 增加
+
+增加临时可访问 token，可限制访问路径。作用：
+
+- EFSS 临时文件分享
+- 部分脚本、日志临时分享
+- 非安全网络下临时访问
+- 其他
+
+![temp_token](https://raw.githubusercontent.com/elecV2/elecV2P-dei/master/docs/res/temp_token.png)
+
+1. 访问 token。使用示例：efss/hi?token=xxxx, /logs?token=xxxxx
+2. 限制可访问的路径。匹配方式 new RegExp(path, 'i').test(req.path)。留空表示不限制
+3. 备注信息
+4. 授权访问次数统计
+
+注意事项：
+
+- 当设置和 webhook token 相同值时，会自动舍弃该临时 TOKEN
+- 当设置为空值时，会自动舍弃
+- 当临时 token 有相同项时，会覆盖前一项
+- 临时访问 token 同样会生成 cookie
+  - cookie 有效期同上 webhook token
+  - cookie 可访问路径同对应 token 的可访问路径
+
+### 安全访问检测逻辑
+
+1. 检测安全访问是否开启
+  - 当没有开启时，允许所有请求
+  - 当开启时，进入下一步
+  - */favicon.ico 不进行安全检测*
+2. 检测是否启用 webhook_only 选项（仅开放 webhook 接口
+  - 当启用时，仅允许 /webhook 请求，其他请求返回 403 无授权访问提示信息
+  - 当没有启用时，进入下一步
+3. cookie 检测
+  - 检测通过，允许请求
+  - 检测失败，进入下一步
+4. token 检测
+  - 检测通过，允许请求。并将设置一个有效期为 7 或 365 天的 cookie
+  - 检测失败，进入下一步
+5. IP 检测
+  - 检测通过，允许请求（不会设置 cookie 信息
+  - 检测失败，返回 403 无授权访问提示信息
 
 # minishell
 

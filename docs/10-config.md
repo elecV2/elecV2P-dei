@@ -1,5 +1,5 @@
 ```
-最近更新: 2022-10-28
+最近更新: 2022-10-30
 适用版本: 3.7.4
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/10-config.md
 ```
@@ -158,6 +158,20 @@ elecV2P 配置文件默认保存目录为 **./script/Lists/config.json**。
     ],
     "cookie": {                // 是否允许通过 cookie 访问。仅当 enable 对应值为 false 时表示不允许
       "enable": true
+    },
+    "tokens": {                // 临时访问 token，可限制访问路径（v3.7.4 增加
+      "md5(token)": {          // 临时 token 的 MD5 hash 对应值（启动后会进行自动修复
+        "enable": true,        // 是否启用该临时 token
+        "token": "xxxxx",      // 访问 token。比如：efss/hi?token=xxxx, /logs?token=xxxxx
+        "path": "^/(efss|logs?)",       // 限制可访问的路径。匹配方式 new RegExp(path, 'i').test(req.path)。留空表示不限制
+        "note": "给 xxx 的",   // 备注说明
+        "times": 0             // 授权访问次数统计
+      },
+      "token2": {              // 支持设置多个临时访问 token。直接删除即可取消授权
+        "enable": true,
+        "token": "xxxxxx",     // 首次访问成功后，会生成一个有效期为 7 天的 cookie（增加 &cookie=long 有效期为 365 天
+        "path": "/efss/hi"     // 生成的 cookie 可访问路径同样受此参数限制
+      }
     },
     "numtofeed": 1,            // 有几次非法访问时出一个默认通知。0: 表示不通知
     "webhook_only": false      // 仅允许 webhook 接口访问

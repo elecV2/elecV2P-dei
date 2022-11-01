@@ -59,13 +59,16 @@ let cookies = cookie.parse(req.headers.cookie || '')
 - 不够优雅？
 - 如果原来的 token 太简单的话，可能会被碰撞出结果
 
+**v3.7.4 之后 cookie 对应值调整为 userid(基于 webhook token 使用 md5 算法生成)**
+
 ## 临时多 TOKEN 设计
 
 ``` JSON
 "tokens": {
   "md5hash(token)": {
+    "enable": true,                     // 快捷开关
     "token": "9855d6cb-0c70-41d2-a246-54ebb365e9e3",
-    "path": "/efss/temp*|/logs",        // 可访问路径。正则表达式字符串，匹配方式 new RegExp(path).test(req.path)
+    "path": "/efss/temp|^/logs",        // 可访问路径。正则表达式字符串，匹配方式 new RegExp(path).test(req.path)。留空表示允许所有
     "note": "给 XX 的临时 TOKEN",       // 备注信息
   }
 }
