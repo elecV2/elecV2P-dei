@@ -264,7 +264,7 @@ elecV2P 配置文件默认保存目录为 **./script/Lists/config.json**。
   "userid": "md5hash",         // 用户 ID。对应值为 md5(webhook token)
   "version": "3.7.3",          // 当前版本。require('./package.json').version
   "vernum": 373,               // 当前版本的数字表达。Number(version.replace(/\D/g, ''))
-  "newversion": "3.7.4",       // 检测到的新版本（如果存在的话
+  "newversion": "3.7.4"        // 检测到的新版本（如果存在的话
 }
 ```
 

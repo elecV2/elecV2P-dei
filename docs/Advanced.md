@@ -47,9 +47,9 @@ IP 屏蔽后，可通过在请求链接中添加 **?token=webhook token** 的参
 
 - 当设置和 webhook token 相同值时，会自动舍弃该临时 TOKEN
 - 当设置为空值时，会自动舍弃
-- 当临时 token 有相同项时，会覆盖前一项
+- 当临时 token 有相同项时，仅保留最后一项
 - 临时访问 token 同样会生成 cookie
-  - cookie 有效期同上 webhook token
+  - cookie 有效期同上面的 webhook token（7 天或 365 天）
   - cookie 可访问路径同对应 token 的可访问路径
 
 ### 安全访问检测逻辑
@@ -65,7 +65,7 @@ IP 屏蔽后，可通过在请求链接中添加 **?token=webhook token** 的参
   - 检测通过，允许请求
   - 检测失败，进入下一步
 4. token 检测
-  - 检测通过，允许请求。并将设置一个有效期为 7 或 365 天的 cookie
+  - 检测通过，允许请求。并将设置一个有效期为 7 天或 365 天的 cookie
   - 检测失败，进入下一步
 5. IP 检测
   - 检测通过，允许请求（不会设置 cookie 信息
@@ -94,7 +94,7 @@ http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug
 
 - v3.4.4 之前的打开方式
 
-方法一: 在 script/Lists/config.json 中添加下面的参数，然后重启 elecV2P。
+方法一: 在配置文件中添加如下参数，然后重启 elecV2P。
 
 ``` JSON
 {
@@ -181,3 +181,17 @@ http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug
 - 查看当前连接客户端简易信息(v3.5.0)
 
 http://127.0.0.1/webhook?token=xxxxbbff-1043-XXXX-XXXX-xxxxxxdfa05&type=devdebug&get=wsclient
+
+### 说明文档列表
+
+- [overview - 简介及安装](01-overview.md)
+- [task - 定时任务](06-task.md)
+- [rewrite - 重写网络请求](05-rewrite.md)
+- [rules - 网络请求更改规则](03-rules.md)
+- [script - 脚本编写及说明](04-JS.md)
+- [Docker - Docker 运行相关](02-Docker.md)
+- [feed&notify - 通知相关](07-feed&notify.md)
+- [logger&efss - 日志和 EFSS 文件管理](08-logger&efss.md)
+- [webhook - webhook 使用简介](09-webhook.md)
+- [config - 配置文件说明](10-config.md)
+- [Advanced - 高级使用篇](Advanced.md)
