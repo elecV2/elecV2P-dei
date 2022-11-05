@@ -20,25 +20,41 @@
   <div class="mflex">
     <input class="minput" type="text" placeholder="markdown file url">
     <button class="mbutton" onclick="dataFetch()">显示</button>
-    <button class="mbutton" onclick="dataLocal()">本地文件</button>
+    <button class="mbutton" onclick="dataLocal()">本地 .md 文件</button>
   </div>
   <div class="markdown_content"></div>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" async></script>
   <script type="text/javascript">
+    function mInit(){
+      let initurl = ''
+      if (location.search) {
+        initurl = new URL(location.href).searchParams.get('file')
+      }
+      if (!initurl) {
+        initurl = location.pathname.replace(/\/efss\/\w+\/?/, '')
+      }
+      if (initurl) {
+        dataFile(initurl)
+      }
+    }
+    mInit()
     let minput = document.querySelector('.minput')
     let mcontent = document.querySelector('.markdown_content')
 
     function dataFetch() {
       if (minput.value) {
-        $fend('data', minput.value).then(res=>res.text()).then(res=>{
-          parseContent(res)
-        }).catch(e=>{
-          console.error(e)
-          alert(e.message)
-        })
+        dataFile(minput.value)
       } else {
         alert('input first')
       }
+    }
+    function dataFile(file) {
+      $fend('data', file).then(res=>res.text()).then(res=>{
+        parseContent(res)
+      }).catch(e=>{
+        console.error(e)
+        alert(e.message)
+      })
     }
     function dataLocal() {
       getFile({ accept: '.md' }).then(data=>{
@@ -47,6 +63,9 @@
     }
     function parseContent(content, title = '') {
       mcontent.innerHTML = marked.parse(content)
+      if (!location.href.endsWith('/') && content.startsWith('<li><a')) {
+        history.replaceState({},'',location.href + '/')
+      }
       if (title) {
         document.title = title + ' - elecV2P markdown reader'
         return
@@ -92,10 +111,25 @@
       })
     }
   </script>
-<script type="text/javascript" runon="elecV2P">
+<script favend runon="elecV2P">
   $fend('data', async (url)=>{
-    let md = await $axios(url)
-    return md.data
+    if (!/^https?:\/\/\S{4}/.test(url)) {
+      const fs = require('fs')
+      url = decodeURI(url)
+      if (!fs.existsSync(url)) {
+        return url + ' 暂不存在'
+      } else if (fs.statSync(url).isDirectory()) {
+        return fs.readdirSync(url).filter(fo=>/md$/.test(fo)).map(fo=>`<li><a href="${fo}">${fo}</a></li>`).join('')
+      } else {
+        return fs.readFileSync(url)
+      }
+    }
+    try {
+      let md = await $axios(url)
+      return md.data
+    } catch(e) {
+      return e.message
+    }
   })
 </script>
 </body>
