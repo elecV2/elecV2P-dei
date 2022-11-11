@@ -15,4 +15,14 @@
 
 如果问题依然存在，请打开浏览器的**开发者调试工具**（PC 端快捷键通常为 F12，移动端查看各浏览器的说明）。然后将显示的错误信息反馈到 [这里](https://github.com/elecV2/elecV2P/issues)
 
+### 其他常见问题
+
+- anyproxy 网络请求有时候点击无反应（8002 端口
+
+1. anyproxy 缓存已清除
+2. anyproxy 已停止运行
+
+
+- 如果你经常碰过某个问题，欢迎提交 issue 或 pr
+
 ### 如果问题依然存在，[open a issue](https://github.com/elecV2/elecV2P/issues)

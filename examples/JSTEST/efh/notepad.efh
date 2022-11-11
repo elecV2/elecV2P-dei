@@ -39,7 +39,7 @@
 </head>
 <body>
   <div class="main">
-    <textarea class="note"></textarea>
+    <textarea class="note" onkeydown="event.ctrlKey&&event.key==='s'&&!event.preventDefault()&&save()"></textarea>
     <div>
       <button class="notebtn" onclick="save()">保存</button>
       <button class="notebtn" onclick="init()">刷新</button>
@@ -62,7 +62,7 @@
 </body>
 </html>
 
-<script type="text/javascript" runon="elecV2P">
+<script favend runon="elecV2P">
   const store_key = 'cloud_notepad'
   $fend('init', ()=>{
     return $store.get(store_key)

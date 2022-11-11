@@ -1,6 +1,6 @@
 ```
-最近更新: 2022-10-30
-适用版本: 3.7.4
+最近更新: 2022-11-06
+适用版本: 3.7.5
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/10-config.md
 ```
 
@@ -176,6 +176,7 @@ elecV2P 配置文件默认保存目录为 **./script/Lists/config.json**。
     "numtofeed": 1,            // 有几次非法访问时出一个默认通知。0: 表示不通知
     "webhook_only": false      // 仅允许 webhook 接口访问
   },
+  "TZ": "Asia/Shanghai",       // 时区设置。将会赋值到 process.env.TZ
   "update_check": false,       // 是否检测更新
   "update_check_gap": 0,       // 检测更新最低时间间隔。单位 ms。默认 1000*60*30（30 分钟
   "wbrtoken": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",         // webhook token，uuid 格式（建议）。当省略时自动生成。在启动时可通过 env.TOKEN 赋值
@@ -271,6 +272,16 @@ elecV2P 配置文件默认保存目录为 **./script/Lists/config.json**。
 ## 其他说明
 
 配置文件可在启动时通过环境变量(env) **CONFIG** 来指定更改，最终路径为 path.resolve('script/Lists', process.env.CONFIG || 'config.json')。比如 **set CONFIG=123.json&&node index.js**, 则最终配置文件为 **xxx/script/Lists/123.json**。支持绝对路径，比如 **CONFIG=/elecV2P/config.json node index.js**，则最终配置文件为 **/elecV2P/config.json**。
+
+### 启动时环境变量
+
+在启动时使用以下环境变量(ENV)，可增加或覆盖配置文件中的相关值。
+
+- CONFIG : 指定配置文件路径
+- PORT : webUI 使用端口
+- PROXYEN : 启动时打开代理 anyproxy enable（v3.7.5 增加）
+- TOKEN : webhook token，对应配置文件中的 wbrtoken 项
+- TZ : 时区设置，默认 Asia/Shanghai
 
 ### 说明文档列表
 
