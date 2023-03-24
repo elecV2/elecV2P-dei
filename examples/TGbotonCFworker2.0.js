@@ -802,15 +802,21 @@ test.js`
   } catch(e) {
     console.error(e)
     console.log('payload', payload)
-    payload.text = e.message || e
+    payload.text = JSON.stringify({
+      rescode: -1,
+      message: e.message || e,
+      resdata: bodyString
+    }, null, 2)
     await tgPush(payload)
     return new Response("OK")
   }
 }
 
 async function handleRequest(request) {
-  let retBody = `welcome to elecV2P.\n\nPowered By: https://github.com/elecV2/elecV2P\n\nTG 频道: https://t.me/elecV2 | TG 交流群: @elecV2G`
-  return new Response(retBody)
+  return new Response(JSON.stringify({
+    rescode: 0,
+    message: `welcome to elecV2P.\n\nPowered By: https://github.com/elecV2/elecV2P\n\nTG 频道: https://t.me/elecV2 | TG 交流群: @elecV2G`
+  }, null, 2))
 }
 
 addEventListener('fetch', event => {

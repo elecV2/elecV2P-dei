@@ -1,6 +1,6 @@
 ```
-最近更新: 2021-05-23
-适用版本: 3.3.8
+最近更新: 2022-03-24
+适用版本: 3.7.8
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/03-rules.md
 ```
 
@@ -13,7 +13,7 @@
 
 ## modify 规则集 格式说明
 
-|   匹配方式   |    匹配内容（正则）   |  修改方式 |       修改内容      |  修改时间
+|   匹配方式   |    匹配内容（正则）   |  修改方式 |       修改目标      |  修改时间点
  :-----------: | --------------------- | :-------: | ------------------- | ----------
 | url          | ^https://api.b.com/v2 | JS        | file.js             |  前(req)
 | host         | api.bilibili.com      | useragent | iPhone 6s           |  后(res)
@@ -38,6 +38,8 @@ resstatus       // 匹配 请求返回的状态码
 restype         // 匹配 返回的数据类型
 resbody         // 匹配 返回的数据内容
 ```
+
+- **v3.7.8 默认不再对 reqbody/resbody 内容进行匹配，以提升 elecV2P MITM 效率。如需开启，请参考下文源文件格式部分，增加属性项 "enbody": true。（不匹配不代表不可以修改，仍然可以通过 url/host 等方式进行匹配，然后使用脚本对 body 内容进行修改）**
 
 ### 修改方式
 
@@ -101,7 +103,9 @@ RULES 规则列表保存于 **./script/Lists/default.list**，实际格式为严
 ``` JSON
 {
   "rules": {
-    "note": "elecV2P RULES 规则列表",  // 
+    "note": "elecV2P RULES 规则列表",
+    "enable": false,         // 是否启用下面列表中的规则，仅在该值为 false 时，表示不启用，默认启用
+    "enbody": false,         // 是否对请求体(body)进行匹配，仅在该值为 true 时，表示启用（v3.7.8 添加，默认不启用
     "list": [
       {
         "mtype": "url",

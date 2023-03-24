@@ -1,6 +1,6 @@
 ```
-最近更新: 2022-10-31
-适用版本: 3.7.4
+最近更新: 2023-03-22
+适用版本: 3.7.8
 文档地址: https://github.com/elecV2/elecV2P-dei/blob/master/docs/Advanced.md
 ```
 
@@ -168,7 +168,12 @@ PAC 文件链接: webUI/pac 。 比如 http://127.0.0.1/pac 或者 https://xx.xx
 
 代理地址指的是其他设备可以访问到的 ANYPROXY 代理地址及端口，如果 elecV2P 部署在本地，那么可能是 127/172/192/10 等开头的 IP 地址，比如 192.168.1.101:8101。 如果 elecV2P 部署在远程服务器上，那么就应该是一个远程 IP 地址加 ANYPROXY 对应端口。
 
-*[PAC 是什么？](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file)*
+PS: 可填写多个代理。比如 "127.0.0.1:8001; PROXY 1.2.3.4:5678; DIRECT"，以上内容表示当第一个代理不可用时，使用第二个代理（后面还可以接多个），都不可用时使用直连(DIRECT)。
+*注意：第一项可不填写 PROXY 字符，后面的代理必须用分号(;)隔开，且带上 PROXY 字符。*
+
+未匹配到(NON-MATCHED)的网络请求（不需要 MITM），默认使用直连(DIRECT)，也可以设置使用其他代理(v3.7.8)。比如填写："127.0.0.1:7890; DIRECT"，表示默认使用代理，当代理不可用时直连。
+
+*更多关于 PAC 的说明，参考 MDN 文档： [代理自动配置文件（PAC）文件](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file)*
 
 ## 使用
 
