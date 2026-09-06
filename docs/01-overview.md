@@ -305,6 +305,7 @@ TG 交流群: https://t.me/elecV2G
 - [expressjs](https://expressjs.com)
 - [node-cron](https://github.com/merencia/node-cron)
 - [node-rss](https://github.com/dylang/node-rss)
+- [Pi](https://github.com/earendil-works/pi)
 - [pm2](https://pm2.keymetrics.io)
 - [vue](https://vuejs.org)
 - [vue-draggable-resizable](https://github.com/mauricius/vue-draggable-resizable)
